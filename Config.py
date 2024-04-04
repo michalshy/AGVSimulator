@@ -2,7 +2,7 @@
 
 class Config:
     def __init__(self):
-        self._host = "kto wie"
+        self._host = "moj branch"
 
     def getHost(self):
         return self._host
