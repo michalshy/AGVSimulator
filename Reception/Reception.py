@@ -1,32 +1,33 @@
 import socket  # Import socket module
 
-port = 50000  # Reserve a port for your service every new transfer wants a new port or you must wait.
-s = socket.socket()  # Create a socket object
-host = ""  # Get local machine name
-s.bind(('localhost', port))  # Bind to the port
-s.listen(5)  # Now wait for client connection.
 
-print('Server listening....')
+class Reception:
+    def __init__(self):
+        self._port = 50000  # placeholder
+        self._sock = socket.socket()
+        self._host = 'localhost'  # placeholder
+        self._sock.bind((self._host, self._port))
+        self._data = ''
 
-x = 0
+    def startConnection(self):
+        self._sock.listen(5)  # Now wait for client connection.
+        print('Server listening....')
+        x = 0
+        while True:
+            conn, address = self._sock.accept()  # Establish connection with client.
+            while True:
+                try:
+                    print('Got connection from', address)
+                    self._data = conn.recv(1024)
+                    print('Server received', self._data)
+                    st = 'Thank you for connecting'
+                    byt = st.encode()
+                    conn.send(byt)
+                    x += 1
+                except Exception as e:
+                    print(e)
+                    break
+            self.closeConnection(conn)
 
-while True:
-    conn, address = s.accept()  # Establish connection with client.
-
-    while True:
-        try:
-            print('Got connection from', address)
-            data = conn.recv(1024)
-            print('Server received', data)
-
-            st = 'Thank you for connecting'
-            byt = st.encode()
-            conn.send(byt)
-
-            x += 1
-
-        except Exception as e:
-            print(e)
-            break
-
-conn.close()
+    def closeConnection(self, conn):
+        conn.close()
