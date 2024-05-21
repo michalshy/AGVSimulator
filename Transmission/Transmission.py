@@ -8,10 +8,10 @@ class Transmission(object):
         self._sock = socket.socket()
         self._port = 50000  # placeholder
         self._host = '127.0.0.1'  # placeholder
-        self._sock.connect((self._host, self._port))
         self._data = ''
 
     def transmit(self):
+        self._sock.connect((self._host, self._port))
         x = 0
         st = str(x)
         byt = st.encode()
