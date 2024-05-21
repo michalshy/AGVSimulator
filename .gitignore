@@ -1,2 +1,15 @@
 .idea
 .venv
+__pycache__/AppEngine.cpython-312.pyc
+__pycache__/Config.cpython-312.pyc
+Physics/__pycache__/Physics.cpython-312.pyc
+Reception/__pycache__/Reception.cpython-312.pyc
+Simulation/__pycache__/ParamManager.cpython-312.pyc
+Simulation/__pycache__/Simulation.cpython-312.pyc
+Simulation/AGV/__pycache__/AGV.cpython-312.pyc
+Simulation/Frame6000/__pycache__/ENC.cpython-312.pyc
+Simulation/Frame6000/__pycache__/NNS.cpython-312.pyc
+Simulation/Frame6100/__pycache__/MC.cpython-312.pyc
+Transmission/__pycache__/Transmission.cpython-312.pyc
+Simulation/Frame6000/__pycache__/SS.cpython-312.pyc
+Simulation/Frame6100/__pycache__/NNC.cpython-312.pyc

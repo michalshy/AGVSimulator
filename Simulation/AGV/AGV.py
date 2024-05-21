@@ -23,10 +23,10 @@ class AGV:
         return self._nns
 
     def printState(self):
-        print("Heading: " + str(self._nns.heading))
-        print("Speed: " + str(self._nns.speed))
-        print("X position: " + str(self._nns.xCoor))
-        print("Y position: " + str(self._nns.yCoor))
-        print("Battery value: " + str(self._enc.batteryValue))
+        print("Heading: " + str(self._nns.heading) + "rad")
+        print("Speed: " + str(self._nns.speed/100)+ "m/s")
+        print("X position: " + str(round(self._nns.xCoor/100,2))+ "m")
+        print("Y position: " + str(round(self._nns.yCoor/100,2))+ "m")
+        print("Battery value: " + str(self._enc.batteryValue)+ "mAh")
 
 
