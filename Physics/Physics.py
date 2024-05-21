@@ -19,6 +19,8 @@ class Physics:
     def accelerate(self, nns: NNS, enc: ENC):
         if nns.speed < self.maxSpeed:
             nns.speed += 0.1
+            if nns.speed > self.maxSpeed:
+                nns.speed = 6
             self.drainBattery(.2, enc)
 
     def updatePosition(self, nns: NNS, enc: ENC):

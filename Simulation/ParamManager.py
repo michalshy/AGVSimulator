@@ -1,18 +1,12 @@
 from Simulation.Frame6100.NNC import NNC
 from Simulation.Frame6100.MC import MC
-from Simulation.Frame6000.ENC import ENC
-from Simulation.Frame6000.SS import SS
-from Simulation.Frame6000.NNS import NNS
+
 
 
 class ParamManager:
     def __init__(self):
         self.mc = MC()
         self.nnc = NNC()
-
-        self.enc = ENC()
-        self.ss = SS()
-        self.nns = NNS()
 
     def fabricateFrames(self):
         self.nnc.goDestTrig = 0
