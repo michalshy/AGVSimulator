@@ -7,7 +7,7 @@ from Simulation.AGV.AGV import AGV
 # Class responsible for changing the state of desired AGV
 class Physics:
     def __init__(self):
-        self.maxSpeed = 140  # = 6 m/s
+        self.maxSpeed = 140  # = 1,4 m/s
 
     def EmergencyStop(self, nns: NNS, enc: ENC):
         nns.speed = 0
