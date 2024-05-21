@@ -10,7 +10,7 @@ class Transmission(object):
         self._host = '127.0.0.1'  # placeholder
         self._data = ''
 
-    def transmit(self):
+    def Transmit(self):
         self._sock.connect((self._host, self._port))
         x = 0
         st = str(x)
@@ -32,8 +32,8 @@ class Transmission(object):
 
                 else:
                     print('no data received')
-        self.closeConnection()
+        self.CloseConnection()
 
-    def closeConnection(self):
+    def CloseConnection(self):
         print('closing')
         self._sock.close()
