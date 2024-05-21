@@ -6,7 +6,7 @@ from Simulation.AGV.AGV import AGV
 
 class Physics:
     def __init__(self):
-        self.maxSpeed = 100 # = 1 m/s
+        self.maxSpeed = 140 # = 6 m/s
 
     def emergencyStop(self, nns: NNS, enc: ENC):
         nns.speed = 0
@@ -19,13 +19,11 @@ class Physics:
     def accelerate(self, nns: NNS, enc: ENC):
         if nns.speed < self.maxSpeed:
             nns.speed += 10 # a = 0.1m/s^2
-            if nns.speed > self.maxSpeed:
-                nns.speed = 6
             self.drainBattery(2, enc)
 
     def updatePosition(self, nns: NNS, enc: ENC):
-        nns.xCoor += math.cos(self.radiansToDegrees(nns.heading)) * nns.speed
-        nns.yCoor += math.sin(self.radiansToDegrees(nns.heading)) * nns.speed
+        nns.xCoor += round(math.cos(self.radiansToDegrees(nns.heading)),1) * nns.speed
+        nns.yCoor += round(math.sin(self.radiansToDegrees(nns.heading)),1) * nns.speed
         self.drainBattery(1, enc)
 
     def update(self, nns: NNS, enc: ENC):

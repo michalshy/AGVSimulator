@@ -15,12 +15,10 @@ class AGVSim(object):
 
     def Simulate(self, agv: AGV):
         # Simulation of basic task 5 meters forward
-        clear = lambda: os.system('cls')
-        agv._enc.batteryValue = 1000
-        agv._nns.heading = 2
+        clear = lambda: os.system('cls || clear')
         while True:
             clear()
-            if agv._enc.batteryValue > 10:
+            if agv._enc.batteryValue > 300:
                 self._pe.accelerate(agv.getNNS(), agv.getENC()) 
                 self._pe.updatePosition(agv.getNNS(), agv.getENC())          
             agv.printState()

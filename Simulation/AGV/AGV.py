@@ -8,10 +8,9 @@ class AGV:
         self._enc = ENC()
         self._ss = SS()
         self._nns = NNS()
-        self._maxSpeed = 6
 
-    def checkMaxSpeed(self):
-        return self._maxSpeed
+        self._enc.batteryValue = 1000
+        self._nns.heading = 4
 
     def getENC(self):
         return self._enc

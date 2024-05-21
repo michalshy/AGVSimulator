@@ -1,5 +1,4 @@
 import socket  # Import socket module
-import Config
 from Simulation.ParamManager import ParamManager
 
 class Reception:
