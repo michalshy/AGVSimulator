@@ -1,25 +1,33 @@
 import simpy
 import time, os, math
-#from ParamManager import ParamManager as pm
+from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
 
+
 class AGVSim(object):
-    def __init__(self, env, pe: Physics):
-        self.env = env
-       # self._pm = pm()
+    def __init__(self, env, pe: Physics, agv: AGV):
+        self._env = env
+        self._pm = ParamManager()
         self._pe = pe
+        self._agv = agv
+        self._action = 0
 
-        # Start the run process everytime an instance is created.
-        # self.action = env.process(self.run())
+    def Run(self):
+        self._action = self._env.process(self.Simulate())
 
-    def Simulate(self, agv: AGV):
+    # Main function of the program, responsible for simulation of AGV movement
+    def Simulate(self):
         # Simulation of basic task 5 meters forward
-        clear = lambda: os.system('cls || clear')
+        _clear = lambda: os.system('cls || clear')
         while True:
-            clear()
-            if agv._enc.batteryValue > 300:
-                self._pe.accelerate(agv.getNNS(), agv.getENC()) 
-                self._pe.updatePosition(agv.getNNS(), agv.getENC())          
-            agv.printState()
-            time.sleep(1)
+            _clear()
+            if self._agv.GetENC().batteryValue > 300:
+                self._pe.accelerate(self._agv.GetNNS(), self._agv.GetENC())
+                self._pe.updatePosition(self._agv.GetNNS(), self._agv.GetENC())
+            self._agv.PrintState()
+            yield self._env.process(self.Delay())
+
+    # Wait for 10 factors, so in this case 1 second
+    def Delay(self):
+        yield self._env.timeout(10)

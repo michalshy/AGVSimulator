@@ -4,26 +4,27 @@ from Simulation.Frame6000.NNS import NNS
 from Simulation.AGV.AGV import AGV
 
 
+# Class responsible for changing the state of desired AGV
 class Physics:
     def __init__(self):
-        self.maxSpeed = 140 # = 6 m/s
+        self.maxSpeed = 140  # = 6 m/s
 
     def emergencyStop(self, nns: NNS, enc: ENC):
         nns.speed = 0
         self.drainBattery(10, enc)
 
-    def rotate(self, rad, nns: NNS, enc: ENC): # 1 - 45 deegre 
+    def rotate(self, rad, nns: NNS, enc: ENC):  # 1 - 45 deegre
         nns.heading = rad
         self.drainBattery(1, enc)
 
     def accelerate(self, nns: NNS, enc: ENC):
         if nns.speed < self.maxSpeed:
-            nns.speed += 10 # a = 0.1m/s^2
+            nns.speed += 10  # a = 0.1m/s^2
             self.drainBattery(2, enc)
 
     def updatePosition(self, nns: NNS, enc: ENC):
-        nns.xCoor += round(math.cos(self.radiansToDegrees(nns.heading)),1) * nns.speed
-        nns.yCoor += round(math.sin(self.radiansToDegrees(nns.heading)),1) * nns.speed
+        nns.xCoor += round(math.cos(self.radiansToDegrees(nns.heading)), 1) * nns.speed  # works after rounding
+        nns.yCoor += round(math.sin(self.radiansToDegrees(nns.heading)), 1) * nns.speed  # works after rounding
         self.drainBattery(1, enc)
 
     def update(self, nns: NNS, enc: ENC):
@@ -39,4 +40,5 @@ class Physics:
         enc.batteryValue -= val
 
     def determineMaxSpeed(self, agv: AGV):
-        self.maxSpeed = agv.checkMaxSpeed()
+        # TODO: Implementation
+        pass

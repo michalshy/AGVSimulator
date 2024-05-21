@@ -1,8 +1,8 @@
-# import Physics
+import Physics
 import os, time
-
+import simpy
 import Reception
-# import Simulation
+import Simulation
 import Transmission
 import threading
 from Transmission import Transmission
@@ -13,20 +13,24 @@ from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
 
 
-# from Simulation import Simulation
-
+# AppEngine - class used to control whole flow, declare variables that are unique
 class AppEngine:
 
     def __init__(self):
+        # Declare simpy environment as real-time and it's factor as 100ms
+        self.env = simpy.rt.RealtimeEnvironment(factor=0.1)
         self._phyEng = Physics()
         self._paramManager = ParamManager()
         self._reception = Reception.Reception(self._paramManager)
         self._transmission = Transmission.Transmission()
-        self._simulation = Simulation.AGVSim(0, self._phyEng)
         self._agv = AGV()
+        self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv)
 
     def loopProgram(self):
         # threading.Thread(target=self._reception.startReception()).start()
         # threading.Thread(target=self._transmission.transmit).start()
         self._reception.startReceptionLocal()
-        self._simulation.Simulate(self._agv)
+        # Start simulation
+        self._simulation.Run()
+        self.env.run()
+        # End simulation

@@ -1,6 +1,7 @@
 import socket  # Import socket module
 from Simulation.ParamManager import ParamManager
 
+
 class Reception:
     def __init__(self, paramManager: ParamManager):
         self._port = 50000  # placeholder
