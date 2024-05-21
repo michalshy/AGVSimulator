@@ -1,23 +1,23 @@
 import simpy
-from Frame6000.NNS import NNS
-from Frame6000.ENC import ENC
-from Frame6000.SS import SS
-
-from Frame6100.MC import MC
-from Frame6100.NNC import NNC
+import time, os
+from Simulation.ParamManager import ParamManager as pm
+from Simulation.AGV.AGV import AGV
+from Physics.Physics import Physics
 
 class AGVSim(object):
-    def __init__(self, env):
+    def __init__(self, env, pe: Physics):
         self.env = env
+        self._pm = pm()
+        self._pe = pe
 
         # Start the run process everytime an instance is created.
-        #self.action = env.process(self.run())
+        # self.action = env.process(self.run())
 
-
-    nns = NNS()
-    enc = ENC()
-    nns = NNS()
-    ss = SS()
-    mc = MC()
-    nnc = NNC()
-
+    def Simulate(self, agv: AGV):
+        # Simulation of basic task 5 meters forward
+        clear = lambda: os.system('cls')
+        while True:
+            clear()
+            self._pe.accelerate(agv.getNNS(), agv.getENC())
+            agv.printState()
+            time.sleep(1)

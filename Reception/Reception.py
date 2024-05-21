@@ -1,17 +1,20 @@
 import socket  # Import socket module
 import Config
-
+from Simulation.ParamManager import ParamManager
 
 class Reception:
-    def __init__(self):
+    def __init__(self, paramManager: ParamManager):
         self._port = 50000  # placeholder
         self._sock = socket.socket()
         self._host = '127.0.0.1'  # placeholder
-        self._sock.bind((self._host, self._port))
         self._data = ''
+        self._param_manager = paramManager
 
+    def startReceptionLocal(self):
+        self._param_manager.fabricateFrames()
 
     def startReception(self):
+        self._sock.bind((self._host, self._port))
         self._sock.listen(5)  # Now wait for client connection.
         print('Server listening....')
         x = 0

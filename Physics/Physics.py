@@ -1,50 +1,44 @@
 import math
+from Simulation.Frame6000.ENC import ENC
+from Simulation.Frame6000.NNS import NNS
+from Simulation.AGV.AGV import AGV
+
 
 class Physics:
+    def __init__(self):
+        self.maxSpeed = 6
 
-  ENCmomentaryCurrentConsumption = 0.0
-  ENCbatteryValue = 0.0
+    def emergencyStop(self, nns: NNS, enc: ENC):
+        nns.speed = 0
+        self.drainBattery(1, enc)
 
-  NNSxVal = 0
-  NNSyVal = 0
-  NNSspeed = 0.0
-  NNSmaxSpeed = 0.0
-  NNSheading = 0.0 #radians - value from 0 to 2pi
+    def rotate(self, rad, nns: NNS, enc: ENC):
+        nns.heading = rad
+        self.drainBattery(.1, enc)
 
-  loaded = False
-  directionFront = True
+    def accelerate(self, nns: NNS, enc: ENC):
+        if nns.speed < self.maxSpeed:
+            nns.speed += 0.1
+            if nns.speed > self.maxSpeed:
+                nns.speed = 6
+            self.drainBattery(.2, enc)
 
-  def __init__(self,currentConsumption, battery): # argument agv
-    self.ENCmomentaryCurrentConsumption = currentConsumption
-    self.ENCbatteryValue = battery
-  
-  def emergencyStop(self):
-    self.NNSspeed = 0
-    self.drainBattery(1)
-    
-  def rotate(self,rad):
-    self.NNSheading = rad
-    self.drainBattery(.1)
-  
-  def accelerate(self):
-    if self.NNSspeed < self.NNSmaxSpeed:
-      self.NNSspeed += 0.1
-      self.drainBattery(.2)
-  
-  def updatePosition(self):
-    self.NNSxVal += math.cos(self.radiansToDegrees(self.NNSheading))*self.NNSspeed
-    self.NNSyVal += math.sin(self.radiansToDegrees(self.NNSheading))*self.NNSspeed
-    self.drainBattery(.1)
+    def updatePosition(self, nns: NNS, enc: ENC):
+        nns.xCoor += math.cos(self.radiansToDegrees(nns.heading)) * nns.speed
+        nns.yCoor += math.sin(self.radiansToDegrees(nns.heading)) * nns.speed
+        self.drainBattery(.1, enc)
 
-  def drainBattery(self, val):
-    self.ENCbatteryValue -= val
+    def update(self, nns: NNS, enc: ENC):
+        self.updatePosition(nns, enc)
+        self.drainBattery(.1, enc)
 
-  def update(self):
-    self.updatePosition
-    self.drainBattery(.1)
+    @staticmethod
+    def radiansToDegrees(val):
+        return val * 180 / math.pi
 
-  def radiansToDegrees(val):
-    return val*180/math.pi
+    @staticmethod
+    def drainBattery(val, enc: ENC):
+        enc.batteryValue -= val
 
-
-    
+    def determineMaxSpeed(self, agv: AGV):
+        self.maxSpeed = agv.checkMaxSpeed()
