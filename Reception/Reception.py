@@ -1,6 +1,6 @@
 import socket  # Import socket module
-import Config
 from Simulation.ParamManager import ParamManager
+
 
 class Reception:
     def __init__(self, paramManager: ParamManager):
@@ -10,10 +10,10 @@ class Reception:
         self._data = ''
         self._param_manager = paramManager
 
-    def startReceptionLocal(self):
+    def StartReceptionLocal(self):
         self._param_manager.fabricateFrames()
 
-    def startReception(self):
+    def StartReception(self):
         self._sock.bind((self._host, self._port))
         self._sock.listen(5)  # Now wait for client connection.
         print('Server listening....')
@@ -36,7 +36,7 @@ class Reception:
                 except Exception as e:
                     print(e)
                     break
-        self.closeConnection(conn)
+        self.CloseConnection(conn)
 
-    def closeConnection(self, conn):
+    def CloseConnection(self, conn):
         conn.close()
