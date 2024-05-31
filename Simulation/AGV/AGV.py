@@ -1,6 +1,7 @@
 from Simulation.Frame6000.ENC import ENC
 from Simulation.Frame6000.SS import SS
 from Simulation.Frame6000.NNS import NNS
+from Simulation.Frame6100.NNC import NNC
 
 
 # Class that holds state of AGV
@@ -17,6 +18,11 @@ class AGV:
         # flags
         self.atMaxSpeed = False
         self.batteryAvailable = True
+        self.driveMode = False
+
+    def SetId(self, nnc: NNC):
+        self._nns.goingToID = nnc.destID
+        self.driveMode = nnc.goDestTrig
 
     def DetermineFlags(self):
         if self._nns.speed >= self._maxSpeed:
@@ -47,6 +53,9 @@ class AGV:
 
     def GetAtMaxSpeed(self):
         return self.atMaxSpeed
+
+    def GetDriveMode(self):
+        return self.driveMode
 
     def PrintState(self):
         print("Heading: " + str(self._nns.heading) + "rad")

@@ -21,7 +21,7 @@ class Physics:
     def Accelerate(self):
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += 10  # a = 0.1m/s^2
-            self.DrainBattery(200, self._agv.GetENC())
+            self.DrainBattery(2, self._agv.GetENC())
 
     def UpdatePosition(self):
         self._agv.GetNNS().xCoor += round(math.cos(self.RadiansToDegrees(self._agv.GetNNS().heading)), 1) * self._agv.GetNNS().speed  # works after rounding

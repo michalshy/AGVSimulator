@@ -20,7 +20,8 @@ class AGVSim(object):
     def Simulate(self):
         # Simulation of basic task 5 meters forward
         _clear = lambda: os.system('cls || clear')
-        while True:
+        self._agv.SetId(self._pm.GetNNC())
+        while self._agv.GetDriveMode():
             _clear()
             self._agv.DetermineFlags()
             self._pe.Accelerate()
