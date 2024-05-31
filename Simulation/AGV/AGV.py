@@ -9,9 +9,26 @@ class AGV:
         self._enc = ENC()
         self._ss = SS()
         self._nns = NNS()
-
+        self._maxSpeed = 200
         self._enc.batteryValue = 1000
+        self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 4
+
+        # flags
+        self.atMaxSpeed = False
+        self.batteryAvailable = True
+
+    def DetermineFlags(self):
+        if self._nns.speed >= self._maxSpeed:
+            self.atMaxSpeed = True
+            self._nns.speed = self._maxSpeed
+        else:
+            self.atMaxSpeed = False
+
+        if self._enc.batteryValue > self._boundryBattery:
+            self.batteryAvailable = True
+        else:
+            self.batteryAvailable = False
 
     def GetENC(self):
         return self._enc
@@ -21,6 +38,15 @@ class AGV:
 
     def GetNNS(self):
         return self._nns
+
+    def GetMaxSpeed(self):
+        return self._maxSpeed
+
+    def GetBatteryAvailable(self):
+        return self.batteryAvailable
+
+    def GetAtMaxSpeed(self):
+        return self.atMaxSpeed
 
     def PrintState(self):
         print("Heading: " + str(self._nns.heading) + "rad")

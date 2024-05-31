@@ -22,9 +22,9 @@ class AGVSim(object):
         _clear = lambda: os.system('cls || clear')
         while True:
             _clear()
-            if self._agv.GetENC().batteryValue > 300:
-                self._pe.Accelerate(self._agv.GetNNS(), self._agv.GetENC())
-                self._pe.UpdatePosition(self._agv.GetNNS(), self._agv.GetENC())
+            self._agv.DetermineFlags()
+            self._pe.Accelerate()
+            self._pe.Update()
             self._agv.PrintState()
             yield self._env.process(self.Delay())
 

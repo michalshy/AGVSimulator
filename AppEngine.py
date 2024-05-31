@@ -19,11 +19,11 @@ class AppEngine:
     def __init__(self):
         # Declare simpy environment as real-time and it's factor as 100ms
         self.env = simpy.rt.RealtimeEnvironment(factor=0.1)
-        self._phyEng = Physics()
+        self._agv = AGV()
+        self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
         self._reception = Reception.Reception(self._paramManager)
         self._transmission = Transmission.Transmission()
-        self._agv = AGV()
         self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv)
 
     def LoopProgram(self):
