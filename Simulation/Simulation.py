@@ -21,14 +21,49 @@ class AGVSim(object):
         # Simulation of basic task 5 meters forward
         _clear = lambda: os.system('cls || clear')
         self._agv.SetId(self._pm.GetNNC())
-        while self._agv.GetDriveMode():
-            _clear()
-            self._agv.DetermineFlags()
-            self._pe.Accelerate()
-            self._pe.Update()
-            self._agv.PrintState()
-            yield self._env.process(self.Delay())
+        match self._agv._nns.goingToID:
+            case 1:
+                while self._agv.GetDriveMode():
+                    _clear()
+                    self.FirstRoute()
+                    yield self._env.process(self.Delay())
+            case 2:
+                while self._agv.GetDriveMode():
+                    _clear()
+                    self.SecondRoute()
+                    yield self._env.process(self.Delay())
+            case 3:
+                while self._agv.GetDriveMode():
+                    _clear()
+                    self.ThirdRoute()
+                    yield self._env.process(self.Delay())
+    
 
     # Wait for 10 factors, so in this case 1 second
     def Delay(self):
         yield self._env.timeout(10)
+
+    #  ID 1
+    #  point on cords 100,0
+    def FirstRoute(self):
+        self._agv.DetermineFlags()
+        self._pe.Accelerate()
+        self._pe.Update()
+        self._agv.PrintState()
+
+
+    #  ID 2
+    #  point on cords 0, 100
+    def SecondRoute(self):
+        self._agv.DetermineFlags()
+        self._pe.Accelerate()
+        self._pe.Update()
+        self._agv.PrintState()
+
+    #  ID 3
+    #  point on cords 0, -100        
+    def ThirdRoute(self):
+        self._agv.DetermineFlags()
+        self._pe.Accelerate()
+        self._pe.Update()
+        self._agv.PrintState()
