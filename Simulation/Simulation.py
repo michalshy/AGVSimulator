@@ -1,4 +1,6 @@
 import simpy
+import matplotlib.pyplot as plt
+import numpy as np
 import time, os, math
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
@@ -42,6 +44,9 @@ class AGVSim(object):
     # Wait for 10 factors, so in this case 1 second
     def Delay(self):
         yield self._env.timeout(10)
+
+    def ShowRoute(self):
+        pass
 
     #  ID 1
     #  point on cords 100,0
