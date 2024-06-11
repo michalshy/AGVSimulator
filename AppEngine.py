@@ -11,6 +11,8 @@ from Simulation import Simulation
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 # AppEngine - class used to control whole flow, declare variables that are unique
@@ -18,7 +20,7 @@ class AppEngine:
 
     def __init__(self):
         # Declare simpy environment as real-time and it's factor as 100ms
-        self.env = simpy.rt.RealtimeEnvironment(factor=0.1)
+        self.env = simpy.rt.RealtimeEnvironment(factor=1)
         self._agv = AGV()
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
@@ -32,5 +34,6 @@ class AppEngine:
         self._reception.StartReceptionLocal()
         # Start simulation
         self._simulation.Run()
-        self.env.run()
         # End simulation
+        plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
+        plt.show()
