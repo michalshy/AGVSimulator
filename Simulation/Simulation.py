@@ -31,14 +31,14 @@ class AGVSim(object):
         cnt = 0
         match self._agv._nns.goingToID:
             case 1:
-                while self._agv.GetDriveMode():
+                while self._agv.GetDriveMode() :
                     cnt +=1
                     _clear()
                     self.CheckInput()
                     self.FirstRoute()
                     yield self._env.process(self.Delay())
-                    if cnt==2:
-                        self._agv.SetDriveMode(0)
+                    # if cnt==2:
+                    #     self._agv.SetDriveMode(0)
             case 2:
                 while self._agv.GetDriveMode():
                     _clear()

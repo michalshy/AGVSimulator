@@ -40,4 +40,3 @@ class Physics:
     @staticmethod
     def DrainBattery(val, enc: ENC):
         enc.batteryValue -= val
-

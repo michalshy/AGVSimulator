@@ -51,7 +51,7 @@ class AGV:
             self.batteryAvailable = True
         else:
             self.batteryAvailable = False
-
+            self.driveMode = False
 
 
     def GetENC(self):
