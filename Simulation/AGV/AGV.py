@@ -7,18 +7,11 @@ from Simulation.Frame6100.NNC import NNC
 import matplotlib.pyplot as plt
 import numpy as np
 
+PLOTTING_ENABLE = True
 
 # Class that holds state of AGV
 class AGV:
     def __init__(self):
-
-        # For plotting
-
-        self._xHist = []
-        self._yHist = []
-        self.fig, self.ax = plt.subplots()
-        plt.ylim(-50, 50)
-        plt.xlim(-50, 50)
 
         # For frames
 
@@ -34,6 +27,14 @@ class AGV:
         self.atMaxSpeed = False
         self.batteryAvailable = True
         self.driveMode = False
+
+        # For plotting
+
+        self._xHist = []
+        self._yHist = []
+        self.fig, self.ax = plt.subplots()
+        plt.ylim(-50, 50)
+        plt.xlim(-50, 50)
 
     def SetId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
@@ -51,13 +52,15 @@ class AGV:
         else:
             self.batteryAvailable = False
 
-        # Plot call
-        self._xHist.append(round(self._nns.xCoor / 100, 2))
-        self._yHist.append(round(self._nns.yCoor / 100, 2))
-        self.ax.cla()
-        self.ax.plot(self._xHist, self._yHist)
-        self.fig.canvas.draw()
-        self.fig.show()
+        # Plotting
+
+        if PLOTTING_ENABLE:
+            self._xHist.append(round(self._nns.xCoor / 100, 2))
+            self._yHist.append(round(self._nns.yCoor / 100, 2))
+            self.ax.cla()
+            self.ax.plot(self._xHist, self._yHist)
+            self.fig.tight_layout()
+            self.fig.show()
 
     def GetENC(self):
         return self._enc
@@ -86,4 +89,3 @@ class AGV:
         print("X position: " + str(round(self._nns.xCoor / 100, 2)) + "m")
         print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
-
