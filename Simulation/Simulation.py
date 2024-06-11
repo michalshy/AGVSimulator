@@ -49,7 +49,6 @@ class AGVSim(object):
         pass
 
     #  ID 1
-    #  point on cords 100,0
     def FirstRoute(self):
         self._agv.DetermineFlags()
         self._pe.Accelerate()
@@ -58,7 +57,6 @@ class AGVSim(object):
 
 
     #  ID 2
-    #  point on cords 0, 100
     def SecondRoute(self):
         self._agv.DetermineFlags()
         self._pe.Accelerate()
@@ -66,7 +64,6 @@ class AGVSim(object):
         self._agv.PrintState()
 
     #  ID 3
-    #  point on cords 0, -100        
     def ThirdRoute(self):
         self._agv.DetermineFlags()
         self._pe.Accelerate()
