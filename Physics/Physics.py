@@ -24,8 +24,8 @@ class Physics:
             self.DrainBattery(2, self._agv.GetENC())
 
     def UpdatePosition(self):
-        self._agv.GetNNS().xCoor += round(math.cos(self.RadiansToDegrees(self._agv.GetNNS().heading)), 1) * self._agv.GetNNS().speed  # works after rounding
-        self._agv.GetNNS().yCoor += round(math.sin(self.RadiansToDegrees(self._agv.GetNNS().heading)), 1) * self._agv.GetNNS().speed  # works after rounding
+        self._agv.GetNNS().xCoor += math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed 
+        self._agv.GetNNS().yCoor += math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed 
         self.DrainBattery(1, self._agv.GetENC())
 
     def UpdateParams(self):
@@ -36,10 +36,6 @@ class Physics:
     def Update(self):
         self.UpdatePosition()
         self.UpdateParams()
-
-    @staticmethod
-    def RadiansToDegrees(val):
-        return val * 180 / 3.14
 
     @staticmethod
     def DrainBattery(val, enc: ENC):
