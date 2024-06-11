@@ -16,6 +16,7 @@ class AGVSim(object):
         self._pe = pe
         self._agv = agv
         self._action = 0
+        self.c = 0
 
     def Run(self):
         self._action = self._env.process(self.Simulate())
@@ -46,6 +47,8 @@ class AGVSim(object):
                     self.CheckInput()
                     self.ThirdRoute()
                     yield self._env.process(self.Delay())
+        plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
+        plt.show()
 
     def CheckInput(self):
         if keyboard.is_pressed('q'):

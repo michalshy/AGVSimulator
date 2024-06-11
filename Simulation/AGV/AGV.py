@@ -83,6 +83,9 @@ class AGV:
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
 
         # for plotting
-        
+
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))
+
+    def SetDriveMode(self, state: bool):
+        self.driveMode = state
