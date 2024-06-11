@@ -18,7 +18,7 @@ class AppEngine:
 
     def __init__(self):
         # Declare simpy environment as real-time and it's factor as 100ms
-        self.env = simpy.rt.RealtimeEnvironment(factor=0.1)
+        self.env = simpy.rt.RealtimeEnvironment(factor=1)
         self._agv = AGV()
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()

@@ -43,7 +43,7 @@ class AGVSim(object):
 
     # Wait for 10 factors, so in this case 1 second
     def Delay(self):
-        yield self._env.timeout(10)
+        yield self._env.timeout(1)
 
     def ShowRoute(self):
         pass
