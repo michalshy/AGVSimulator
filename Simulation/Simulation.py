@@ -28,13 +28,17 @@ class AGVSim(object):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         self._agv.SetId(self._pm.GetNNC())
+        cnt = 0
         match self._agv._nns.goingToID:
             case 1:
                 while self._agv.GetDriveMode():
+                    cnt +=1
                     _clear()
                     self.CheckInput()
                     self.FirstRoute()
                     yield self._env.process(self.Delay())
+                    if cnt==2:
+                        self._agv.SetDriveMode(0)
             case 2:
                 while self._agv.GetDriveMode():
                     _clear()

@@ -20,7 +20,7 @@ class AppEngine:
 
     def __init__(self):
         # Declare simpy environment as real-time and it's factor as 100ms
-        self.env = simpy.rt.RealtimeEnvironment(factor=1)
+        self.env = simpy.rt.RealtimeEnvironment(factor=1, strict=False)
         self._agv = AGV()
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
@@ -35,5 +35,3 @@ class AppEngine:
         # Start simulation
         self._simulation.Run()
         # End simulation
-        plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
-        plt.show()
