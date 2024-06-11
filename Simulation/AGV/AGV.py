@@ -13,7 +13,7 @@ class AGV:
         self._maxSpeed = 150
         self._enc.batteryValue = 1000
         self._boundryBattery = self._enc.batteryValue * 0.3
-        self._nns.heading = 4
+        self._nns.heading = 45
 
         # flags
         self.atMaxSpeed = False
