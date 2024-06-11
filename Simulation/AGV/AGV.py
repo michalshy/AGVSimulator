@@ -4,10 +4,8 @@ from Simulation.Frame6000.ENC import ENC
 from Simulation.Frame6000.SS import SS
 from Simulation.Frame6000.NNS import NNS
 from Simulation.Frame6100.NNC import NNC
-import matplotlib.pyplot as plt
 import numpy as np
 
-PLOTTING_ENABLE = True
 
 # Class that holds state of AGV
 class AGV:
@@ -28,13 +26,15 @@ class AGV:
         self.batteryAvailable = True
         self.driveMode = False
 
-        # For plotting
+        # plotting
+        self._histX = []
+        self._histY = []
 
-        self._xHist = []
-        self._yHist = []
-        self.fig, self.ax = plt.subplots()
-        plt.ylim(-50, 50)
-        plt.xlim(-50, 50)
+    def GetHistX(self):
+        return self._histX
+
+    def GetHistY(self):
+        return self._histY
 
     def SetId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
@@ -52,15 +52,7 @@ class AGV:
         else:
             self.batteryAvailable = False
 
-        # Plotting
 
-        if PLOTTING_ENABLE:
-            self._xHist.append(round(self._nns.xCoor / 100, 2))
-            self._yHist.append(round(self._nns.yCoor / 100, 2))
-            self.ax.cla()
-            self.ax.plot(self._xHist, self._yHist)
-            self.fig.tight_layout()
-            self.fig.show()
 
     def GetENC(self):
         return self._enc
@@ -89,3 +81,8 @@ class AGV:
         print("X position: " + str(round(self._nns.xCoor / 100, 2)) + "m")
         print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
+
+        # for plotting
+        
+        self._histX.append(round(self._nns.xCoor / 100, 2))
+        self._histY.append(round(self._nns.yCoor / 100, 2))

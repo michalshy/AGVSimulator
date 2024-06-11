@@ -11,6 +11,8 @@ from Simulation import Simulation
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 # AppEngine - class used to control whole flow, declare variables that are unique
@@ -32,5 +34,6 @@ class AppEngine:
         self._reception.StartReceptionLocal()
         # Start simulation
         self._simulation.Run()
-        self.env.run()
         # End simulation
+        plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
+        plt.show()
