@@ -32,6 +32,7 @@ class AppEngine:
         # threading.Thread(target=self._reception.startReception()).start()
         # threading.Thread(target=self._transmission.transmit).start()
         self._reception.StartReceptionLocal()
+        self._reception.StartReception()
         # Start simulation
-        self._simulation.Run()
+        # self._simulation.Run()
         # End simulation
