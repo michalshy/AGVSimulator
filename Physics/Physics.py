@@ -18,6 +18,21 @@ class Physics:
             self._agv.GetNNS().heading = rad
             self.DrainBattery(1, self._agv.GetENC())
 
+
+    #TODO: faster the agv, slower the rotate
+
+    def RotateLeft(self):
+        if self._agv._nns.speed:
+            self._agv.GetNNS().heading += 10
+            self.DrainBattery(1, self._agv.GetENC())
+    
+    #TODO: faster the agv, slower the rotate
+    
+    def RotateRight(self):
+        if self._agv._nns.speed:
+            self._agv.GetNNS().heading -= 10
+            self.DrainBattery(1, self._agv.GetENC())
+    
     def Accelerate(self):
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += 10  # a = 0.1m/s^2
