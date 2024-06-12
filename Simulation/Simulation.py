@@ -72,7 +72,7 @@ class AGVSim(object):
 
     # Wait 1 second
     def Delay(self):
-        yield self._env.timeout(0.01)
+        yield self._env.timeout(1)
 
     def ShowRoute(self):
         pass
