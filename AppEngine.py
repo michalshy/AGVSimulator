@@ -11,9 +11,6 @@ from Simulation import Simulation
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
-import matplotlib.pyplot as plt
-import numpy as np
-
 
 # AppEngine - class used to control whole flow, declare variables that are unique
 class AppEngine:
@@ -25,8 +22,8 @@ class AppEngine:
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
         self._reception = Reception.Reception(self._paramManager)
-        self._transmission = Transmission.Transmission()
-        self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv)
+        self._transmission = Transmission.Transmission(self._agv)
+        self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv, self._reception, self._transmission)
 
     def LoopProgram(self):
         # threading.Thread(target=self._reception.startReception()).start()

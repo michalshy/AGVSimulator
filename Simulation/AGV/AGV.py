@@ -1,10 +1,7 @@
-from matplotlib.animation import FuncAnimation
-
 from Simulation.Frame6000.ENC import ENC
 from Simulation.Frame6000.SS import SS
 from Simulation.Frame6000.NNS import NNS
 from Simulation.Frame6100.NNC import NNC
-import numpy as np
 
 
 # Class that holds state of AGV
