@@ -2,8 +2,9 @@ import AppEngine
 
 
 # Main of the whole AGV Simulator, calls loop declared deeper into Simulation
-def __main__():
+def main():
     app = AppEngine.AppEngine()
     app.LoopProgram()
 
-__main__()
+if __name__ == "__main__":
+    main()

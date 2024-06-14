@@ -30,11 +30,12 @@ class AGVSim(object):
     def Simulate(self):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
-        self._agv.SetId(self._pm.GetNNC())
         while True:
-            match self._agv.GetNNS().goingToID:
-                case 1:
-                    while self._agv.GetDriveMode():
+            #TODO: FUNCTION FOR RECEPTION
+            self._agv.SetId(self._pm.GetNNC())
+            if self._agv.GetDriveMode():
+                match self._agv.GetNNS().goingToID:
+                    case 1:
                         _clear()
                         self.CheckInput()
                         self.FirstRoute()
@@ -43,8 +44,7 @@ class AGVSim(object):
                         if self.steps == 0:
                             self._agv.SetDriveMode(0)
                             self.steps = 100
-                case 2:
-                    while self._agv.GetDriveMode():
+                    case 2:
                         _clear()
                         self.CheckInput()
                         self.SecondRoute()
@@ -53,8 +53,7 @@ class AGVSim(object):
                         if self.steps == 0:
                             self._agv.SetDriveMode(0)
                             self.steps = 100
-                case 3:
-                    while self._agv.GetDriveMode():
+                    case 3:
                         _clear()
                         self.CheckInput()
                         self.ThirdRoute()
@@ -63,8 +62,10 @@ class AGVSim(object):
                         if self.steps == 0:
                             self._agv.SetDriveMode(0)
                             self.steps = 100
-            plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
-            plt.show()
+            #TODO: Function for transmission
+            if not self._agv.GetDriveMode():
+                plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
+                plt.show()
 
     def CheckInput(self):
         if keyboard.is_pressed('q'):
