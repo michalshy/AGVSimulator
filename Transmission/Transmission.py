@@ -1,14 +1,13 @@
 import socket  # Import socket module
-import os
-import re
-
+from Simulation.AGV.AGV import AGV
 
 class Transmission(object):
-    def __init__(self):
+    def __init__(self, agv: AGV):
         self._sock = socket.socket()
         self._port = 50000  # placeholder
         self._host = '127.0.0.1'  # placeholder
         self._data = ''
+        self._agv = agv
 
     def Transmit(self):
         self._sock.connect((self._host, self._port))

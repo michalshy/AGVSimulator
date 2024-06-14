@@ -6,17 +6,21 @@ from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
 import keyboard
-
+from Transmission.Transmission import Transmission
+from Reception.Reception import Reception
 
 class AGVSim(object):
-    def __init__(self, env, pe: Physics, agv: AGV):
+    def __init__(self, env, pe: Physics, agv: AGV, reception: Reception, transmission: Transmission):
         self._env = env
         self.end_evnt = self._env.event()
         self._pm = ParamManager()
         self._pe = pe
         self._agv = agv
         self._action = 0
-        self.c = 0
+
+        # for network
+        self._transmission = transmission
+        self._reception = reception
 
         #for simul
         self.steps = 100
@@ -31,7 +35,10 @@ class AGVSim(object):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while True:
+            # !-------------------------------------!
             #TODO: FUNCTION FOR RECEPTION
+            # !-------------------------------------!
+
             self._agv.SetId(self._pm.GetNNC())
             if self._agv.GetDriveMode():
                 match self._agv.GetNNS().goingToID:
@@ -62,7 +69,9 @@ class AGVSim(object):
                         if self.steps == 0:
                             self._agv.SetDriveMode(0)
                             self.steps = 100
+            # !-------------------------------------!
             #TODO: Function for transmission
+            # !-------------------------------------!
             if not self._agv.GetDriveMode():
                 plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
                 plt.show()
