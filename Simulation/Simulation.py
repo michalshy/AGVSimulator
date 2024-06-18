@@ -21,6 +21,8 @@ class AGVSim(object):
         # for network
         self._transmission = transmission
         self._reception = reception
+        self._updateStep = 0
+        self._stepAmount = 5
 
         #for simul
         self.steps = 100
@@ -35,9 +37,7 @@ class AGVSim(object):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while True:
-            # !-------------------------------------!
-            #TODO: FUNCTION FOR RECEPTION
-            # !-------------------------------------!
+            self.ReceiveDataFromServer()
 
             self._agv.SetId(self._pm.GetNNC())
             if self._agv.GetDriveMode():
@@ -69,9 +69,9 @@ class AGVSim(object):
                         if self.steps == 0:
                             self._agv.SetDriveMode(0)
                             self.steps = 100
-            # !-------------------------------------!
-            #TODO: Function for transmission
-            # !-------------------------------------!
+                           
+            self.SendToServer()
+                          
             if not self._agv.GetDriveMode():
                 plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
                 plt.show()
@@ -116,3 +116,38 @@ class AGVSim(object):
         self._agv.DetermineFlags()
         self._pe.Accelerate()
         self._pe.Update()
+
+    #Send to server
+    def SendToServer(self):
+        tab = [4,5,6,7,8]  
+        it = 0   
+        if self._updateStep % self._stepAmount == 0:
+            self._transmission.Transmit(self._agv.GetNNS().xCoor, tab[it])    
+            it+=1 
+            self._transmission.Transmit(self._agv.GetNNS().yCoor,tab[it])     
+            it+=1
+            self._transmission.Transmit(self._agv.GetNNS().heading,tab[it])     
+            it+=1
+            self._transmission.Transmit(self._agv.GetENC().batteryValue,tab[it])     
+            it+=1
+            self._transmission.Transmit(self._agv.GetNNS().speed,tab[it])     
+            self._updateStep = 0
+        self._updateStep += 1      
+    #Receive data from server
+    def ReceiveDataFromServer(self):
+        tab = [4,5,6,7,8]  
+        it = 0   
+        if self._updateStep % self._stepAmount == 0:
+            self._reception.StartReception(tab[it])    
+            it+=1 
+            self._reception.StartReception(tab[it])     
+            it+=1
+            self._reception.StartReception(tab[it])    
+            it+=1
+            self._reception.StartReception(tab[it])       
+            it+=1
+            self._reception.StartReception(tab[it])
+            for i in self._reception._dataFromServer:
+                print(i)          
+            self._updateStep = 0
+        self._updateStep += 1      
