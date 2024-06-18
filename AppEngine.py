@@ -28,7 +28,7 @@ class AppEngine:
     def LoopProgram(self):
         # threading.Thread(target=self._reception.startReception()).start()
         # threading.Thread(target=self._transmission.transmit).start()
-        self._reception.StartReceptionLocal()
+        # self._reception.StartReceptionLocal()
         # Start simulation
         self._simulation.Run()
         # End simulation
