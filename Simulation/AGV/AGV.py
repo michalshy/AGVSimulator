@@ -37,12 +37,11 @@ class AGV:
     #     self._nns.goingToID = nnc.destID
     #     self.driveMode = nnc.goDestTrig
 
-    def SetDestId(self, id: int):
-        self._nns.goingToID = id
-        # self.driveMode = nnc.goDestTrig
+    def SetDestId(self, nnc: NNC):
+        self._nns.goingToID = nnc.destID
 
-    def SetDestTrig(self, trig: int):
-        self._nns.goDestTrig = trig
+    def SetDestTrig(self, nnc: NNC):
+        self.driveMode = nnc.goDestTrig
 
     def DetermineFlags(self):
         if self._nns.speed >= self._maxSpeed:
@@ -85,8 +84,8 @@ class AGV:
         print("X position: " + str(round(self._nns.xCoor / 100, 2)) + "m")
         print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
-        print("Destination ID:" + str(self._nnc.destID))
-        print("Destination Triger:")
+        print("Destination ID:" + str(self._nns.goingToID))
+        print("Destination Triger:" + str(self.driveMode))
         # for plotting
 
         self._histX.append(round(self._nns.xCoor / 100, 2))
