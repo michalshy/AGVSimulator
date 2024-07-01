@@ -39,9 +39,13 @@ class AGVSim(object):
         while True:
             self.ReceiveDataFromServer()
 
-            self._agv.SetId(self._pm.GetNNC())
+            # self._agv.SetId(self._pm.GetNNC())
             if self._agv.GetDriveMode():
                 match self._agv.GetNNS().goingToID:
+                    case 0:
+                        _clear()
+                        self.CheckInput()
+                       
                     case 1:
                         _clear()
                         self.CheckInput()
@@ -119,7 +123,7 @@ class AGVSim(object):
 
     #Send to server
     def SendToServer(self):
-        tab = [4,5,6,7,8]  
+        tab = [7,8,5,10,6]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
             self._transmission.Transmit(self._agv.GetNNS().xCoor, tab[it])    
@@ -135,19 +139,15 @@ class AGVSim(object):
         self._updateStep += 1      
     #Receive data from server
     def ReceiveDataFromServer(self):
-        tab = [4,5,6,7,8]  
+        tab = [13,14]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
-            self._reception.StartReception(tab[it])    
-            it+=1 
-            self._reception.StartReception(tab[it])     
-            it+=1
-            self._reception.StartReception(tab[it])    
-            it+=1
-            self._reception.StartReception(tab[it])       
-            it+=1
             self._reception.StartReception(tab[it])
-            for i in self._reception._dataFromServer:
-                print(i)          
+            self._agv.SetDestId(self._reception.value)    
+            it+=1 
+            self._reception.StartReception(tab[it])    
+            self._agv.SetDestTrig(self._reception.value)      
+            # for i in self._reception._dataFromServer:
+                # print(i)          
             self._updateStep = 0
         self._updateStep += 1      

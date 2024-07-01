@@ -10,9 +10,10 @@ class Reception:
         self._host = '127.0.0.1'  # placeholder
         self._data = ''
         self._param_manager = paramManager
-        self._url = "opc.tcp://desktop-vics7it:62640/IntegrationObjects/ServerSimulator/"
-        self._nodeId = "ns=2;s=Tag"
+        self._url = "opc.tcp://localhost:4841/freeopcua/server/"
+        self._nodeId = "ns=2;i="
         self._dataFromServer = []
+        self.value = ""
 
     def StartReceptionLocal(self):
         self._param_manager.fabricateFrames()
@@ -25,7 +26,7 @@ class Reception:
         value = node.get_value()
         self._dataFromServer.append(value)
 
-        self._nodeId = "ns=2;s=Tag" 
+        self._nodeId = "ns=2;i=" 
 
     def CloseConnection(self, conn):
         client.disconnect()
