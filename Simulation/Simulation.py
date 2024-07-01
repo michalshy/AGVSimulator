@@ -9,6 +9,7 @@ import keyboard
 from Transmission.Transmission import Transmission
 from Reception.Reception import Reception
 
+
 class AGVSim(object):
     def __init__(self, env, pe: Physics, agv: AGV, reception: Reception, transmission: Transmission):
         self._env = env
@@ -39,9 +40,17 @@ class AGVSim(object):
         while True:
             self.ReceiveDataFromServer()
 
-            self._agv.SetId(self._pm.GetNNC())
+            self._agv.SetDestId(self._pm.GetNNC())
+            self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
                 match self._agv.GetNNS().goingToID:
+                    case 0:
+                        _clear()
+                        self.CheckInput()
+                        self._pe.EmergencyStop()
+                        self._pe.Update()
+                        self._agv.PrintState()
+                        yield self._env.process(self.Delay())
                     case 1:
                         _clear()
                         self.CheckInput()
@@ -119,7 +128,7 @@ class AGVSim(object):
 
     #Send to server
     def SendToServer(self):
-        tab = [4,5,6,7,8]  
+        tab = [7,8,5,10,6]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
             self._transmission.Transmit(self._agv.GetNNS().xCoor, tab[it])    
@@ -135,19 +144,13 @@ class AGVSim(object):
         self._updateStep += 1      
     #Receive data from server
     def ReceiveDataFromServer(self):
-        tab = [4,5,6,7,8]  
+        tab = [13,14]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
-            self._reception.StartReception(tab[it])    
-            it+=1 
-            self._reception.StartReception(tab[it])     
-            it+=1
-            self._reception.StartReception(tab[it])    
-            it+=1
-            self._reception.StartReception(tab[it])       
+            self._reception.StartReception(tab[it])
+            self._pm.SetDestID(self._reception._dataFromServer)
             it+=1
             self._reception.StartReception(tab[it])
-            for i in self._reception._dataFromServer:
-                print(i)          
+            self._pm.SetDestTrig(self._reception._dataFromServer)
             self._updateStep = 0
         self._updateStep += 1      

@@ -10,8 +10,8 @@ class Transmission(object):
         self._host = '127.0.0.1'  # placeholder
         self._data = ''
         self._agv = agv
-        self._url = "opc.tcp://desktop-vics7it:62640/IntegrationObjects/ServerSimulator/"
-        self._nodeId = "ns=2;s=Tag"
+        self._url = "opc.tcp://localhost:4841/freeopcua/server/"
+        self._nodeId = "ns=2;i="
 
     def Transmit(self,input,it):
         self._nodeId += str(it)
@@ -19,7 +19,7 @@ class Transmission(object):
         client.connect()
         node = client.get_node(self._nodeId)
         node.set_data_value(input)
-        self._nodeId = "ns=2;s=Tag"   
+        self._nodeId = "ns=2;i="   
 
     def CloseConnection(self):
         print('closing')

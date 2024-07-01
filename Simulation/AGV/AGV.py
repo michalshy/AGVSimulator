@@ -33,8 +33,14 @@ class AGV:
     def GetHistY(self):
         return self._histY
 
-    def SetId(self, nnc: NNC):
+    # def SetId(self, nnc: NNC):
+    #     self._nns.goingToID = nnc.destID
+    #     self.driveMode = nnc.goDestTrig
+
+    def SetDestId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
+
+    def SetDestTrig(self, nnc: NNC):
         self.driveMode = nnc.goDestTrig
 
     def DetermineFlags(self):
@@ -78,7 +84,8 @@ class AGV:
         print("X position: " + str(round(self._nns.xCoor / 100, 2)) + "m")
         print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
-
+        print("Destination ID:" + str(self._nns.goingToID))
+        print("Destination Triger:" + str(self.driveMode))
         # for plotting
 
         self._histX.append(round(self._nns.xCoor / 100, 2))
