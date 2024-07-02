@@ -5,10 +5,6 @@ from opcua import Client
 
 class Reception:
     def __init__(self, paramManager: ParamManager):
-        self._port = 50000  # placeholder
-        self._sock = socket.socket()
-        self._host = '127.0.0.1'  # placeholder
-        self._data = ''
         self._param_manager = paramManager
         self._url = "opc.tcp://localhost:4841/freeopcua/server/"
         self._nodeId = "ns=2;i="

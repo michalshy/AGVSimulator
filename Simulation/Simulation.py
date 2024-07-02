@@ -125,6 +125,7 @@ class AGVSim(object):
         self._pe.Update()
 
     #Send to server
+    #TODO: Move to transmission
     def SendToServer(self):
         tab = [7,8,5,10,6]  
         it = 0   
@@ -141,6 +142,7 @@ class AGVSim(object):
             self._updateStep = 0
         self._updateStep += 1      
     #Receive data from server
+    # TODO: Move to Reception
     def ReceiveDataFromServer(self):
         tab = [13,14]  
         it = 0   
