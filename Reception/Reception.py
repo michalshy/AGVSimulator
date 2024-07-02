@@ -20,14 +20,12 @@ class Reception:
 
     def StartReception(self,it):
         self._nodeId += str(it)
-        client = Client(self._url)
-        client.connect()
-        node = client.get_node(self._nodeId)
+        self.client = Client(self._url)
+        self.client.connect()
+        node = self.client.get_node(self._nodeId)
         value = node.get_value()
         self._dataFromServer = value
-
-
         self._nodeId = "ns=2;i=" 
 
     def CloseConnection(self, conn):
-        client.disconnect()
+        self.client.disconnect()
