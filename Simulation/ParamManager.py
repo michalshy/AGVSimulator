@@ -28,6 +28,11 @@ class ParamManager:
     def GetNNC(self):
         return self._nnc
 
+    def SetDestTrig(self, destTrig: int):
+        self._nnc.goDestTrig = destTrig
+
+    def SetDestID(self, destID: int):
+        self._nnc.destID = destID
     def SetENC(self):
         pass
 
