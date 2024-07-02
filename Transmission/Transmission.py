@@ -15,12 +15,12 @@ class Transmission(object):
 
     def Transmit(self,input,it):
         self._nodeId += str(it)
-        self.client = Client(self._url)
-        self.client.connect()
-        node = self.client.get_node(self._nodeId)
+        client = Client(self._url)
+        client.connect()
+        node = client.get_node(self._nodeId)
         node.set_data_value(input)
         self._nodeId = "ns=2;i="   
 
     def CloseConnection(self):
         print('closing')
-        self.client.disconnect()
+        client.disconnect()
