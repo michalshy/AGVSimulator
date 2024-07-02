@@ -26,9 +26,6 @@ class AppEngine:
         self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv, self._reception, self._transmission)
 
     def LoopProgram(self):
-        # threading.Thread(target=self._reception.startReception()).start()
-        # threading.Thread(target=self._transmission.transmit).start()
-        # self._reception.StartReceptionLocal()
         # Start simulation
         self._simulation.Run()
         # End simulation

@@ -32,11 +32,6 @@ class AGV:
 
     def GetHistY(self):
         return self._histY
-
-    # def SetId(self, nnc: NNC):
-    #     self._nns.goingToID = nnc.destID
-    #     self.driveMode = nnc.goDestTrig
-
     def SetDestId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
 
