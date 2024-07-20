@@ -33,12 +33,12 @@ class AGVSim(object):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
-            print(threading.active_count())
-            self.CheckInput()
             self._opcHandler.ReceiveDataFromServer(self._pm)
+            self.CheckInput()
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
+                print(threading.active_count())
                 match self._agv.GetNNS().goingToID:
                     case 0:
                         _clear()
@@ -69,19 +69,22 @@ class AGVSim(object):
                         self.steps -= 1
                         if self.steps == 0:
                             self._agv.SetDriveMode(0)
-                            self.steps = 100
-                           
+                            self.steps = 100     
+
             self._opcHandler.SendToServer()
-                          
+               
             if not self._agv.GetDriveMode():
-                plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
+                try:
+                    plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
+                except ValueError as err:
+                    continue
                 plt.show()
 
     def CheckInput(self):
         if keyboard.is_pressed('q'):
             self._opcHandler.CloseConnection()
             self.end_evnt.succeed()
-            
+
     # Wait 1 second
     # TODO: remember to change to 1 at the end of development
     def Delay(self):
