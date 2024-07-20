@@ -9,7 +9,6 @@ class AGV:
     def __init__(self):
 
         # For frames
-
         self._enc = ENC()
         self._ss = SS()
         self._nns = NNS()
@@ -32,6 +31,7 @@ class AGV:
 
     def GetHistY(self):
         return self._histY
+    
     def SetDestId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
 
