@@ -4,11 +4,11 @@ from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
 import keyboard
-from Transmission.Transmission import Transmission
-from Reception.Reception import Reception
+from OpcHandler import OpcHandler
+import threading
 
 class AGVSim(object):
-    def __init__(self, env, pe: Physics, agv: AGV, reception: Reception, transmission: Transmission):
+    def __init__(self, env, pe: Physics, agv: AGV, opcHandler: OpcHandler):
         self._env = env
         self.end_evnt = self._env.event()
         self._pm = ParamManager()
@@ -17,14 +17,12 @@ class AGVSim(object):
         self._action = 0
 
         # for network
-        self._transmission = transmission
-        self._reception = reception
-        self._updateStep = 0
-        self._stepAmount = 5
+        self._opcHandler = opcHandler
 
         #for simul
         self.steps = 100
         self.sw = False
+        self.finishFlag = False
 
     def Run(self):
         self._action = self._env.process(self.Simulate())
@@ -34,23 +32,22 @@ class AGVSim(object):
     def Simulate(self):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
-        while True:
-            self.ReceiveDataFromServer()
-
+        while not self.finishFlag:
+            print(threading.active_count())
+            self.CheckInput()
+            self._opcHandler.ReceiveDataFromServer(self._pm)
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
                 match self._agv.GetNNS().goingToID:
                     case 0:
                         _clear()
-                        self.CheckInput()
                         self._pe.EmergencyStop()
                         self._pe.Update()
                         self._agv.PrintState()
                         yield self._env.process(self.Delay())
                     case 1:
                         _clear()
-                        self.CheckInput()
                         self.FirstRoute()
                         yield self._env.process(self.Delay())
                         self.steps -= 1
@@ -59,7 +56,6 @@ class AGVSim(object):
                             self.steps = 100
                     case 2:
                         _clear()
-                        self.CheckInput()
                         self.SecondRoute()
                         yield self._env.process(self.Delay())
                         self.steps -= 1
@@ -68,7 +64,6 @@ class AGVSim(object):
                             self.steps = 100
                     case 3:
                         _clear()
-                        self.CheckInput()
                         self.ThirdRoute()
                         yield self._env.process(self.Delay())
                         self.steps -= 1
@@ -76,7 +71,7 @@ class AGVSim(object):
                             self._agv.SetDriveMode(0)
                             self.steps = 100
                            
-            self.SendToServer()
+            self._opcHandler.SendToServer()
                           
             if not self._agv.GetDriveMode():
                 plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
@@ -84,11 +79,13 @@ class AGVSim(object):
 
     def CheckInput(self):
         if keyboard.is_pressed('q'):
+            self._opcHandler.CloseConnection()
             self.end_evnt.succeed()
-
+            
     # Wait 1 second
+    # TODO: remember to change to 1 at the end of development
     def Delay(self):
-        yield self._env.timeout(1)
+        yield self._env.timeout(0.1)
 
     def ShowRoute(self):
         pass
@@ -123,31 +120,4 @@ class AGVSim(object):
         self._pe.Accelerate()
         self._pe.Update()
 
-    #Send to server
-    def SendToServer(self):
-        tab = [7,8,5,10,6]  
-        it = 0   
-        if self._updateStep % self._stepAmount == 0:
-            self._transmission.Transmit(self._agv.GetNNS().xCoor, tab[it])    
-            it+=1 
-            self._transmission.Transmit(self._agv.GetNNS().yCoor,tab[it])     
-            it+=1
-            self._transmission.Transmit(self._agv.GetNNS().heading,tab[it])     
-            it+=1
-            self._transmission.Transmit(self._agv.GetENC().batteryValue,tab[it])     
-            it+=1
-            self._transmission.Transmit(self._agv.GetNNS().speed,tab[it])     
-            self._updateStep = 0
-        self._updateStep += 1      
-    #Receive data from server
-    def ReceiveDataFromServer(self):
-        tab = [13,14]  
-        it = 0   
-        if self._updateStep % self._stepAmount == 0:
-            self._reception.StartReception(tab[it])
-            self._pm.SetDestID(self._reception._dataFromServer)
-            it+=1
-            self._reception.StartReception(tab[it])
-            self._pm.SetDestTrig(self._reception._dataFromServer)
-            self._updateStep = 0
-        self._updateStep += 1      
+      

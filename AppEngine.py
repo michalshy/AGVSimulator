@@ -1,13 +1,8 @@
 import Physics
-import os, time
 import simpy
-import Reception
 import Simulation
-import Transmission
-import threading
-from Transmission import Transmission
-from Reception import Reception
 from Simulation import Simulation
+from OpcHandler.OpcHandler import OpcHandler
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
@@ -21,9 +16,8 @@ class AppEngine:
         self._agv = AGV()
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
-        self._reception = Reception.Reception(self._paramManager)
-        self._transmission = Transmission.Transmission(self._agv)
-        self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv, self._reception, self._transmission)
+        self._opcHandler = OpcHandler(self._paramManager, self._agv)
+        self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv, self._opcHandler)
 
     def LoopProgram(self):
         # Start simulation
