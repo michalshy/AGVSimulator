@@ -33,7 +33,7 @@ class AGVSim(object):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
-            self._opcHandler.ReceiveDataFromServer(self._pm)
+            self._opcHandler.ReceiveDataFromServer()
             self.CheckInput()
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
