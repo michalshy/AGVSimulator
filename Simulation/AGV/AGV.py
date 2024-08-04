@@ -21,6 +21,10 @@ class AGV:
         self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 0
 
+        #TODO: ADD PROPER HANDLER FOR START POSITION
+        self._nns.xCoor = 80000
+        self._nns.yCoor = 40000
+
         # flags
         self.atMaxSpeed = False
         self.batteryAvailable = True
@@ -90,7 +94,7 @@ class AGV:
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))
 
-        pygame.draw.rect(self._canvas, self._color, pygame.Rect(round(self._nns.yCoor / 100, 2), round(self._nns.xCoor / 100, 2), 30,30))
+        pygame.draw.rect(self._canvas, self._color, pygame.Rect(round(self._nns.xCoor / 100, 2), round(self._nns.yCoor / 100, 2), 30,30))
 
     def SetDriveMode(self, state: bool):
         self.driveMode = state

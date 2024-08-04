@@ -1,18 +1,19 @@
 import os
+import time
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
-from OpcHandler import OpcHandler
+from OpcHandler.OpcHandler import OpcHandler
 import pygame
 
 class AGVSim(object):
-    def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, canvas):
+    def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
         
         self._canvas = canvas
         self._backgroundColor = (255,255,255)
 
-        self._pm = ParamManager()
+        self._pm = pm
         self._pe = pe
         self._agv = agv
         self._action = 0
@@ -55,7 +56,10 @@ class AGVSim(object):
                         _clear()
                         self.ThirdRoute()
             self._opcHandler.SendToServer()
-            pygame.display.update() 
+            self.Draw()
+
+    def Draw(self):
+        pygame.display.update()
 
     def Exit(self):
         self._opcHandler.CloseConnection()

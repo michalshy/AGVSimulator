@@ -19,7 +19,7 @@ class AppEngine:
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
         self._opcHandler = OpcHandler(self._paramManager, self._agv)
-        self._simulation = Simulation.AGVSim(self._phyEng, self._agv, self._opcHandler, canvas)
+        self._simulation = Simulation.AGVSim(self._phyEng, self._agv, self._opcHandler, self._paramManager, canvas)
 
     def LoopProgram(self):
         # Start simulation
