@@ -1,16 +1,17 @@
-import matplotlib.pyplot as plt
 import os
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
+from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
-import keyboard
 from OpcHandler import OpcHandler
-import threading
+import pygame
 
 class AGVSim(object):
-    def __init__(self, env, pe: Physics, agv: AGV, opcHandler: OpcHandler):
-        self._env = env
-        self.end_evnt = self._env.event()
+    def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, canvas):
+        
+        self._canvas = canvas
+        self._backgroundColor = (255,255,255)
+
         self._pm = ParamManager()
         self._pe = pe
         self._agv = agv
@@ -20,78 +21,45 @@ class AGVSim(object):
         self._opcHandler = opcHandler
 
         #for simul
-        self.steps = 100
         self.sw = False
         self.finishFlag = False
 
-    def Run(self):
-        self._action = self._env.process(self.Simulate())
-        self._env.run(until = self.end_evnt)
+        
 
     # Main function of the program, responsible for simulation of AGV movement
     def Simulate(self):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
+            self._canvas.fill(self._backgroundColor)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: 
+                    self.Exit()
             self._opcHandler.ReceiveDataFromServer()
-            self.CheckInput()
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
-                print(threading.active_count())
                 match self._agv.GetNNS().goingToID:
                     case 0:
                         _clear()
                         self._pe.EmergencyStop()
                         self._pe.Update()
                         self._agv.PrintState()
-                        yield self._env.process(self.Delay())
                     case 1:
                         _clear()
                         self.FirstRoute()
-                        yield self._env.process(self.Delay())
-                        self.steps -= 1
-                        if self.steps == 0:
-                            self._agv.SetDriveMode(0)
-                            self.steps = 100
                     case 2:
                         _clear()
                         self.SecondRoute()
-                        yield self._env.process(self.Delay())
-                        self.steps -= 1
-                        if self.steps == 0:
-                            self._agv.SetDriveMode(0)
-                            self.steps = 100
                     case 3:
                         _clear()
                         self.ThirdRoute()
-                        yield self._env.process(self.Delay())
-                        self.steps -= 1
-                        if self.steps == 0:
-                            self._agv.SetDriveMode(0)
-                            self.steps = 100     
-
             self._opcHandler.SendToServer()
-               
-            if not self._agv.GetDriveMode():
-                try:
-                    plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
-                except ValueError as err:
-                    continue
-                plt.show()
+            pygame.display.update() 
 
-    def CheckInput(self):
-        if keyboard.is_pressed('q'):
-            self._opcHandler.CloseConnection()
-            self.end_evnt.succeed()
-
-    # Wait 1 second
-    # TODO: remember to change to 1 at the end of development
-    def Delay(self):
-        yield self._env.timeout(0.1)
-
-    def ShowRoute(self):
-        pass
+    def Exit(self):
+        self._opcHandler.CloseConnection()
+        self.finishFlag = True
 
     #  ID 1
     def FirstRoute(self):
