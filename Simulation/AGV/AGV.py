@@ -3,7 +3,8 @@ from Simulation.Frame6000.SS import SS
 from Simulation.Frame6000.NNS import NNS
 from Simulation.Frame6100.NNC import NNC
 import pygame
-
+import time
+import math
 
 # Class that holds state of AGV
 class AGV:
@@ -89,12 +90,19 @@ class AGV:
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
         print("Destination ID:" + str(self._nns.goingToID))
         print("Destination Triger:" + str(self.driveMode))
-        # for plotting
 
+        self.RenderPosition()
+
+        time.sleep(.02)
+
+    def RenderPosition(self):   
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))
 
-        pygame.draw.rect(self._canvas, self._color, pygame.Rect(round(self._nns.xCoor / 100, 2), round(self._nns.yCoor / 100, 2), 30,30))
-
+        pygame.draw.circle(self._canvas, self._color,(round(self._nns.xCoor / 100, 2), round(self._nns.yCoor / 100, 2)),30)
+        pygame.draw.circle(self._canvas,(255,0,0),
+                           (self._nns.xCoor/100 +25 * math.cos(math.radians(self._nns.heading))
+                             ,self._nns.yCoor  / 100 + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+        
     def SetDriveMode(self, state: bool):
         self.driveMode = state
