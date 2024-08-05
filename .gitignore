@@ -1,5 +1,6 @@
 .idea
 .venv
+venv
 __pycache__/AppEngine.cpython-312.pyc
 __pycache__/Config.cpython-312.pyc
 Physics/__pycache__/Physics.cpython-312.pyc
