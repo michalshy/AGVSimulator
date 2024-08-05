@@ -2,11 +2,15 @@ from Simulation.Frame6000.ENC import ENC
 from Simulation.Frame6000.SS import SS
 from Simulation.Frame6000.NNS import NNS
 from Simulation.Frame6100.NNC import NNC
+import pygame
 
 
 # Class that holds state of AGV
 class AGV:
-    def __init__(self):
+    def __init__(self, canvas):
+        #pygame
+        self._canvas = canvas
+        self._color = (0,255,0)
 
         # For frames
         self._enc = ENC()
@@ -16,6 +20,10 @@ class AGV:
         self._enc.batteryValue = 120000
         self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 0
+
+        #TODO: ADD PROPER HANDLER FOR START POSITION
+        self._nns.xCoor = 80000
+        self._nns.yCoor = 40000
 
         # flags
         self.atMaxSpeed = False
@@ -85,6 +93,8 @@ class AGV:
 
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))
+
+        pygame.draw.rect(self._canvas, self._color, pygame.Rect(round(self._nns.xCoor / 100, 2), round(self._nns.yCoor / 100, 2), 30,30))
 
     def SetDriveMode(self, state: bool):
         self.driveMode = state

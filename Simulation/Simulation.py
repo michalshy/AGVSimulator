@@ -1,17 +1,19 @@
-import matplotlib.pyplot as plt
 import os
+import time
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
+from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
-import keyboard
-from OpcHandler import OpcHandler
-import threading
+from OpcHandler.OpcHandler import OpcHandler
+import pygame
 
 class AGVSim(object):
-    def __init__(self, env, pe: Physics, agv: AGV, opcHandler: OpcHandler):
-        self._env = env
-        self.end_evnt = self._env.event()
-        self._pm = ParamManager()
+    def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
+        
+        self._canvas = canvas
+        self._backgroundColor = (255,255,255)
+
+        self._pm = pm
         self._pe = pe
         self._agv = agv
         self._action = 0
@@ -20,22 +22,21 @@ class AGVSim(object):
         self._opcHandler = opcHandler
 
         #for simul
-        self.steps = 100
         self.sw = False
         self.finishFlag = False
 
-    def Run(self):
-        self._action = self._env.process(self.Simulate())
-        self._env.run(until = self.end_evnt)
+        
 
     # Main function of the program, responsible for simulation of AGV movement
     def Simulate(self):
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
-            print(threading.active_count())
-            self.CheckInput()
-            self._opcHandler.ReceiveDataFromServer(self._pm)
+            self._canvas.fill(self._backgroundColor)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: 
+                    self.Exit()
+            self._opcHandler.ReceiveDataFromServer()
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
@@ -45,50 +46,24 @@ class AGVSim(object):
                         self._pe.EmergencyStop()
                         self._pe.Update()
                         self._agv.PrintState()
-                        yield self._env.process(self.Delay())
                     case 1:
                         _clear()
                         self.FirstRoute()
-                        yield self._env.process(self.Delay())
-                        self.steps -= 1
-                        if self.steps == 0:
-                            self._agv.SetDriveMode(0)
-                            self.steps = 100
                     case 2:
                         _clear()
                         self.SecondRoute()
-                        yield self._env.process(self.Delay())
-                        self.steps -= 1
-                        if self.steps == 0:
-                            self._agv.SetDriveMode(0)
-                            self.steps = 100
                     case 3:
                         _clear()
                         self.ThirdRoute()
-                        yield self._env.process(self.Delay())
-                        self.steps -= 1
-                        if self.steps == 0:
-                            self._agv.SetDriveMode(0)
-                            self.steps = 100
-                           
             self._opcHandler.SendToServer()
-                          
-            if not self._agv.GetDriveMode():
-                plt.plot(self._agv.GetHistX(), self._agv.GetHistY())
-                plt.show()
+            self.Draw()
 
-    def CheckInput(self):
-        if keyboard.is_pressed('q'):
-            self._opcHandler.CloseConnection()
-            self.end_evnt.succeed()
-            
-    # Wait 1 second
-    # TODO: remember to change to 1 at the end of development
-    def Delay(self):
-        yield self._env.timeout(0.1)
+    def Draw(self):
+        pygame.display.update()
 
-    def ShowRoute(self):
-        pass
+    def Exit(self):
+        self._opcHandler.CloseConnection()
+        self.finishFlag = True
 
     #  ID 1
     def FirstRoute(self):

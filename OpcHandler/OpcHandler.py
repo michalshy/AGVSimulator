@@ -1,23 +1,20 @@
+import sys
+sys.dont_write_bytecode
 from Simulation.ParamManager import ParamManager
 from opcua import Client
 from Simulation.AGV.AGV import AGV
 
 class OpcHandler:
     def __init__(self, paramManager: ParamManager, agv: AGV):
-        self._data = ''
         self._param_manager = paramManager
         self._url = "opc.tcp://localhost:4841/freeopcua/server/"
         self._dataFromServer = 0
-        self.value = ""
         self._agv = agv
         self._nodeId = "ns=2;i="
         self._updateStep = 0
         self._stepAmount = 5
         self.client = Client(self._url)
         self.client.connect()
-
-    def StartReceptionLocal(self):
-        self._param_manager.fabricateFrames()
 
     def StartReception(self,it):
         self._nodeId += str(it)
@@ -30,15 +27,15 @@ class OpcHandler:
         self.client.disconnect()
        
     #Receive data from server
-    def ReceiveDataFromServer(self, pm: ParamManager):
+    def ReceiveDataFromServer(self):
         tab = [13,14]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
             self.StartReception(tab[it])
-            pm.SetDestID(self._dataFromServer)
+            self._param_manager.SetDestID(self._dataFromServer)
             it+=1
             self.StartReception(tab[it])
-            pm.SetDestTrig(self._dataFromServer)
+            self._param_manager.SetDestTrig(self._dataFromServer)
             self._updateStep = 0
         self._updateStep += 1    
 

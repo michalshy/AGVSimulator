@@ -1,25 +1,27 @@
 import Physics
-import simpy
 import Simulation
 from Simulation import Simulation
 from OpcHandler.OpcHandler import OpcHandler
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
+import pygame
 
 # AppEngine - class used to control whole flow, declare variables that are unique
 class AppEngine:
 
     def __init__(self):
-        # Declare simpy environment as real-time and it's factor as 100ms
-        self.env = simpy.rt.RealtimeEnvironment(factor=1, strict=False)
-        self._agv = AGV()
+        #pygame
+        pygame.init()
+        canvas = pygame.display.set_mode((1600, 800))
+
+        self._agv = AGV(canvas)
         self._phyEng = Physics(self._agv)
         self._paramManager = ParamManager()
         self._opcHandler = OpcHandler(self._paramManager, self._agv)
-        self._simulation = Simulation.AGVSim(self.env, self._phyEng, self._agv, self._opcHandler)
+        self._simulation = Simulation.AGVSim(self._phyEng, self._agv, self._opcHandler, self._paramManager, canvas)
 
     def LoopProgram(self):
         # Start simulation
-        self._simulation.Run()
+        self._simulation.Simulate()
         # End simulation
