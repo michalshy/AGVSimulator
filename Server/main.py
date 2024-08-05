@@ -1,4 +1,4 @@
-from opcua import ua, Server
+from opcua import Server
 import time
 
 # Setup our server
@@ -38,15 +38,6 @@ var8 = nnc.add_variable(addspace, "3005 - Go to destination - Trigger", 1)
 var7.set_writable()
 var8.set_writable()
 
-# Populate our address space
-# First a folder to organise our nodes
-myobj = objects.add_object(addspace, "MyObject")
-
-# Add a variable to our object
-myvar = myobj.add_variable(addspace, "MyVariable", 6.7)
-myvar.set_writable()    # Set MyVariable to be writable by clients
-
-
 
 # Starting the server
 server.start()
@@ -54,11 +45,7 @@ print(f"Server started at {url}")
 
 try:
     while True:
-        # Update the variable with some random values
         time.sleep(1)
-        new_val = myvar.get_value() + 0.1
-        print(f"New value: {new_val}")
-        myvar.set_value(new_val)
 finally:
     # Close the connection, cleanup
     server.stop()
