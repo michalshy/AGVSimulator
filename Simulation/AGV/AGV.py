@@ -17,14 +17,14 @@ class AGV:
         self._enc = ENC()
         self._ss = SS()
         self._nns = NNS()
-        self._maxSpeed = 1500
+        self._maxSpeed = 150
         self._enc.batteryValue = 120000
         self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 0
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
-        self._nns.xCoor = 80000
-        self._nns.yCoor = 40000
+        self._nns.xCoor = 800
+        self._nns.yCoor = 400
 
         # flags
         self.atMaxSpeed = False
@@ -96,10 +96,10 @@ class AGV:
     def RenderPosition(self):   
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))
-        pygame.draw.circle(self._canvas, self._color,(round(self._nns.xCoor / 100, 2), round(self._nns.yCoor / 100, 2)),30)
+        pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),30)
         pygame.draw.circle(self._canvas,(255,0,0),
-                           (self._nns.xCoor/100 +25 * math.cos(math.radians(self._nns.heading))
-                             ,self._nns.yCoor  / 100 + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+                           (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
+                             ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         
     def SetDriveMode(self, state: bool):
         self.driveMode = state
