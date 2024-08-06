@@ -26,15 +26,17 @@ class AGVSim(object):
         self.sw = False
         self.finishFlag = False
 
-        
+    def SetupTimers(self):
+        self._pe.SetTimer(self._timer)
+        self._timer.StartTimer()
 
     # Main function of the program, responsible for simulation of AGV movement
     def Simulate(self):
-        self._timer.StartTimer()
+        # Init timers inside internal classes
+        self.SetupTimers()
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
-            print(self._timer.GetDt())
             self._wm.PrepWindow()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: 
