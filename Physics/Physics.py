@@ -28,14 +28,14 @@ class Physics:
 
     def RotateLeft(self):
         if self._agv._nns.speed:
-            self._agv.GetNNS().heading += round(40 * self._timer.GetDt(), 1)
+            self._agv.GetNNS().heading += 100 * self._timer.GetDt()
             self.DrainBattery(1, self._agv.GetENC())
     
     #TODO: faster the agv, slower the rotate
     
     def RotateRight(self):
         if self._agv._nns.speed:
-            self._agv.GetNNS().heading -= round(40 * self._timer.GetDt(), 1)
+            self._agv.GetNNS().heading -= 100 * self._timer.GetDt()
             self.DrainBattery(1, self._agv.GetENC())
     
     def Accelerate(self):
