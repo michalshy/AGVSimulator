@@ -93,8 +93,6 @@ class AGV:
 
         self.RenderPosition()
 
-        time.sleep(.02)
-
     def RenderPosition(self):   
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))

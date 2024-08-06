@@ -1,17 +1,18 @@
 import os
-import time
+from Logic.WindowManager import WindowManager
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
 from OpcHandler.OpcHandler import OpcHandler
 import pygame
+from Logic.Timer import Timer
 
 class AGVSim(object):
     def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
         
-        self._canvas = canvas
-        self._backgroundColor = (255,255,255)
+        self._wm: WindowManager = WindowManager(canvas)
+        self._timer = Timer()
 
         self._pm = pm
         self._pe = pe
@@ -29,10 +30,12 @@ class AGVSim(object):
 
     # Main function of the program, responsible for simulation of AGV movement
     def Simulate(self):
+        self._timer.StartTimer()
         # Simulation of basic tasks
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
-            self._canvas.fill(self._backgroundColor)
+            print(self._timer.GetDt())
+            self._wm.PrepWindow()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: 
                     self.Exit()
@@ -57,6 +60,7 @@ class AGVSim(object):
                         self.ThirdRoute()
             self._opcHandler.SendToServer()
             self.Draw()
+            self._timer.UpdateDelta()
 
     def Draw(self):
         pygame.display.update()
