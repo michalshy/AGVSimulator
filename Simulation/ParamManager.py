@@ -24,3 +24,6 @@ class ParamManager:
 
     def SetSS(self):
         pass
+
+    def GetRoomPath(self):
+        return "./Resources/room.png"

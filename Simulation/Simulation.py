@@ -11,7 +11,7 @@ from Logic.Timer import Timer
 class AGVSim(object):
     def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
         
-        self._wm: WindowManager = WindowManager(canvas)
+        self._wm: WindowManager = WindowManager(canvas, pm)
         self._timer = Timer()
 
         self._pm = pm
