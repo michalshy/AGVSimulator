@@ -5,6 +5,8 @@ from Simulation.Frame6100.NNC import NNC
 import pygame
 import time
 import math
+from Simulation.AGV.Navigator.Navigator import Navigator
+from Globals import *
 
 # Class that holds state of AGV
 class AGV:
@@ -34,6 +36,12 @@ class AGV:
         # plotting
         self._histX = []
         self._histY = []
+
+        #navi
+        self._navi = Navigator()
+
+    def InitNavi(self, img: pygame.image):
+        self._navi.Init(img)
 
     def GetHistX(self):
         return self._histX
@@ -96,10 +104,15 @@ class AGV:
     def RenderPosition(self):   
         self._histX.append(round(self._nns.xCoor / 100, 2))
         self._histY.append(round(self._nns.yCoor / 100, 2))
-        pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),30)
+        pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
         pygame.draw.circle(self._canvas,(255,0,0),
                            (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
                              ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         
     def SetDriveMode(self, state: bool):
         self.driveMode = state
+
+    #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
+
+    def Navigate(self):
+        self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (800,400))

@@ -29,3 +29,6 @@ class WindowManager:
 
     def DetermineRoomPosition(self) -> tuple:
         return ((SCREEN_WIDTH - self._roomImage.get_width())/2, (SCREEN_HEIGHT - self._roomImage.get_height())/2)
+    
+    def GetImage(self):
+        return self._roomImage

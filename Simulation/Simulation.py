@@ -16,7 +16,10 @@ class AGVSim(object):
 
         self._pm = pm
         self._pe = pe
+
         self._agv = agv
+        self._agv.InitNavi(self._wm.GetImage())
+
         self._action = 0
 
         # for network
@@ -66,8 +69,6 @@ class AGVSim(object):
     def FirstRoute(self):
         self._agv.PrintState()
         self._agv.DetermineFlags()
-        self._pe.Accelerate()
-        self._pe.Update()
-        self._pe.RotateLeft()
+        self._agv.Navigate()
 
       
