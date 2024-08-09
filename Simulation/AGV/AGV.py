@@ -23,7 +23,7 @@ class AGV:
         self._nns.heading = 0
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
-        self._nns.xCoor = 800
+        self._nns.xCoor = 400
         self._nns.yCoor = 400
 
         # flags
@@ -83,8 +83,8 @@ class AGV:
         return self.driveMode
 
     def PrintState(self):
-        print("Heading: " + str(self._nns.heading) + "degree")
-        print("Speed: " + str(self._nns.speed / 100) + "m/s")
+        print("Heading: " + str(round(self._nns.heading,2)) + "degree")
+        print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
         print("X position: " + str(round(self._nns.xCoor / 100, 2)) + "m")
         print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")

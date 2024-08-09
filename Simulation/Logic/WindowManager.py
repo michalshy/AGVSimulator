@@ -2,6 +2,7 @@ from pygame import *
 import pygame
 from Simulation.ParamManager import ParamManager
 from Globals import *
+from OpcHandler.OpcHandler import OpcHandler
 
 class WindowManager:
     def __init__(self, canvas: Surface, pm: ParamManager) -> None:
@@ -15,6 +16,16 @@ class WindowManager:
     def PrepWindow(self):
         self._canvas.fill(self._backgroundColor)
         self._canvas.blit(self._roomImage, (self._startPos))
+
+    def CheckEvents(self, opcHandler: OpcHandler) -> bool:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: 
+                opcHandler.CloseConnection()
+                return False      
+        return True
+    
+    def Draw(self):
+        pygame.display.update()
 
     def DetermineRoomPosition(self) -> tuple:
         return ((SCREEN_WIDTH - self._roomImage.get_width())/2, (SCREEN_HEIGHT - self._roomImage.get_height())/2)

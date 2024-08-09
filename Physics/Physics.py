@@ -2,7 +2,7 @@ import math
 from Simulation.Frame6000.ENC import ENC
 from Simulation.Frame6000.NNS import NNS
 from Simulation.AGV.AGV import AGV
-from Logic.Timer import Timer
+from Simulation.Logic.Timer import Timer
 
 
 # Class responsible for changing the state of desired AGV

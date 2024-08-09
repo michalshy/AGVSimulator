@@ -1,12 +1,12 @@
 import os
-from Logic.WindowManager import WindowManager
+from Simulation.Logic.WindowManager import WindowManager
 from Simulation.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
 from OpcHandler.OpcHandler import OpcHandler
 import pygame
-from Logic.Timer import Timer
+from Simulation.Logic.Timer import Timer
 
 class AGVSim(object):
     def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
@@ -23,7 +23,6 @@ class AGVSim(object):
         self._opcHandler = opcHandler
 
         #for simul
-        self.sw = False
         self.finishFlag = False
 
     def SetupTimers(self):
@@ -38,10 +37,9 @@ class AGVSim(object):
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
             self._wm.PrepWindow()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT: 
-                    self.Exit()
             self._opcHandler.ReceiveDataFromServer()
+            if not self._wm.CheckEvents(self._opcHandler):
+                self.Exit()
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
@@ -54,22 +52,15 @@ class AGVSim(object):
                     case 1:
                         _clear()
                         self.FirstRoute()
-                    case 2:
-                        _clear()
-                        self.SecondRoute()
-                    case 3:
-                        _clear()
-                        self.ThirdRoute()
             self._opcHandler.SendToServer()
             self.Draw()
             self._timer.UpdateDelta()
 
-    def Draw(self):
-        pygame.display.update()
-
     def Exit(self):
-        self._opcHandler.CloseConnection()
         self.finishFlag = True
+
+    def Draw(self):
+        self._wm.Draw()
 
     #  ID 1
     def FirstRoute(self):
@@ -77,28 +68,6 @@ class AGVSim(object):
         self._agv.DetermineFlags()
         self._pe.Accelerate()
         self._pe.Update()
-        if self.sw:
-            self._pe.RotateLeft()
-            if self._agv.GetNNS().heading >= 0:
-                self.sw = False
-        if not self.sw:
-            self._pe.RotateRight()
-            if self._agv.GetNNS().heading <= -360:
-                self.sw = True
-
-    #  ID 2
-    def SecondRoute(self):
-        self._agv.PrintState()
-        self._agv.DetermineFlags()
-        self._pe.Accelerate()
-        self._pe.Update()
         self._pe.RotateLeft()
-
-    #  ID 3
-    def ThirdRoute(self):
-        self._agv.PrintState()
-        self._agv.DetermineFlags()
-        self._pe.Accelerate()
-        self._pe.Update()
 
       
