@@ -1,6 +1,6 @@
 import pygame
-from pygame import image
-
+from pygame import Surface
+from Globals import *
 import math
 import heapq
 
@@ -148,15 +148,19 @@ def AStarSearch(grid, src, dest):
 
 class Navigator:
     def __init__(self) -> None:
-        self._image: pygame.image = None
+        self._image: Surface = None
         self._grid = []
 
-    def Init(self, img: pygame.image):
+    def Init(self, img: Surface):
         self._image = img
         self._grid = self.DetermineGrid()
 
     def DetermineGrid(self):
         pass
 
+    def TransformPos(self, pos: tuple) -> tuple:
+        return (pos[0] - (SCREEN_WIDTH - self._image.get_width())/2, pos[1] - (SCREEN_HEIGHT - self._image.get_height())/2)
+
     def FindPath(self, agvPos: tuple, destPos: tuple):
-        pass
+        startPos = self.TransformPos(agvPos)
+        goalPos = self.TransformPos(destPos)
