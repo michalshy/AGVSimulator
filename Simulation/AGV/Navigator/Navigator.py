@@ -49,7 +49,9 @@ class Navigator:
         #Consider agv size in grid
         tmp = []
         el = self._cols + 1
-        for red in range(GRID_OFFSET_AMOUNT):
+        index = 0
+        while index < GRID_OFFSET_AMOUNT:
+            el = self._cols + 1
             while el < len(self._grid) - self._cols:
                 if self._grid[el + 1] == 0 or self._grid[el - 1] == 0 or self._grid[el - self._cols] == 0 or self._grid[el + self._cols] == 0 \
                     or self._grid[el - self._cols - 1] == 0 or self._grid[el - self._cols + 1] == 0 or self._grid[el + self._cols - 1] == 0 or self._grid[el + self._cols + 1] == 0:
@@ -59,6 +61,7 @@ class Navigator:
             for t in tmp:
                 self._grid[t] = 0
             tmp.clear()
+            index += 1
         return self._grid
     
     def TransformPos(self, pos: tuple) -> tuple:
