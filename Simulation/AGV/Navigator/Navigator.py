@@ -29,26 +29,41 @@ class Navigator:
         self._grid = self.DetermineGrid()
 
     def DetermineGrid(self) -> list:
-        column = AGV_SIZE
-        row = AGV_SIZE
+        #Provide basic grid, 1:1 from image, no size of AGV included
+        column = GRID_DENSITY
+        row = GRID_DENSITY
         columnsCalculated = False
         while row < self._image.get_height():
-            column = AGV_SIZE
+            column = GRID_DENSITY
             while column < self._image.get_width():
                 if self._image.get_at((column, row)) == WHITE:
                     self._grid.append(1)
                 else:
                     self._grid.append(0)
-                column += AGV_SIZE
+                column += GRID_DENSITY
                 if not columnsCalculated:
                     self._cols += 1
             columnsCalculated = True
-            row += AGV_SIZE
+            row += GRID_DENSITY
             self._rows += 1
+        #Consider agv size in grid
+        tmp = []
+        el = self._cols + 1
+        for red in range(GRID_OFFSET_AMOUNT):
+            while el < len(self._grid) - self._cols:
+                if self._grid[el + 1] == 0 or self._grid[el - 1] == 0 or self._grid[el - self._cols] == 0 or self._grid[el + self._cols] == 0 \
+                    or self._grid[el - self._cols - 1] == 0 or self._grid[el - self._cols + 1] == 0 or self._grid[el + self._cols - 1] == 0 or self._grid[el + self._cols + 1] == 0:
+                    tmp.append(el)
+                    pygame.draw.rect(self._image, (0,255,0), pygame.Rect(el%self._cols * GRID_DENSITY, el/self._cols * GRID_DENSITY, 2, 2))
+                el += 1
+            for t in tmp:
+                self._grid[t] = 0
+            tmp.clear()
         return self._grid
+    
     def TransformPos(self, pos: tuple) -> tuple:
-        return (round((pos[1] - (SCREEN_HEIGHT - self._image.get_height())/2)/AGV_SIZE, 0), 
-                round((pos[0] - (SCREEN_WIDTH - self._image.get_width())/2)/AGV_SIZE, 0))
+        return (round((pos[1] - (SCREEN_HEIGHT - self._image.get_height())/2)/GRID_DENSITY, 0), 
+                round((pos[0] - (SCREEN_WIDTH - self._image.get_width())/2)/GRID_DENSITY, 0))
 
     def FindPath(self, agvPos: tuple, destPos: tuple):
         startPos = self.TransformPos(agvPos)
@@ -96,7 +111,7 @@ class Navigator:
         # Print the path
         for i in path:
             print("->", i, end=" ")
-            pygame.draw.rect(self._image, (255,0,0), pygame.Rect(i[1] * AGV_SIZE, i[0] * AGV_SIZE, AGV_SIZE,AGV_SIZE))
+            pygame.draw.rect(self._image, (255,0,0), pygame.Rect(i[1] * GRID_DENSITY, i[0] * GRID_DENSITY, GRID_DENSITY, GRID_DENSITY))
         print()
 
     # Implement the A* search algorithm
