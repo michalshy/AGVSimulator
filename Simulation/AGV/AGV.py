@@ -19,7 +19,7 @@ class AGV:
         self._enc = ENC()
         self._ss = SS()
         self._nns = NNS()
-        self._maxSpeed = 150
+        self._maxSpeed = 50 #TODO: figure out when agv can move faster to 150
         self._enc.batteryValue = 120000
         self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 0

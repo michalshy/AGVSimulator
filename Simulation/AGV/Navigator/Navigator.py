@@ -56,7 +56,6 @@ class Navigator:
                 if self._grid[el + 1] == 0 or self._grid[el - 1] == 0 or self._grid[el - self._cols] == 0 or self._grid[el + self._cols] == 0 \
                     or self._grid[el - self._cols - 1] == 0 or self._grid[el - self._cols + 1] == 0 or self._grid[el + self._cols - 1] == 0 or self._grid[el + self._cols + 1] == 0:
                     tmp.append(el)
-                    pygame.draw.rect(self._image, (0,255,0), pygame.Rect(el%self._cols * GRID_DENSITY, el/self._cols * GRID_DENSITY, 2, 2))
                 el += 1
             for t in tmp:
                 self._grid[t] = 0
@@ -93,7 +92,6 @@ class Navigator:
 
     # Trace the path from source to destination
     def TracePath(self, cell_details, dest):
-        print("The Path is ")
         path = []
         row = dest[0]
         col = dest[1]
@@ -113,9 +111,7 @@ class Navigator:
 
         # Print the path
         for i in path:
-            print("->", i, end=" ")
             pygame.draw.rect(self._image, (255,0,0), pygame.Rect(i[1] * GRID_DENSITY, i[0] * GRID_DENSITY, GRID_DENSITY, GRID_DENSITY))
-        print()
 
     # Implement the A* search algorithm
     def AStarSearch(self, src, dest):
@@ -178,7 +174,6 @@ class Navigator:
                         # Set the parent of the destination cell
                         cell_details[new_i][new_j].parent_i = i
                         cell_details[new_i][new_j].parent_j = j
-                        print("The destination cell is found")
                         # Trace and print the path from source to destination
                         self.TracePath(cell_details, dest)
                         found_dest = True
@@ -203,3 +198,6 @@ class Navigator:
         # If the destination is not found after visiting all cells
         if not found_dest:
             print("Failed to find the destination cell")
+        
+    def GetClosest(self):
+        return self._grid[0]

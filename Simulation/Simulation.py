@@ -46,15 +46,8 @@ class AGVSim(object):
             self._agv.SetDestId(self._pm.GetNNC())
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
-                match self._agv.GetNNS().goingToID:
-                    case 0:
-                        _clear()
-                        self._pe.EmergencyStop()
-                        self._pe.Update()
-                        self._agv.PrintState()
-                    case 1:
-                        _clear()
-                        self.FirstRoute()
+                _clear()
+                self.Navigate()
             self._opcHandler.SendToServer()
             self.Draw()
             self._timer.UpdateDelta()
@@ -66,9 +59,11 @@ class AGVSim(object):
         self._wm.Draw()
 
     #  ID 1
-    def FirstRoute(self):
+    def Navigate(self):
         self._agv.PrintState()
         self._agv.DetermineFlags()
         self._agv.Navigate()
+        self._pe.Accelerate()
+        self._pe.Update()
 
       
