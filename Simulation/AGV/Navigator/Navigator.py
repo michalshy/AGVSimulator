@@ -21,6 +21,7 @@ class Navigator:
     def __init__(self) -> None:
         self._image: Surface = None
         self._grid: list = []
+        self._path: list = []
         self._rows = 0
         self._cols = 0
 
@@ -91,7 +92,7 @@ class Navigator:
         return ((row - dest[0]) ** 2 + (col - dest[1]) ** 2) ** 0.5
 
     # Trace the path from source to destination
-    def TracePath(self, cell_details, dest):
+    def TracePath(self, cell_details, dest) -> list:
         path = []
         row = dest[0]
         col = dest[1]
@@ -109,9 +110,7 @@ class Navigator:
         # Reverse the path to get the path from source to destination
         path.reverse()
 
-        # Print the path
-        for i in path:
-            pygame.draw.rect(self._image, (255,0,0), pygame.Rect(i[1] * GRID_DENSITY, i[0] * GRID_DENSITY, GRID_DENSITY, GRID_DENSITY))
+        return path
 
     # Implement the A* search algorithm
     def AStarSearch(self, src, dest):
@@ -175,7 +174,7 @@ class Navigator:
                         cell_details[new_i][new_j].parent_i = i
                         cell_details[new_i][new_j].parent_j = j
                         # Trace and print the path from source to destination
-                        self.TracePath(cell_details, dest)
+                        self._path = self.TracePath(cell_details, dest)
                         found_dest = True
                         return
                     else:
@@ -201,3 +200,6 @@ class Navigator:
         
     def GetClosest(self):
         return self._grid[0]
+    
+    def GetPath(self) -> list:
+        return self._path

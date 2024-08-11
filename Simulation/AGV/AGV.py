@@ -33,22 +33,12 @@ class AGV:
         self.batteryAvailable = True
         self.driveMode = False
 
-        # plotting
-        self._histX = []
-        self._histY = []
-
         #navi
         self._navi = Navigator()
 
     def InitNavi(self, img: pygame.image):
         self._navi.Init(img)
 
-    def GetHistX(self):
-        return self._histX
-
-    def GetHistY(self):
-        return self._histY
-    
     def SetDestId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
 
@@ -99,16 +89,8 @@ class AGV:
         print("Destination ID:" + str(self._nns.goingToID))
         print("Destination Triger:" + str(self.driveMode))
 
-        self.RenderPosition()
+        self.Draw()
 
-    def RenderPosition(self):   
-        self._histX.append(round(self._nns.xCoor / 100, 2))
-        self._histY.append(round(self._nns.yCoor / 100, 2))
-        pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
-        pygame.draw.circle(self._canvas,(255,0,0),
-                           (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
-                             ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
-        
     def SetDriveMode(self, state: bool):
         self.driveMode = state
 
@@ -116,3 +98,12 @@ class AGV:
 
     def Navigate(self):
         self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (900,400))
+
+    def Draw(self):
+        for i in self._navi.GetPath():
+            pygame.draw.rect(self._canvas, (255,0,0), pygame.Rect(i[1] * GRID_DENSITY + ROOM_W_OFFSET, i[0] * GRID_DENSITY + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
+        pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
+        pygame.draw.circle(self._canvas,(255,0,0),
+                           (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
+                             ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+        
