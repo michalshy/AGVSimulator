@@ -3,10 +3,13 @@ from Simulation.Frame6000.SS import SS
 from Simulation.Frame6000.NNS import NNS
 from Simulation.Frame6100.NNC import NNC
 import pygame
-import time
 import math
 from Simulation.AGV.Navigator.Navigator import Navigator
 from Globals import *
+
+def getAngle(a, b, c):
+    ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
+    return ang + 360 if ang < 0 else ang
 
 # Class that holds state of AGV
 class AGV:
@@ -22,7 +25,7 @@ class AGV:
         self._maxSpeed = 50 #TODO: figure out when agv can move faster to 150
         self._enc.batteryValue = 120000
         self._boundryBattery = self._enc.batteryValue * 0.3
-        self._nns.heading = 0
+        self._nns.heading = -90
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = 400
@@ -96,10 +99,12 @@ class AGV:
         self.driveMode = state
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
+    def CheckPaths(self):
+        self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (900,400))
+        self.SetPathToFollow()
 
     def Navigate(self):
-        self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (900,400))
-        self.GetPathToFollow()
+        self.CheckPaths()
 
     def Draw(self):
         for i in self._path:
@@ -109,8 +114,18 @@ class AGV:
                            (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
                              ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         
-    def GetPathToFollow(self):
+    def SetPathToFollow(self):
         self._path.clear()
         for i in self._navi.GetPathToFollow():
             self._path.append((i[1] * GRID_DENSITY + ROOM_W_OFFSET, i[0] * GRID_DENSITY + ROOM_H_OFFSET))
+
+    #[0] IS FOR X, [1] IS FOR Y
+    def GetPath(self):
+        return self._path
+
+    def CalculateTurn(self):
+        pointBeginning = (self._nns.xCoor, self._nns.yCoor)
+        pointHeading = (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading)), self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)))
+        return getAngle(self._path[0], pointBeginning, pointHeading)
+        
 

@@ -3,6 +3,7 @@ from Simulation.Frame6000.ENC import ENC
 from Simulation.Frame6000.NNS import NNS
 from Simulation.AGV.AGV import AGV
 from Simulation.Logic.Timer import Timer
+from Globals import *
 
 
 # Class responsible for changing the state of desired AGV
@@ -28,14 +29,14 @@ class Physics:
 
     def RotateLeft(self):
         if self._agv._nns.speed:
-            self._agv.GetNNS().heading += 100 * self._timer.GetDt()
+            self._agv.GetNNS().heading += ROTATE_VAL * self._timer.GetDt()
             self.DrainBattery(1, self._agv.GetENC())
     
     #TODO: faster the agv, slower the rotate
     
     def RotateRight(self):
         if self._agv._nns.speed:
-            self._agv.GetNNS().heading -= 100 * self._timer.GetDt()
+            self._agv.GetNNS().heading -= ROTATE_VAL * self._timer.GetDt()
             self.DrainBattery(1, self._agv.GetENC())
     
     def Accelerate(self):
