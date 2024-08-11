@@ -35,6 +35,7 @@ class AGV:
 
         #navi
         self._navi = Navigator()
+        self._path = []
 
     def InitNavi(self, img: pygame.image):
         self._navi.Init(img)
@@ -98,12 +99,18 @@ class AGV:
 
     def Navigate(self):
         self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (900,400))
+        self.GetPathToFollow()
 
     def Draw(self):
-        for i in self._navi.GetPath():
-            pygame.draw.rect(self._canvas, (255,0,0), pygame.Rect(i[1] * GRID_DENSITY + ROOM_W_OFFSET, i[0] * GRID_DENSITY + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
+        for i in self._path:
+            pygame.draw.rect(self._canvas, (255,0,0), pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
         pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
         pygame.draw.circle(self._canvas,(255,0,0),
                            (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
                              ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         
+    def GetPathToFollow(self):
+        self._path.clear()
+        for i in self._navi.GetPathToFollow():
+            self._path.append((i[1] * GRID_DENSITY + ROOM_W_OFFSET, i[0] * GRID_DENSITY + ROOM_H_OFFSET))
+

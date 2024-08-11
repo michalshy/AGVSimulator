@@ -5,8 +5,6 @@ from Globals import *
 import math
 import heapq
 
-BLACK = (0,0,0)
-WHITE = (255,255,255)
 
 # Define the Cell class
 class Cell:
@@ -198,8 +196,5 @@ class Navigator:
         if not found_dest:
             print("Failed to find the destination cell")
         
-    def GetClosest(self):
-        return self._grid[0]
-    
-    def GetPath(self) -> list:
+    def GetPathToFollow(self) -> list:
         return self._path
