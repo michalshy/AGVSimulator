@@ -28,9 +28,6 @@ class AGV:
         # base params
         self._boundryBattery = 0
 
-        # flags
-        self.driveMode = False
-
         #sensors
         self._battery = Battery()
         self._navi = Navigator()
@@ -39,13 +36,13 @@ class AGV:
 
     def Init(self, img: pygame.Surface):
         self._enc.batteryValue = 120000
-        self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 90
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = 400
         self._nns.yCoor = 400
 
+        self._battery.Init(self._enc.batteryValue)
         self._navi.Init(img)
         self._wheels.Init()
         self._lidars.Init()
@@ -54,20 +51,14 @@ class AGV:
         self._nns.goingToID = nnc.destID
 
     def SetDestTrig(self, nnc: NNC):
-        self.driveMode = nnc.goDestTrig
+        self._wheels.SetDriveMode(nnc.goDestTrig)
 
     def DetermineFlags(self):
-        self._battery.DetermineFlags()
+        self._battery.DetermineFlags(self._enc.batteryValue)
         self._navi.DetermineFlags()
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
 
-        # Battery
-        if self._enc.batteryValue > self._boundryBattery:
-            self.batteryAvailable = True
-        else:
-            self.batteryAvailable = False
-            self.driveMode = False
 
     def GetENC(self):
         return self._enc
@@ -79,13 +70,13 @@ class AGV:
         return self._nns
 
     def GetBatteryAvailable(self):
-        return self.batteryAvailable
+        return self._battery.GetBatterAvailable()
 
     def GetAtMaxSpeed(self):
         return self._wheels.GetAtMaxSpeed()
 
     def GetDriveMode(self):
-        return self.driveMode
+        return self._wheels.GetDriveMode()
 
     def PrintState(self):
         print("Heading: " + str(round(self._nns.heading,2)) + "degree")
@@ -94,10 +85,7 @@ class AGV:
         print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
         print("Destination ID:" + str(self._nns.goingToID))
-        print("Destination Triger:" + str(self.driveMode))
-
-    def SetDriveMode(self, state: bool):
-        self.driveMode = state
+        print("Destination Triger:" + str(self._wheels.GetDriveMode()))
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
