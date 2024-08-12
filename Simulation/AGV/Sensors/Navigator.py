@@ -235,7 +235,8 @@ class Navigator:
         return self._path
     
     def CalculateTurn(self, nns: NNS):
-        print(self._path[0])
+        retVal = 0
+
         pointBeginning = (nns.xCoor, nns.yCoor)
         pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
 
