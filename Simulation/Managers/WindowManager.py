@@ -32,12 +32,6 @@ class WindowManager:
     def Update(self):
         pygame.display.update()
 
-    def DrawRect(self, color: pygame.Color, rect: pygame.Rect):
-        pygame.draw.rect(self._canvas, color, rect)
-
-    def DrawCircle(self, color: pygame.Color, pos: tuple, size):
-        pygame.draw.circle(self._canvas, color, pos, size)
-
     def DetermineRoomPosition(self) -> tuple:
         return ((SCREEN_WIDTH - self._roomImage.get_width())/2, (SCREEN_HEIGHT - self._roomImage.get_height())/2)
     

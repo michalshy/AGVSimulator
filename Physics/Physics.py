@@ -15,10 +15,6 @@ class Physics:
     def SetTimer(self, timer: Timer):
         self._timer = timer
 
-    def EmergencyStop(self):
-        self._agv.GetNNS().speed = 0
-        self.DrainBattery(10, self._agv.GetENC())
-
     #TODO: faster the agv, slower the rotate
 
     def RotateLeft(self):

@@ -47,6 +47,10 @@ class AGV:
         self._wheels.Init()
         self._lidars.Init()
 
+    def SetRouteParams(self, nnc: NNC):
+        self.SetDestId(nnc)
+        self.SetDestTrig(nnc)
+
     def SetDestId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
 

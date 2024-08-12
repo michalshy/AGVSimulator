@@ -14,18 +14,12 @@ class AGVSim(object):
         
         self._wm: WindowManager = WindowManager(canvas, pm, agv)
         self._timer = Timer()
-
         self._pm = pm
         self._pe = pe
-
         self._agv = agv
         self._agv.Init(self._wm.GetImage())
-
-        self._action = 0
-
         # for network
         self._opcHandler = opcHandler
-
         #for simul
         self.finishFlag = False
 
@@ -42,14 +36,13 @@ class AGVSim(object):
         while not self.finishFlag:
             self._wm.PrepWindow()
             self._opcHandler.ReceiveDataFromServer()
+            self._opcHandler.SendToServer()
             if not self._wm.CheckEvents(self._opcHandler):
                 self.Exit()
-            self._agv.SetDestId(self._pm.GetNNC())
-            self._agv.SetDestTrig(self._pm.GetNNC())
+            self._agv.SetRouteParams(self._pm.GetNNC())
             if self._agv.GetDriveMode():
                 _clear()
                 self.Route()
-            self._opcHandler.SendToServer()
             self.Draw()
             self._timer.UpdateDelta()
 
@@ -69,10 +62,13 @@ class AGVSim(object):
     def Route(self):
         #show state in output terminal
         self._agv.PrintState()
-        #check flags
+        #check flags in module and submodules
         self._agv.DetermineFlags()
+        #fill routes into navigation
         self._agv.Navigate()
+        #check rotation to routes
         self.CheckRotation(self._agv.CalculateTurn())
+        #accelerate object and update position
         self._pe.Accelerate()
         self._pe.Update()
         
