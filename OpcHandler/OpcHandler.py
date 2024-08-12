@@ -1,6 +1,6 @@
 import sys
 sys.dont_write_bytecode
-from Simulation.ParamManager import ParamManager
+from Simulation.Managers.ParamManager import ParamManager
 from opcua import Client
 from Simulation.AGV.AGV import AGV
 

@@ -1,29 +1,26 @@
 import os
-from Logic.WindowManager import WindowManager
-from Simulation.ParamManager import ParamManager
+from Simulation.Managers.WindowManager import WindowManager
+from Simulation.Managers.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
 from OpcHandler.OpcHandler import OpcHandler
 import pygame
-from Logic.Timer import Timer
+from Simulation.Logic.Timer import Timer
+from Globals import *
 
 class AGVSim(object):
     def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
         
-        self._wm: WindowManager = WindowManager(canvas, pm)
+        self._wm: WindowManager = WindowManager(canvas, pm, agv)
         self._timer = Timer()
-
         self._pm = pm
         self._pe = pe
         self._agv = agv
-        self._action = 0
-
+        self._agv.Init(self._wm.GetImage())
         # for network
         self._opcHandler = opcHandler
-
         #for simul
-        self.sw = False
         self.finishFlag = False
 
     def SetupTimers(self):
@@ -38,67 +35,42 @@ class AGVSim(object):
         _clear = lambda: os.system('cls || clear')
         while not self.finishFlag:
             self._wm.PrepWindow()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT: 
-                    self.Exit()
             self._opcHandler.ReceiveDataFromServer()
-            self._agv.SetDestId(self._pm.GetNNC())
-            self._agv.SetDestTrig(self._pm.GetNNC())
-            if self._agv.GetDriveMode():
-                match self._agv.GetNNS().goingToID:
-                    case 0:
-                        _clear()
-                        self._pe.EmergencyStop()
-                        self._pe.Update()
-                        self._agv.PrintState()
-                    case 1:
-                        _clear()
-                        self.FirstRoute()
-                    case 2:
-                        _clear()
-                        self.SecondRoute()
-                    case 3:
-                        _clear()
-                        self.ThirdRoute()
             self._opcHandler.SendToServer()
+            if not self._wm.CheckEvents(self._opcHandler):
+                self.Exit()
+            self._agv.SetRouteParams(self._pm.GetNNC())
+            if self._agv.GetDriveMode():
+                _clear()
+                self.Route()
             self.Draw()
             self._timer.UpdateDelta()
 
-    def Draw(self):
-        pygame.display.update()
-
     def Exit(self):
-        self._opcHandler.CloseConnection()
         self.finishFlag = True
 
-    #  ID 1
-    def FirstRoute(self):
-        self._agv.PrintState()
-        self._agv.DetermineFlags()
-        self._pe.Accelerate()
-        self._pe.Update()
-        if self.sw:
+    def Draw(self):
+        self._wm.Draw()
+        self._wm.Update()
+
+    def CheckRotation(self, val):
+        if (val > 20 and val < 170):
             self._pe.RotateLeft()
-            if self._agv.GetNNS().heading >= 0:
-                self.sw = False
-        if not self.sw:
+        if (val >= 180 and val < 350):
             self._pe.RotateRight()
-            if self._agv.GetNNS().heading <= -360:
-                self.sw = True
 
-    #  ID 2
-    def SecondRoute(self):
+    def Route(self):
+        #show state in output terminal
         self._agv.PrintState()
+        #check flags in module and submodules
         self._agv.DetermineFlags()
+        #fill routes into navigation
+        self._agv.Navigate()
+        #check rotation to routes
+        self.CheckRotation(self._agv.CalculateTurn())
+        #accelerate object and update position
         self._pe.Accelerate()
         self._pe.Update()
-        self._pe.RotateLeft()
-
-    #  ID 3
-    def ThirdRoute(self):
-        self._agv.PrintState()
-        self._agv.DetermineFlags()
-        self._pe.Accelerate()
-        self._pe.Update()
+        
 
       
