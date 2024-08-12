@@ -1,10 +1,12 @@
-import sys
-import pygame
 from pygame import Surface
 from Globals import *
 import math
 import heapq
+from Simulation.Frames.Frame6000.NNS import NNS
 
+def getAngle(a, b, c):
+    ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
+    return ang + 360 if ang < 0 else ang
 
 # Define the Cell class
 class Cell:
@@ -22,10 +24,14 @@ class Navigator:
         self._path: list = []
         self._rows = 0
         self._cols = 0
+        self.noPathFlag = False
 
     def Init(self, img: Surface):
         self._image = img
         self._grid = self.DetermineGrid()
+
+    def DetermineFlags(self):
+        pass
 
     def DetermineGrid(self) -> list:
         #Provide basic grid, 1:1 from image, no size of AGV included
@@ -72,6 +78,25 @@ class Navigator:
         goalPos = self.TransformPos(destPos)
         resultGoal = tuple(tuple(map(int, goalPos)))
         self.AStarSearch(resultStart, resultGoal)
+
+    def CalculateTurn(self, nns: NNS):
+        print(nns.xCoor + 25 * math.cos(math.radians(nns.heading)))
+        retVal = 0
+
+        pointBeginning = (nns.xCoor, nns.yCoor)
+        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
+
+        if(len(self._path) != 0):
+            self.noPathFlag = False
+            retVal = getAngle(self._path[0], pointBeginning, pointHeading)
+            # Check Distance
+            distance = math.sqrt(math.pow(pointBeginning[0] - pointHeading[0], 2) + math.pow(pointBeginning[1] - pointHeading[1], 2))
+            if (distance < 5):
+                retVal = 0
+        else:
+            self.noPathFlag = True
+
+        return retVal
         
     # Check if a cell is valid (within the grid)
     def IsValid(self, row, col):
@@ -106,7 +131,6 @@ class Navigator:
         # Add the source cell to the path
         path.append((row, col))
         # Reverse the path to get the path from source to destination
-        print(GRID_OFFSET_AMOUNT)
         if len(path) > GRID_OFFSET_AMOUNT:
             for i in range(GRID_OFFSET_AMOUNT):
                 path.pop()
@@ -116,7 +140,9 @@ class Navigator:
 
         path.reverse()
 
-        return path
+        self._path.clear()
+        for i in path:
+            self._path.append((i[1] * GRID_DENSITY + ROOM_W_OFFSET, i[0] * GRID_DENSITY + ROOM_H_OFFSET))
 
     # Implement the A* search algorithm
     def AStarSearch(self, src, dest):
@@ -180,7 +206,7 @@ class Navigator:
                         cell_details[new_i][new_j].parent_i = i
                         cell_details[new_i][new_j].parent_j = j
                         # Trace and print the path from source to destination
-                        self._path = self.TracePath(cell_details, dest)
+                        self.TracePath(cell_details, dest)
                         found_dest = True
                         return
                     else:
@@ -203,6 +229,23 @@ class Navigator:
         # If the destination is not found after visiting all cells
         if not found_dest:
             print("Failed to find the destination cell")
-        
-    def GetPathToFollow(self) -> list:
+    
+    #[0] IS FOR X, [1] IS FOR Y
+    def GetPath(self) -> list:
         return self._path
+    
+    def CalculateTurn(self, nns: NNS):
+        print(self._path[0])
+        pointBeginning = (nns.xCoor, nns.yCoor)
+        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
+
+        if(len(self._path) != 0):
+            self.noPathFlag = False
+            retVal = getAngle(self._path[0], pointBeginning, pointHeading)
+            # Check Distance
+            distance = math.sqrt(math.pow(pointBeginning[0] - pointHeading[0], 2) + math.pow(pointBeginning[1] - pointHeading[1], 2))
+            if (distance < 5):
+                retVal = 0
+        else:
+            self.noPathFlag = True
+        return retVal

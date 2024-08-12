@@ -1,13 +1,15 @@
 from pygame import *
 import pygame
-from Simulation.ParamManager import ParamManager
+from Simulation.Managers.ParamManager import ParamManager
 from Globals import *
 from OpcHandler.OpcHandler import OpcHandler
+from Simulation.AGV.AGV import AGV
 
 class WindowManager:
-    def __init__(self, canvas: Surface, pm: ParamManager) -> None:
+    def __init__(self, canvas: Surface, pm: ParamManager, agv: AGV) -> None:
         self._canvas = canvas
         self._pm = pm
+        self._agv = agv
         self._backgroundColor = (0,0,0)
         self._roomImage = pygame.image.load(self._pm.GetRoomPath())
         self._rectRoom = self._roomImage.get_rect()
@@ -25,7 +27,16 @@ class WindowManager:
         return True
     
     def Draw(self):
+        self._agv.Draw()
+
+    def Update(self):
         pygame.display.update()
+
+    def DrawRect(self, color: pygame.Color, rect: pygame.Rect):
+        pygame.draw.rect(self._canvas, color, rect)
+
+    def DrawCircle(self, color: pygame.Color, pos: tuple, size):
+        pygame.draw.circle(self._canvas, color, pos, size)
 
     def DetermineRoomPosition(self) -> tuple:
         return ((SCREEN_WIDTH - self._roomImage.get_width())/2, (SCREEN_HEIGHT - self._roomImage.get_height())/2)

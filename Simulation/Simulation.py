@@ -1,6 +1,6 @@
 import os
-from Simulation.Logic.WindowManager import WindowManager
-from Simulation.ParamManager import ParamManager
+from Simulation.Managers.WindowManager import WindowManager
+from Simulation.Managers.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
@@ -12,14 +12,14 @@ from Globals import *
 class AGVSim(object):
     def __init__(self, pe: Physics, agv: AGV, opcHandler: OpcHandler, pm: ParamManager, canvas):
         
-        self._wm: WindowManager = WindowManager(canvas, pm)
+        self._wm: WindowManager = WindowManager(canvas, pm, agv)
         self._timer = Timer()
 
         self._pm = pm
         self._pe = pe
 
         self._agv = agv
-        self._agv.InitNavi(self._wm.GetImage())
+        self._agv.Init(self._wm.GetImage())
 
         self._action = 0
 
@@ -58,6 +58,7 @@ class AGVSim(object):
 
     def Draw(self):
         self._wm.Draw()
+        self._wm.Update()
 
     def CheckRotation(self, val):
         if (val > 20 and val < 170):

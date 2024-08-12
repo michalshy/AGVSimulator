@@ -1,6 +1,6 @@
 import math
-from Simulation.Frame6000.ENC import ENC
-from Simulation.Frame6000.NNS import NNS
+from Simulation.Frames.Frame6000.ENC import ENC
+from Simulation.Frames.Frame6000.NNS import NNS
 from Simulation.AGV.AGV import AGV
 from Simulation.Logic.Timer import Timer
 from Globals import *
@@ -18,12 +18,6 @@ class Physics:
     def EmergencyStop(self):
         self._agv.GetNNS().speed = 0
         self.DrainBattery(10, self._agv.GetENC())
-
-    def Rotate(self, rad):  # 1 - 45 deegre
-        if self._agv.GetBatteryAvailable():
-            self._agv.GetNNS().heading = rad
-            self.DrainBattery(1, self._agv.GetENC())
-
 
     #TODO: faster the agv, slower the rotate
 

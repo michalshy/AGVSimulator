@@ -1,5 +1,5 @@
-from Simulation.Frame6100.NNC import NNC
-from Simulation.Frame6100.MC import MC
+from Simulation.Frames.Frame6100.NNC import NNC
+from Simulation.Frames.Frame6100.MC import MC
 
 
 # Class for reading variables from server

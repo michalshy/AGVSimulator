@@ -1,10 +1,13 @@
-from Simulation.Frame6000.ENC import ENC
-from Simulation.Frame6000.SS import SS
-from Simulation.Frame6000.NNS import NNS
-from Simulation.Frame6100.NNC import NNC
+from Simulation.Frames.Frame6000.ENC import ENC
+from Simulation.Frames.Frame6000.SS import SS
+from Simulation.Frames.Frame6000.NNS import NNS
+from Simulation.Frames.Frame6100.NNC import NNC
+from Simulation.AGV.Sensors.Lidars import Lidars
+from Simulation.AGV.Sensors.Wheels import Wheels
+from Simulation.AGV.Sensors.Navigator import Navigator
+from Simulation.AGV.Sensors.Battery import Battery
 import pygame
 import math
-from Simulation.AGV.Navigator.Navigator import Navigator
 from Globals import *
 
 def getAngle(a, b, c):
@@ -16,13 +19,25 @@ class AGV:
     def __init__(self, canvas):
         #pygame
         self._canvas = canvas
-        self._color = (0,255,0)
 
         # For frames
         self._enc = ENC()
         self._ss = SS()
         self._nns = NNS()
-        self._maxSpeed = 50 #TODO: figure out when agv can move faster to 150
+        
+        # base params
+        self._boundryBattery = 0
+
+        # flags
+        self.driveMode = False
+
+        #sensors
+        self._battery = Battery()
+        self._navi = Navigator()
+        self._wheels = Wheels()
+        self._lidars = Lidars()
+
+    def Init(self, img: pygame.Surface):
         self._enc.batteryValue = 120000
         self._boundryBattery = self._enc.batteryValue * 0.3
         self._nns.heading = 90
@@ -31,18 +46,9 @@ class AGV:
         self._nns.xCoor = 400
         self._nns.yCoor = 400
 
-        # flags
-        self.atMaxSpeed = False
-        self.batteryAvailable = True
-        self.driveMode = False
-        self.noPathFlag = False
-
-        #navi
-        self._navi = Navigator()
-        self._path = []
-
-    def InitNavi(self, img: pygame.image):
         self._navi.Init(img)
+        self._wheels.Init()
+        self._lidars.Init()
 
     def SetDestId(self, nnc: NNC):
         self._nns.goingToID = nnc.destID
@@ -51,12 +57,10 @@ class AGV:
         self.driveMode = nnc.goDestTrig
 
     def DetermineFlags(self):
-        # Max speed
-        if self._nns.speed >= self._maxSpeed:
-            self.atMaxSpeed = True
-            self._nns.speed = self._maxSpeed
-        else:
-            self.atMaxSpeed = False
+        self._battery.DetermineFlags()
+        self._navi.DetermineFlags()
+        self._wheels.DetermineFlags(self._nns.speed)
+        self._lidars.DetermineFlags()
 
         # Battery
         if self._enc.batteryValue > self._boundryBattery:
@@ -74,14 +78,11 @@ class AGV:
     def GetNNS(self):
         return self._nns
 
-    def GetMaxSpeed(self):
-        return self._maxSpeed
-
     def GetBatteryAvailable(self):
         return self.batteryAvailable
 
     def GetAtMaxSpeed(self):
-        return self.atMaxSpeed
+        return self._wheels.GetAtMaxSpeed()
 
     def GetDriveMode(self):
         return self.driveMode
@@ -95,52 +96,23 @@ class AGV:
         print("Destination ID:" + str(self._nns.goingToID))
         print("Destination Triger:" + str(self.driveMode))
 
-        self.Draw()
-
     def SetDriveMode(self, state: bool):
         self.driveMode = state
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
         self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (900,400))
-        self.SetPathToFollow()
 
     def Navigate(self):
         self.CheckPaths()
 
     def Draw(self):
-        for i in self._path:
-            pygame.draw.rect(self._canvas, (255,0,0), pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
-        pygame.draw.circle(self._canvas, self._color,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
-        pygame.draw.circle(self._canvas,(255,0,0),
+        for i in self._navi.GetPath():
+            pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
+        pygame.draw.circle(self._canvas, GREEN,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
+        pygame.draw.circle(self._canvas,RED,
                            (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
                              ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         
-    def SetPathToFollow(self):
-        self._path.clear()
-        for i in self._navi.GetPathToFollow():
-            self._path.append((i[1] * GRID_DENSITY + ROOM_W_OFFSET, i[0] * GRID_DENSITY + ROOM_H_OFFSET))
-
-    #[0] IS FOR X, [1] IS FOR Y
-    def GetPath(self):
-        return self._path
-
     def CalculateTurn(self):
-        retVal = 0
-
-        pointBeginning = (self._nns.xCoor, self._nns.yCoor)
-        pointHeading = (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading)), self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)))
-
-        if(len(self._path) != 0):
-            self.noPathFlag = False
-            retVal = getAngle(self._path[0], pointBeginning, pointHeading)
-            # Check Distance
-            distance = math.sqrt(math.pow(pointBeginning[0] - pointHeading[0], 2) + math.pow(pointBeginning[1] - pointHeading[1], 2))
-            if (distance < 5):
-                retVal = 0
-        else:
-            self.noPathFlag = True
-
-        return retVal
-        
-
+        return self._navi.CalculateTurn(self._nns)

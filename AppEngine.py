@@ -2,7 +2,7 @@ import Physics
 import Simulation
 from Simulation import Simulation
 from OpcHandler.OpcHandler import OpcHandler
-from Simulation.ParamManager import ParamManager
+from Simulation.Managers.ParamManager import ParamManager
 from Simulation.AGV.AGV import AGV
 from Physics.Physics import Physics
 import pygame
