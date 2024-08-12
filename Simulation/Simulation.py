@@ -48,7 +48,7 @@ class AGVSim(object):
             self._agv.SetDestTrig(self._pm.GetNNC())
             if self._agv.GetDriveMode():
                 _clear()
-                self.Navigate()
+                self.Route()
             self._opcHandler.SendToServer()
             self.Draw()
             self._timer.UpdateDelta()
@@ -59,20 +59,20 @@ class AGVSim(object):
     def Draw(self):
         self._wm.Draw()
 
-    def Navigate(self):
+    def CheckRotation(self, val):
+        if (val > 20 and val < 170):
+            self._pe.RotateLeft()
+        if (val >= 180 and val < 350):
+            self._pe.RotateRight()
+
+    def Route(self):
         #show state in output terminal
         self._agv.PrintState()
         #check flags
         self._agv.DetermineFlags()
-        #
         self._agv.Navigate()
-        print(self._agv.CalculateTurn())
-        if self._agv.CalculateTurn() <= 180 and self._agv.CalculateTurn() > 20:
-            self._pe.Accelerate()
-            self._pe.RotateLeft()
-        else:
-            self._pe.Accelerate()
-            self._pe.RotateRight()
+        self.CheckRotation(self._agv.CalculateTurn())
+        self._pe.Accelerate()
         self._pe.Update()
         
 

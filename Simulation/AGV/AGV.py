@@ -25,7 +25,7 @@ class AGV:
         self._maxSpeed = 50 #TODO: figure out when agv can move faster to 150
         self._enc.batteryValue = 120000
         self._boundryBattery = self._enc.batteryValue * 0.3
-        self._nns.heading = -90
+        self._nns.heading = 90
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = 400
@@ -35,6 +35,7 @@ class AGV:
         self.atMaxSpeed = False
         self.batteryAvailable = True
         self.driveMode = False
+        self.noPathFlag = False
 
         #navi
         self._navi = Navigator()
@@ -50,18 +51,19 @@ class AGV:
         self.driveMode = nnc.goDestTrig
 
     def DetermineFlags(self):
+        # Max speed
         if self._nns.speed >= self._maxSpeed:
             self.atMaxSpeed = True
             self._nns.speed = self._maxSpeed
         else:
             self.atMaxSpeed = False
 
+        # Battery
         if self._enc.batteryValue > self._boundryBattery:
             self.batteryAvailable = True
         else:
             self.batteryAvailable = False
             self.driveMode = False
-
 
     def GetENC(self):
         return self._enc
@@ -124,8 +126,21 @@ class AGV:
         return self._path
 
     def CalculateTurn(self):
+        retVal = 0
+
         pointBeginning = (self._nns.xCoor, self._nns.yCoor)
         pointHeading = (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading)), self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)))
-        return getAngle(self._path[0], pointBeginning, pointHeading)
+
+        if(len(self._path) != 0):
+            self.noPathFlag = False
+            retVal = getAngle(self._path[0], pointBeginning, pointHeading)
+            # Check Distance
+            distance = math.sqrt(math.pow(pointBeginning[0] - pointHeading[0], 2) + math.pow(pointBeginning[1] - pointHeading[1], 2))
+            if (distance < 5):
+                retVal = 0
+        else:
+            self.noPathFlag = True
+
+        return retVal
         
 

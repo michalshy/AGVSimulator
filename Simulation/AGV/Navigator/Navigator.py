@@ -106,6 +106,14 @@ class Navigator:
         # Add the source cell to the path
         path.append((row, col))
         # Reverse the path to get the path from source to destination
+        print(GRID_OFFSET_AMOUNT)
+        if len(path) > GRID_OFFSET_AMOUNT:
+            for i in range(GRID_OFFSET_AMOUNT):
+                path.pop()
+        elif len(path) < GRID_OFFSET_AMOUNT:
+            for i in range(len(path)):
+                path.pop()
+
         path.reverse()
 
         return path
