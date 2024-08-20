@@ -93,7 +93,7 @@ class AGV:
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
-        self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), (900,400))
+        self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), self._nns.goingToID)
 
     def Navigate(self):
         self.CheckPaths()

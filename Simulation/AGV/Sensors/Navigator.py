@@ -3,6 +3,7 @@ from Globals import *
 import math
 import heapq
 from Simulation.Frames.Frame6000.NNS import NNS
+from Simulation.Managers.CoordManager import CoordManager
 
 def getAngle(a, b, c):
     ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
@@ -25,6 +26,7 @@ class Navigator:
         self._rows = 0
         self._cols = 0
         self.noPathFlag = False
+        self.cm = CoordManager()
 
     def Init(self, img: Surface):
         self._image = img
@@ -72,9 +74,10 @@ class Navigator:
         return (round((pos[1] - (SCREEN_HEIGHT - self._image.get_height())/2)/GRID_DENSITY, 0), 
                 round((pos[0] - (SCREEN_WIDTH - self._image.get_width())/2)/GRID_DENSITY, 0))
 
-    def FindPath(self, agvPos: tuple, destPos: tuple):
+    def FindPath(self, agvPos: tuple, id:int):
+        destPos = self.cm.GetCoords(id)
         startPos = self.TransformPos(agvPos)
-        resultStart = tuple(tuple(map(int, startPos)))
+        resultStart = tuple(tuple(map(int, startPos)))       
         goalPos = self.TransformPos(destPos)
         resultGoal = tuple(tuple(map(int, goalPos)))
         self.AStarSearch(resultStart, resultGoal)
