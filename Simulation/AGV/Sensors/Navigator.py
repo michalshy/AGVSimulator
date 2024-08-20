@@ -76,8 +76,8 @@ class Navigator:
 
     def FindPath(self, agvPos: tuple, id:int):
         destPos = self.cm.GetCoords(id)
-            if destPos == None:
-                destPos = agvPos
+        if destPos == None:
+             destPos = agvPos
         startPos = self.TransformPos(agvPos)
         resultStart = tuple(tuple(map(int, startPos)))       
         goalPos = self.TransformPos(destPos)
