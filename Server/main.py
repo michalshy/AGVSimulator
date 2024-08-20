@@ -5,7 +5,7 @@ import time
 server = Server()
 
 # Define the endpoint URL
-url = "opc.tcp://localhost:4841/agv/server/"
+url = "opc.tcp://localhost:4841/freeopcua/server/"
 server.set_endpoint(url)
 
 # Setup our own namespace, not really necessary but should be as informative as possible
