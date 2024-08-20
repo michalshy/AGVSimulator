@@ -39,3 +39,4 @@ class CoordManager:
         for id in self.fm.GetData():
             if str(id['ID']) == str(ID):
                 return (int(id['xCoord']),int(id['yCoord']))
+            return (-1, -1)
