@@ -1,4 +1,4 @@
-class FileParser:
+class FileManager:
 
     def __init__(self):
         self._fileName = "IDs.txt"
@@ -21,8 +21,22 @@ class FileParser:
                     'yCoord': yCoord,
                     'description': description
                 })
+    
+    def GetData(self):
+        return self.readData
 
     def Write(self,id:int, xCoord:int, yCoord:int, desc:str):
         with open(self._fileName, 'w') as file:
             line = f"{id} {xCoord} {yCoord} {desc}\n"
             file.write(line)
+
+class CoordManager:
+
+    def __init__(self):
+        self.fm = FileManager()
+
+    def GetCoords(self, ID:int):
+        for id in self.fm.GetData():
+            if str(id['ID']) == str(ID):
+                return (int(id['xCoord']),int(id['yCoord']))
+            return (-1, -1)

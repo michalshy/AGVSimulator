@@ -1,1 +1,2 @@
-1 20 20 Corner
+1 900 400 mihal
+2 1050 250 Corner
