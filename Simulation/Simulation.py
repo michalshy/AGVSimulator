@@ -1,6 +1,7 @@
 import os
 from Simulation.Managers.WindowManager import WindowManager
 from Simulation.Managers.ParamManager import ParamManager
+from Simulation.Managers.LogManager import LogManager
 from Simulation.AGV.AGV import AGV
 from OpcHandler.OpcHandler import OpcHandler
 from Physics.Physics import Physics
@@ -18,6 +19,7 @@ class AGVSim(object):
         self._pe = pe
         self._agv = agv
         self._agv.Init(self._wm.GetImage())
+        self._logger = LogManager()
         # for network
         self._opcHandler = opcHandler
         #for simul
@@ -37,6 +39,7 @@ class AGVSim(object):
             self._wm.PrepWindow()
             self._opcHandler.ReceiveDataFromServer()
             self._opcHandler.SendToServer()
+            self._logger.WriteToFile(self._agv)
             if not self._wm.CheckEvents(self._opcHandler):
                 self.Exit()
             self._agv.SetRouteParams(self._pm.GetNNC())
