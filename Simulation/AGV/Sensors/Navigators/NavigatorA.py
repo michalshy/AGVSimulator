@@ -4,10 +4,10 @@ import math
 import heapq
 from Simulation.Frames.Frame6000.NNS import NNS
 from Simulation.Managers.CoordManager import CoordManager
+from Simulation.AGV.Sensors.Navigators.Navigator import Navigator
+from Simulation.Logic.Timer import *
 
-def getAngle(a, b, c):
-    ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
-    return ang + 360 if ang < 0 else ang
+CYCLE = 500
 
 # Define the Cell class
 class Cell:
@@ -18,15 +18,15 @@ class Cell:
         self.g = float('inf')  # Cost from start to this cell
         self.h = 0  # Heuristic cost from this cell to destination
 
-class Navigator:
+class NavigatorA(Navigator):
     def __init__(self) -> None:
-        self._image: Surface = None
+        super().__init__()
         self._grid: list = []
-        self._path: list = []
         self._rows = 0
         self._cols = 0
         self.noPathFlag = False
         self.cm = CoordManager()
+        self._cycle = 0
 
     def Init(self, img: Surface):
         self._image = img
@@ -75,31 +75,14 @@ class Navigator:
                 round((pos[0] - (SCREEN_WIDTH - self._image.get_width())/2)/GRID_DENSITY, 0))
 
     def FindPath(self, agvPos: tuple, id:int):
-        destPos = self.cm.GetCoords(id)
-        startPos = self.TransformPos(agvPos)
-        resultStart = tuple(tuple(map(int, startPos)))       
-        goalPos = self.TransformPos(destPos)
-        resultGoal = tuple(tuple(map(int, goalPos)))
-        self.AStarSearch(resultStart, resultGoal)
-
-    def CalculateTurn(self, nns: NNS):
-        print(nns.xCoor + 25 * math.cos(math.radians(nns.heading)))
-        retVal = 0
-
-        pointBeginning = (nns.xCoor, nns.yCoor)
-        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
-
-        if(len(self._path) != 0):
-            self.noPathFlag = False
-            retVal = getAngle(self._path[0], pointBeginning, pointHeading)
-            # Check Distance
-            distance = math.sqrt(math.pow(pointBeginning[0] - pointHeading[0], 2) + math.pow(pointBeginning[1] - pointHeading[1], 2))
-            if (distance < 5):
-                retVal = 0
-        else:
-            self.noPathFlag = True
-
-        return retVal
+        if timer.GetTicks() > (self._cycle + CYCLE):
+            destPos = self.cm.GetCoords(id)
+            startPos = self.TransformPos(agvPos)
+            resultStart = tuple(tuple(map(int, startPos)))       
+            goalPos = self.TransformPos(destPos)
+            resultGoal = tuple(tuple(map(int, goalPos)))
+            self.AStarSearch(resultStart, resultGoal)
+            self._cycle = timer.GetTicks()
         
     # Check if a cell is valid (within the grid)
     def IsValid(self, row, col):
@@ -236,20 +219,3 @@ class Navigator:
     #[0] IS FOR X, [1] IS FOR Y
     def GetPath(self) -> list:
         return self._path
-    
-    def CalculateTurn(self, nns: NNS):
-        retVal = 0
-
-        pointBeginning = (nns.xCoor, nns.yCoor)
-        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
-
-        if(len(self._path) != 0):
-            self.noPathFlag = False
-            retVal = getAngle(self._path[0], pointBeginning, pointHeading)
-            # Check Distance
-            distance = math.sqrt(math.pow(pointBeginning[0] - pointHeading[0], 2) + math.pow(pointBeginning[1] - pointHeading[1], 2))
-            if (distance < 5):
-                retVal = 0
-        else:
-            self.noPathFlag = True
-        return retVal

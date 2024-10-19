@@ -18,4 +18,4 @@ class ParamManager:
         self._nnc.destID = destID
 
     def GetRoomPath(self):
-        return "./Resources/room.png"
+        return "./Resources/room2.png"
