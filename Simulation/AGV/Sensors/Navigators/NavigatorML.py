@@ -11,16 +11,19 @@ from Simulation.AGV.Sensors.Navigators.Navigator import Navigator
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import pandas as pd
+from Simulation.Logic.Timer import *
 
 LOOKBACK = 3
 MAX_DATA = 255
 PARAM_NUMBER = 3
+CYCLE = 2000
 
 def create_dataset(dataset):
     data = []
     temp = []
-    a = dataset[len(dataset) - 1 - LOOKBACK: len(dataset) - 1, 0]
-    temp.append(a)
+    for j in range(3):
+        a = dataset[len(dataset) - 1 - LOOKBACK: len(dataset) - 1, j]
+        temp.append(a)
     data.append(temp)
     return np.array(data)
 
@@ -30,6 +33,7 @@ class NavigatorML(Navigator):
         self._model: keras.Model = keras.models.load_model(r'Simulation\AGV\MlNav\NAV.keras')
         self._data = []
         self._path = []
+        self._cycle = 0
 
     def Init(self, img: Surface):
         self._image = img
@@ -39,18 +43,23 @@ class NavigatorML(Navigator):
 
     def FindPath(self, agvPos: tuple, id):
         self._data.append((agvPos[0], agvPos[1], id))
-        if len(self._data) > LOOKBACK:
-            df = pd.DataFrame(self._data, columns=['Going to ID','Y-coordinate','X-coordinate'])
-            df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
-            df = df.values
-            df = df.astype('float32')
-            scaler = MinMaxScaler(feature_range=(0, 1))
-            dataset = scaler.fit_transform(df)
-            toPredict = create_dataset(dataset)
-            self._path = scaler.inverse_transform(self._model.predict(toPredict))
-            self._path = self._path.tolist()
-            self._path[0][0] = 2 * self._path[0][0]
-            self._path[0][1] = 2 * self._path[0][1]
+        if timer.GetTicks() - self._cycle > CYCLE:
+            self._cycle += CYCLE
+            if len(self._data) > LOOKBACK:
+                df = pd.DataFrame(self._data, columns=['Going to ID','Y-coordinate','X-coordinate'])
+                df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
+                df = df.values
+                df = df.astype('float32')
+                scaler = MinMaxScaler(feature_range=(0, 1))
+                dataset = scaler.fit_transform(df)
+                toPredict = create_dataset(dataset)
+                self._path = scaler.inverse_transform(self._model.predict(toPredict))
+                self._path = self._path.tolist()
+                yDiff = (self._path[0][1] - agvPos[1])
+                xDiff = (self._path[0][0] - agvPos[0])
+                self._path[0][0] = (xDiff * 0.5) * self._path[0][0]
+                self._path[0][1] = (yDiff * 0.5) * self._path[0][1]
+
         if(len(self._data)  > MAX_DATA):
             self._data.pop()
         
