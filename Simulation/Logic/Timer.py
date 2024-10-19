@@ -15,3 +15,6 @@ class Timer:
 
     def GetDt(self):
         return self._dt
+    
+    def GetTicks(self):
+        return pygame.time.get_ticks()

@@ -4,6 +4,7 @@ import math
 import heapq
 from Simulation.Frames.Frame6000.NNS import NNS
 from Simulation.Managers.CoordManager import CoordManager
+import Navigator
 
 def getAngle(a, b, c):
     ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
@@ -18,9 +19,9 @@ class Cell:
         self.g = float('inf')  # Cost from start to this cell
         self.h = 0  # Heuristic cost from this cell to destination
 
-class Navigator:
+class NavigatorA(Navigator):
     def __init__(self) -> None:
-        self._image: Surface = None
+        super().__init__()
         self._grid: list = []
         self._path: list = []
         self._rows = 0

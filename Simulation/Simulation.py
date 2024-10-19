@@ -39,7 +39,7 @@ class AGVSim(object):
             self._wm.PrepWindow()
             self._opcHandler.ReceiveDataFromServer()
             self._opcHandler.SendToServer()
-            self._logger.WriteToFile(self._agv)
+            self._logger.WriteToFile(self._agv, self._timer.GetTicks())
             if not self._wm.CheckEvents(self._opcHandler):
                 self.Exit()
             self._agv.SetRouteParams(self._pm.GetNNC())
