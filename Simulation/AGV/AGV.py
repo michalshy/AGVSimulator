@@ -4,7 +4,9 @@ from Simulation.Frames.Frame6000.NNS import NNS
 from Simulation.Frames.Frame6100.NNC import NNC
 from Simulation.AGV.Sensors.Lidars import Lidars
 from Simulation.AGV.Sensors.Wheels import Wheels
-from Simulation.AGV.Sensors.Navigator import Navigator
+from Simulation.AGV.Sensors.Navigators.Navigator import Navigator
+from Simulation.AGV.Sensors.Navigators.NavigatorML import NavigatorML
+from Simulation.AGV.Sensors.Navigators.NavigatorA import NavigatorA
 from Simulation.AGV.Sensors.Battery import Battery
 import pygame
 import math
@@ -30,7 +32,11 @@ class AGV:
 
         #sensors
         self._battery = Battery()
-        self._navi = Navigator()
+        self._navi: Navigator
+        if NAV_TYPE == 1:
+            self._navi = NavigatorA()
+        if NAV_TYPE == 0:
+            self._navi = NavigatorML()
         self._wheels = Wheels()
         self._lidars = Lidars()
 

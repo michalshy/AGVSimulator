@@ -9,6 +9,9 @@ AGV_TURN_TOLERANCE = 15
 #NAVIGATION
 GRID_DENSITY = 5
 GRID_OFFSET_AMOUNT = int(AGV_SIZE/GRID_DENSITY) + 5
+# 0 - Machine Learning navigation provided by LSTM Neural Network
+# 1 - A* navigation, harcoded algorithm
+NAV_TYPE = 1
 
 #ROOM
 ROOM_WIDTH = 1000
