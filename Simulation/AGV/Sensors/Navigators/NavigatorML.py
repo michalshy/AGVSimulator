@@ -38,7 +38,7 @@ class NavigatorML(Navigator):
         pass
 
     def FindPath(self, agvPos: tuple, id):
-        self._data.append((agvPos[0]/10, agvPos[1]/10, id))
+        self._data.append((agvPos[0], agvPos[1], id))
         if len(self._data) > LOOKBACK:
             df = pd.DataFrame(self._data, columns=['Going to ID','Y-coordinate','X-coordinate'])
             df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
@@ -48,14 +48,11 @@ class NavigatorML(Navigator):
             dataset = scaler.fit_transform(df)
             toPredict = create_dataset(dataset)
             self._path = scaler.inverse_transform(self._model.predict(toPredict))
-            self._path = self.MultiplyCords(self._path.tolist())
+            self._path = self._path.tolist()
+            self._path[0][0] = 2 * self._path[0][0]
+            self._path[0][1] = 2 * self._path[0][1]
         if(len(self._data)  > MAX_DATA):
             self._data.pop()
         
-    def MultiplyCords(self, l: list):
-        l[0][0] = ((l[0][0] * 10 + ROOM_W_OFFSET))
-        l[0][1] = ((l[0][1] * 10 + ROOM_H_OFFSET))
-        return l
-    
     def GetPath(self):
         return self._path

@@ -52,7 +52,7 @@ class AGVSim(object):
     def CheckRotation(self, val: int):
         if (val > 20 and val < 170):
             self._pe.RotateLeft()
-        if (val >= 180 and val < 350):
+        if (val >= 170 and val < 350):
             self._pe.RotateRight()
 
     def Route(self):
