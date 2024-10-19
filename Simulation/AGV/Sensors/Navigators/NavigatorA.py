@@ -5,6 +5,9 @@ import heapq
 from Simulation.Frames.Frame6000.NNS import NNS
 from Simulation.Managers.CoordManager import CoordManager
 from Simulation.AGV.Sensors.Navigators.Navigator import Navigator
+from Simulation.Logic.Timer import *
+
+CYCLE = 500
 
 # Define the Cell class
 class Cell:
@@ -23,6 +26,7 @@ class NavigatorA(Navigator):
         self._cols = 0
         self.noPathFlag = False
         self.cm = CoordManager()
+        self._cycle = 0
 
     def Init(self, img: Surface):
         self._image = img
@@ -71,12 +75,14 @@ class NavigatorA(Navigator):
                 round((pos[0] - (SCREEN_WIDTH - self._image.get_width())/2)/GRID_DENSITY, 0))
 
     def FindPath(self, agvPos: tuple, id:int):
-        destPos = self.cm.GetCoords(id)
-        startPos = self.TransformPos(agvPos)
-        resultStart = tuple(tuple(map(int, startPos)))       
-        goalPos = self.TransformPos(destPos)
-        resultGoal = tuple(tuple(map(int, goalPos)))
-        self.AStarSearch(resultStart, resultGoal)
+        if timer.GetTicks() > (self._cycle + CYCLE):
+            destPos = self.cm.GetCoords(id)
+            startPos = self.TransformPos(agvPos)
+            resultStart = tuple(tuple(map(int, startPos)))       
+            goalPos = self.TransformPos(destPos)
+            resultGoal = tuple(tuple(map(int, goalPos)))
+            self.AStarSearch(resultStart, resultGoal)
+            self._cycle = timer.GetTicks()
         
     # Check if a cell is valid (within the grid)
     def IsValid(self, row, col):

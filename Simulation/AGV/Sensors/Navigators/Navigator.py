@@ -10,12 +10,23 @@ class Navigator:
         self._image: Surface = None
         self._path: list = []
 
+    def Init(self, img: Surface):
+        pass
+
+    def DetermineFlags():
+        pass
+
+    def GetPath(self):
+        pass
+
+    def FindPath(self, agvPos: tuple, id:int):
+        pass
+
     def GetAngle(self, a, b, c):
         ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
         return ang + 360 if ang < 0 else ang
     
     def CalculateTurn(self, nns: NNS):
-        print(nns.xCoor + 25 * math.cos(math.radians(nns.heading)))
         retVal = 0
 
         pointBeginning = (nns.xCoor, nns.yCoor)

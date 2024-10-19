@@ -18,3 +18,6 @@ class Timer:
     
     def GetTicks(self):
         return pygame.time.get_ticks()
+    
+timer = Timer()
+timer.StartTimer()

@@ -12,10 +12,6 @@ import pygame
 import math
 from Globals import *
 
-def getAngle(a, b, c):
-    ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
-    return ang + 360 if ang < 0 else ang
-
 # Class that holds state of AGV
 class AGV:
     def __init__(self, canvas):
@@ -45,8 +41,8 @@ class AGV:
         self._nns.heading = 90
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
-        self._nns.xCoor = 400
-        self._nns.yCoor = 400
+        self._nns.xCoor = STARTING_POS_X * 10
+        self._nns.yCoor = STARTING_POS_Y * 10
 
         self._battery.Init(self._enc.batteryValue)
         self._navi.Init(img)
@@ -105,12 +101,14 @@ class AGV:
         self.CheckPaths()
 
     def Draw(self):
-        for i in self._navi.GetPath():
-            pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
+       
         pygame.draw.circle(self._canvas, GREEN,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
         pygame.draw.circle(self._canvas,RED,
-                           (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
-                             ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+                        (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
+                            ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+        if self._navi.GetPath() is not None:
+            for i in self._navi.GetPath():
+                pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)
