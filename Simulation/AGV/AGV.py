@@ -38,7 +38,7 @@ class AGV:
 
     def Init(self, img: pygame.Surface):
         self._enc.batteryValue = 120000
-        self._nns.heading = 0
+        self._nns.heading = 20.36
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = STARTING_POS_X * 10
@@ -112,3 +112,6 @@ class AGV:
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)
+    
+    def GetDistance(self):
+        return self._navi.GetDistance()

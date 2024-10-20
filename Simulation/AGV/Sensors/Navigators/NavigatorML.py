@@ -1,6 +1,5 @@
 from pygame import Surface
 from Globals import *
-import math
 import heapq
 import queue
 from Simulation.Frames.Frame6000.NNS import NNS
@@ -12,11 +11,13 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import pandas as pd
 from Simulation.Logic.Timer import *
+import math
 
-LOOKBACK = 3
+LOOKBACK = 10
 MAX_DATA = 255
 PARAM_NUMBER = 3
-CYCLE = 2000
+PREDICT_CYCLE = 50
+POSITION_CYCLE = 200
 
 def create_dataset(dataset):
     data = []
@@ -30,10 +31,12 @@ def create_dataset(dataset):
 class NavigatorML(Navigator):
     def __init__(self) -> None:
         super().__init__()
-        self._model: keras.Model = keras.models.load_model(r'Simulation\AGV\MlNav\NAV.keras')
+        self._model: keras.Model = keras.models.load_model(r'Simulation\AGV\MlNav\NAVJakub.keras')
         self._data = []
         self._path = []
         self._cycle = 0
+        self._appendCycle = 0
+        self._distance = 0
 
     def Init(self, img: Surface):
         self._image = img
@@ -42,11 +45,15 @@ class NavigatorML(Navigator):
         pass
 
     def FindPath(self, agvPos: tuple, id):
-        self._data.append((agvPos[0], agvPos[1], id))
-        if timer.GetTicks() - self._cycle > CYCLE:
-            self._cycle += CYCLE
+        if len(self._data) < LOOKBACK:
+            self._data.append((agvPos[0], agvPos[1], id))
+        if timer.GetTicks() - self._appendCycle > POSITION_CYCLE:
+            self._appendCycle += POSITION_CYCLE
+            self._data.append((agvPos[0], agvPos[1], id))
+        if timer.GetTicks() - self._cycle > PREDICT_CYCLE:
+            self._cycle += PREDICT_CYCLE
             if len(self._data) > LOOKBACK:
-                df = pd.DataFrame(self._data, columns=['Going to ID','Y-coordinate','X-coordinate'])
+                df = pd.DataFrame(self._data, columns=['X-coordinate', 'Y-coordinate', 'Going to ID'])
                 df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
                 df = df.values
                 df = df.astype('float32')
@@ -55,13 +62,17 @@ class NavigatorML(Navigator):
                 toPredict = create_dataset(dataset)
                 self._path = scaler.inverse_transform(self._model.predict(toPredict))
                 self._path = self._path.tolist()
-                yDiff = (self._path[0][1] - agvPos[1])
-                xDiff = (self._path[0][0] - agvPos[0])
-                self._path[0][0] = (xDiff * 0.5) * self._path[0][0]
-                self._path[0][1] = (yDiff * 0.5) * self._path[0][1]
+                yDiff = (agvPos[1] - self._path[0][1])
+                xDiff = (agvPos[0] - self._path[0][0])
+                self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
+                self._path[0][0] = 2*xDiff + self._path[0][0]
+                self._path[0][1] = 2*yDiff + self._path[0][1]
 
         if(len(self._data)  > MAX_DATA):
             self._data.pop()
         
     def GetPath(self):
         return self._path
+    
+    def GetDistance(self):
+        return self._distance

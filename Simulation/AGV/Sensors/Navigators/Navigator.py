@@ -43,3 +43,6 @@ class Navigator:
             self.noPathFlag = True
 
         return retVal
+    
+    def GetDistance(self):
+        pass
