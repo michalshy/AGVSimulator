@@ -13,7 +13,7 @@ import pandas as pd
 from Simulation.Logic.Timer import *
 import math
 
-LOOKBACK = 10
+LOOKBACK = 3
 MAX_DATA = 255
 PARAM_NUMBER = 5
 PREDICT_CYCLE = 50
@@ -22,8 +22,8 @@ POSITION_CYCLE = 200
 def create_dataset(dataset):
     data = []
     temp = []
-    for j in range(5):
-        a = dataset[len(dataset) - 1 - LOOKBACK: len(dataset) - 1, j]
+    for j in range(LOOKBACK):
+        a = dataset[len(dataset) - 1 - PARAM_NUMBER: len(dataset) - 1, j]
         temp.append(a)
     data.append(temp)
     return np.array(data)
@@ -53,14 +53,16 @@ class NavigatorML(Navigator):
         if timer.GetTicks() - self._cycle > PREDICT_CYCLE:
             self._cycle += PREDICT_CYCLE
             if len(self._data) > LOOKBACK:
-                df = pd.DataFrame(self._data, columns=['Going to ID','Y-coordinate','X-coordinate', 'Battery cell voltage', 'Heading'])
-                print(df)
+                df = pd.DataFrame(self._data, columns=['Battery cell voltage', 'X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID'])
                 df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
                 df = df.values
                 df = df.astype('float32')
+                print(df)
                 scaler = MinMaxScaler(feature_range=(0, 1))
                 dataset = scaler.fit_transform(df)
+                print(dataset)
                 toPredict = create_dataset(dataset)
+                print(toPredict)
                 self._path = scaler.inverse_transform(self._model.predict(toPredict))
                 self._path = self._path.tolist()
                 yDiff = (agvPos[1] - self._path[0][1])
