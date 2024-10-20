@@ -74,7 +74,7 @@ class NavigatorA(Navigator):
         return (round((pos[1] - (SCREEN_HEIGHT - self._image.get_height())/2)/GRID_DENSITY, 0), 
                 round((pos[0] - (SCREEN_WIDTH - self._image.get_width())/2)/GRID_DENSITY, 0))
 
-    def FindPath(self, agvPos: tuple, id:int):
+    def FindPath(self, batteryVal, agvPos: tuple, heading, id):
         if timer.GetTicks() > (self._cycle + CYCLE):
             destPos = self.cm.GetCoords(id)
             startPos = self.TransformPos(agvPos)
@@ -219,3 +219,6 @@ class NavigatorA(Navigator):
     #[0] IS FOR X, [1] IS FOR Y
     def GetPath(self) -> list:
         return self._path
+    
+    def GetDistance(self):
+        pass

@@ -38,7 +38,7 @@ class AGV:
 
     def Init(self, img: pygame.Surface):
         self._enc.batteryValue = 120000
-        self._nns.heading = 0
+        self._nns.heading = 20.636165
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = STARTING_POS_X * 10
@@ -87,15 +87,15 @@ class AGV:
     def PrintState(self):
         print("Heading: " + str(round(self._nns.heading,2)) + "degree")
         print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
-        print("X position: " + str(round(self._nns.xCoor / 100, 2)) + "m")
-        print("Y position: " + str(round(self._nns.yCoor / 100, 2)) + "m")
+        print("X position: " + str(round(self._nns.xCoor / 10, 10)) + "dm")
+        print("Y position: " + str(round(self._nns.yCoor / 10, 10)) + "dm")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
         print("Destination ID:" + str(self._nns.goingToID))
         print("Destination Triger:" + str(self._wheels.GetDriveMode()))
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
-        self._navi.FindPath((self._nns.xCoor, self._nns.yCoor), self._nns.goingToID)
+        self._navi.FindPath(self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID)
 
     def Navigate(self):
         self.CheckPaths()
@@ -112,3 +112,6 @@ class AGV:
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)
+    
+    def GetDistance(self):
+        return self._navi.GetDistance()
