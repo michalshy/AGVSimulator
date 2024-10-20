@@ -46,3 +46,6 @@ class Navigator:
     
     def GetDistance(self):
         pass
+
+    def GetHeading(self):
+        pass

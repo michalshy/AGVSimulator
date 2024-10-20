@@ -5,9 +5,10 @@ from Simulation.Frames.Frame6100.NNC import NNC
 from Simulation.AGV.Sensors.Lidars import Lidars
 from Simulation.AGV.Sensors.Wheels import Wheels
 from Simulation.AGV.Sensors.Navigators.Navigator import Navigator
-from Simulation.AGV.Sensors.Navigators.NavigatorML import NavigatorML
+from Simulation.AGV.Sensors.Navigators.NavigatorML import NavigatorML, ENGINE, ENGINES
 from Simulation.AGV.Sensors.Navigators.NavigatorA import NavigatorA
 from Simulation.AGV.Sensors.Battery import Battery
+from Simulation.Logic.Timer import *
 import pygame
 import math
 from Globals import *
@@ -88,12 +89,20 @@ class AGV:
         print("Heading: " + str(round(self._nns.heading,2)) + "degree")
         print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
         
-        if self._navi.GetPath() is not None:
+        if self._navi.GetPath() is not None and ENGINE == ENGINES.OLEK:
             for i in self._navi.GetPath():
                 print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
                 print("X position predict: " + str(round(i[1], 10)) + "cm")
                 print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
                 print("Y position predict: " + str(round(i[2], 10)) + "cm")
+
+        elif self._navi.GetPath() is not None and ENGINE == ENGINES.JAKUB:
+            for i in self._navi.GetPath():
+                print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
+                print("X position predict: " + str(round(i[0], 10)) + "cm")
+                print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
+                print("Y position predict: " + str(round(i[1], 10)) + "cm")
+
         else:
             print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
             print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
@@ -108,6 +117,14 @@ class AGV:
     def Navigate(self):
         self.CheckPaths()
 
+        #NEW ROTATION
+        self._nns.heading = self._navi.GetHeading()
+
+        #TEST POSITION FLICK JAKUB
+        # if self._navi.GetPath() and timer.GetTicks() > 10000:
+        #     self._nns.xCoor = self._navi.GetPath()[0][0]
+        #     self._nns.yCoor = self._navi.GetPath()[0][1]
+
     def Draw(self):
        
         pygame.draw.circle(self._canvas, GREEN,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
@@ -116,8 +133,10 @@ class AGV:
                             ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         if self._navi.GetPath() is not None:
             for i in self._navi.GetPath():
-                pygame.draw.rect(self._canvas, RED, pygame.Rect(i[1], i[2], GRID_DENSITY, GRID_DENSITY))
-                print(i)
+                if ENGINE == ENGINES.OLEK:  
+                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[1], i[2], GRID_DENSITY, GRID_DENSITY))
+                if ENGINE == ENGINES.JAKUB:   
+                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)
