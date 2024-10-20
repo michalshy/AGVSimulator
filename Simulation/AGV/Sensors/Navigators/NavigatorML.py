@@ -23,9 +23,10 @@ def create_dataset(dataset):
     data = []
     temp = []
     for j in range(LOOKBACK):
-        a = dataset[len(dataset) - 1 - PARAM_NUMBER: len(dataset) - 1, j]
+        a = dataset[len(dataset) - j - 1]
         temp.append(a)
     data.append(temp)
+    print(data)
     return np.array(data)
 
 class NavigatorML(Navigator):
@@ -57,19 +58,16 @@ class NavigatorML(Navigator):
                 df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
                 df = df.values
                 df = df.astype('float32')
-                print(df)
                 scaler = MinMaxScaler(feature_range=(0, 1))
                 dataset = scaler.fit_transform(df)
-                print(dataset)
                 toPredict = create_dataset(dataset)
-                print(toPredict)
                 self._path = scaler.inverse_transform(self._model.predict(toPredict))
                 self._path = self._path.tolist()
-                yDiff = (agvPos[1] - self._path[0][1])
-                xDiff = (agvPos[0] - self._path[0][0])
+                yDiff = (agvPos[1] - self._path[0][2])
+                xDiff = (agvPos[0] - self._path[0][1])
                 self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                self._path[0][0] = 2*xDiff + self._path[0][0]
-                self._path[0][1] = 2*yDiff + self._path[0][1]
+                self._path[0][1] = xDiff + self._path[0][1]
+                self._path[0][2] = yDiff + self._path[0][2]
 
         if(len(self._data)  > MAX_DATA):
             self._data.pop()

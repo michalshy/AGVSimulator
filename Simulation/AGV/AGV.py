@@ -87,8 +87,12 @@ class AGV:
     def PrintState(self):
         print("Heading: " + str(round(self._nns.heading,2)) + "degree")
         print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
-        print("X position: " + str(round(self._nns.xCoor / 10, 10)) + "dm")
-        print("Y position: " + str(round(self._nns.yCoor / 10, 10)) + "dm")
+        print("X position: " + str(round(self._nns.xCoor / 10, 10)) + "cm")
+        print("Y position: " + str(round(self._nns.yCoor / 10, 10)) + "cm")
+        if self._navi.GetPath() is not None:
+            for i in self._navi.GetPath():
+                print("X position predict: " + str(round(i[1], 10)) + "cm")
+                print("Y position predict: " + str(round(i[2], 10)) + "cm")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
         print("Destination ID:" + str(self._nns.goingToID))
         print("Destination Triger:" + str(self._wheels.GetDriveMode()))
@@ -108,7 +112,8 @@ class AGV:
                             ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
         if self._navi.GetPath() is not None:
             for i in self._navi.GetPath():
-                pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
+                pygame.draw.rect(self._canvas, RED, pygame.Rect(i[1], i[2], GRID_DENSITY, GRID_DENSITY))
+                print(i)
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)
