@@ -17,7 +17,7 @@ LOOKBACK = 3
 MAX_DATA = 255
 PARAM_NUMBER = 5
 PREDICT_CYCLE = 50
-POSITION_CYCLE = 200
+POSITION_CYCLE = 20
 
 def create_dataset(dataset):
     data = []
@@ -66,8 +66,8 @@ class NavigatorML(Navigator):
                 yDiff = (agvPos[1] - self._path[0][2])
                 xDiff = (agvPos[0] - self._path[0][1])
                 self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                self._path[0][1] = xDiff + self._path[0][1]
-                self._path[0][2] = yDiff + self._path[0][2]
+                self._path[0][1] = 2*xDiff + self._path[0][1]
+                self._path[0][2] = 2*yDiff + self._path[0][2]
 
         if(len(self._data)  > MAX_DATA):
             self._data.pop()
