@@ -25,17 +25,9 @@ class Physics:
             self._agv.GetNNS().heading -= ROTATE_VAL * timer.GetDt()
             self.DrainBattery(1, self._agv.GetENC())
     
-    def Accelerate(self):
+    def Accelerate(self, val):
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
-            self._agv.GetNNS().speed += 1 * timer.GetDt() # a = 0.1m/s^2
-            self.DrainBattery(2, self._agv.GetENC())
-
-    #Slows AGV but do not stops it
-    def Deaccelerate(self):
-        if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
-            self._agv.GetNNS().speed -= 1 * timer.GetDt() # a = 0.1m/s^2
-            if self._agv.GetNNS().speed <= 0:
-                self._agv.GetNNS().speed = 1
+            self._agv.GetNNS().speed += val * timer.GetDt() # a = 0.1m/s^2
             self.DrainBattery(2, self._agv.GetENC())
 
     def UpdatePosition(self):

@@ -30,9 +30,9 @@ elif ENGINE == ENGINES.JAKUB: # JAKUB
     LOOKBACK = 10
     PARAM_NUMBER = 3
     PREDICT_CYCLE = 200
-    POSITION_CYCLE = 200
+    POSITION_CYCLE = 500
 
-MAX_DATA = 255
+MAX_DATA = 15
 
 
 def create_dataset(dataset):
@@ -44,7 +44,6 @@ def create_dataset(dataset):
             a = dataset[len(dataset) - j - 1]
             temp.append(a)
         data.append(temp)
-        print(data)
         return np.array(data)
     if ENGINE == ENGINES.JAKUB:
         data = []
@@ -79,21 +78,28 @@ class NavigatorML(Navigator):
         pass
 
     def FindPath(self, batteryVal, agvPos: tuple, heading, id):
-        if len(self._data) < LOOKBACK:
-            #ENGINE CONDITIONAL
-            if ENGINE == ENGINES.OLEK:
-                self._data.append((batteryVal, agvPos[0], agvPos[1], math.radians(heading), id))
-            elif ENGINE == ENGINES.JAKUB:
-                self._data.append((agvPos[0], agvPos[1], math.radians(heading)))
+
+        print(self._distance)
+        if self._distance < 300:
+            if len(self._path) != 0:
+                self._data.append(self._path.pop(0))
+        # if len(self._data) < LOOKBACK:
+        #     #ENGINE CONDITIONAL
+        #     if ENGINE == ENGINES.OLEK:
+        #         self._data.append((batteryVal, agvPos[0], agvPos[1], math.radians(heading), id))
+        #     elif ENGINE == ENGINES.JAKUB:
+        #         self._data.append((agvPos[0], agvPos[1], math.radians(heading)))
         if timer.GetTicks() - self._appendCycle > POSITION_CYCLE:
             self._appendCycle += POSITION_CYCLE
             #ENGINE CONDITIONAL
-            if ENGINE == ENGINES.OLEK:
-                self._data.append((batteryVal, agvPos[0], agvPos[1], math.radians(heading), id))
-            elif ENGINE == ENGINES.JAKUB:
-                self._data.append((agvPos[0], agvPos[1], math.radians(heading)))
-        if timer.GetTicks() - self._cycle > PREDICT_CYCLE:
-            self._cycle += PREDICT_CYCLE
+            if len(self._data) <= LOOKBACK:
+                if ENGINE == ENGINES.OLEK:
+                    self._data.append((batteryVal, agvPos[0], agvPos[1], math.radians(heading), id))
+                elif ENGINE == ENGINES.JAKUB:
+                    self._data.append((agvPos[0], agvPos[1], math.radians(heading)))
+        if len(self._path) == 0:
+        #if timer.GetTicks() - self._cycle > PREDICT_CYCLE:
+            #self._cycle += PREDICT_CYCLE
             if len(self._data) > LOOKBACK:
                 #ENGINE CONDITIONAL
                 if ENGINE == ENGINES.OLEK:
@@ -105,29 +111,29 @@ class NavigatorML(Navigator):
                 df = df.astype('float32')
                 scaler = MinMaxScaler(feature_range=(0, 1))
                 dataset = scaler.fit_transform(df)
-                print(dataset)
                 toPredict = create_dataset(dataset)
-                print(toPredict)
                 self._path = scaler.inverse_transform(self._model.predict(toPredict))
                 self._path = self._path.tolist()
-                #ENGINE CONDITIONAL
-                if ENGINE == ENGINES.OLEK:
-                    yDiff = (agvPos[1] - self._path[0][2])
-                    xDiff = (agvPos[0] - self._path[0][1])
-                    self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                    self._path[0][1] = 2*xDiff + self._path[0][1]
-                    self._path[0][2] = 2*yDiff + self._path[0][2]
-                    self._headingRad = self._path[0][3]
-                elif ENGINE == ENGINES.JAKUB:
-                    yDiff = (agvPos[1] - self._path[0][1])
-                    xDiff = (agvPos[0] - self._path[0][0])
-                    self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                    self._path[0][0] = xDiff + self._path[0][0]
-                    self._path[0][1] = yDiff + self._path[0][1]
-                    self._headingRad = self._path[0][2]
 
+        if len(self._path) != 0:
+            #ENGINE CONDITIONAL
+            if ENGINE == ENGINES.OLEK:
+                yDiff = (agvPos[1] - self._path[0][2])
+                xDiff = (agvPos[0] - self._path[0][1])
+                self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
+                self._path[0][1] = 2*xDiff + self._path[0][1]
+                self._path[0][2] = 2*yDiff + self._path[0][2]
+                self._headingRad = self._path[0][3]
+            elif ENGINE == ENGINES.JAKUB:
+                yDiff = (self._path[0][1] - agvPos[1])
+                xDiff = (self._path[0][0] - agvPos[0])
+                self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
+                #self._path[0][0] = xDiff + self._path[0][0]    
+                #self._path[0][1] = yDiff + self._path[0][1]
+                self._headingRad = self._path[0][2]
+        
         if(len(self._data)  > MAX_DATA):
-            self._data.pop()
+            self._data.pop(0)
         
     def GetPath(self):
         return self._path

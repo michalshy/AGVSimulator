@@ -63,10 +63,10 @@ class AGVSim(object):
         #fill routes into navigation
         self._agv.Navigate()
         #check rotation to routes
-        #self.CheckRotation(self._agv.CalculateTurn()) -- TURN OFF FOR NOW, CHECK OTHER TYPE OF ROTATION IN NAVIGATE
+        self.CheckRotation(self._agv.CalculateTurn()) #-- TURN OFF FOR NOW, CHECK OTHER TYPE OF ROTATION IN NAVIGATE
         #accelerate object and update position
         #if self._agv.GetDistance() > 1:
-        self._pe.Accelerate()
+        self._pe.Accelerate(10)
         #else:
         #    self._pe.Deaccelerate()
         self._pe.Update()

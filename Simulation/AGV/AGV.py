@@ -39,7 +39,7 @@ class AGV:
 
     def Init(self, img: pygame.Surface):
         self._enc.batteryValue = 120000
-        self._nns.heading = 20.636165
+        self._nns.heading = 30
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = STARTING_POS_X * 10
@@ -118,7 +118,7 @@ class AGV:
         self.CheckPaths()
 
         #NEW ROTATION
-        self._nns.heading = self._navi.GetHeading()
+        #self._nns.heading = self._navi.GetHeading()
 
         #TEST POSITION FLICK JAKUB
         # if self._navi.GetPath() and timer.GetTicks() > 10000:
