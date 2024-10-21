@@ -19,7 +19,7 @@ class Navigator:
     def GetPath(self):
         pass
 
-    def FindPath(self, agvPos: tuple, id:int):
+    def FindPath(self, batteryVal, agvPos: tuple, heading, id):
         pass
 
     def GetAngle(self, a, b, c):
@@ -43,3 +43,9 @@ class Navigator:
             self.noPathFlag = True
 
         return retVal
+    
+    def GetDistance(self):
+        pass
+
+    def GetHeading(self):
+        pass

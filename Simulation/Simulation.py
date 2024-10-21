@@ -50,9 +50,9 @@ class AGVSim(object):
         self._wm.Update()
 
     def CheckRotation(self, val: int):
-        if (val > 20 and val < 170):
+        if (val >= 20 and val < 170):
             self._pe.RotateLeft()
-        if (val >= 170 and val < 350):
+        if (val >= 170 and val <= 340):
             self._pe.RotateRight()
 
     def Route(self):
@@ -63,9 +63,12 @@ class AGVSim(object):
         #fill routes into navigation
         self._agv.Navigate()
         #check rotation to routes
-        self.CheckRotation(self._agv.CalculateTurn())
+        self.CheckRotation(self._agv.CalculateTurn()) #-- TURN OFF FOR NOW, CHECK OTHER TYPE OF ROTATION IN NAVIGATE
         #accelerate object and update position
-        self._pe.Accelerate()
+        #if self._agv.GetDistance() > 1:
+        self._pe.Accelerate(10)
+        #else:
+        #    self._pe.Deaccelerate()
         self._pe.Update()
         
 
