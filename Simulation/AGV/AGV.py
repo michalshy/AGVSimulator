@@ -86,7 +86,7 @@ class AGV:
         return self._wheels.GetDriveMode()
 
     def PrintState(self):
-        print("Heading: " + str(round(self._nns.heading,2)) + "degree")
+        print("Heading: " + str(round(self._nns.heading,2) % 360) + "degree")
         print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
         
         if self._navi.GetPath() is not None and ENGINE == ENGINES.OLEK:
@@ -117,8 +117,9 @@ class AGV:
     def Navigate(self):
         self.CheckPaths()
 
-        #NEW ROTATION
-        #self._nns.heading = self._navi.GetHeading()
+        # NEW ROTATION
+        if timer.GetTicks() > 1500:
+            self._nns.heading = self._navi.GetHeading()
 
         #TEST POSITION FLICK JAKUB
         # if self._navi.GetPath() and timer.GetTicks() > 10000:
@@ -129,8 +130,8 @@ class AGV:
        
         pygame.draw.circle(self._canvas, GREEN,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
         pygame.draw.circle(self._canvas,RED,
-                        (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
-                            ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+                        (self._nns.xCoor + 5 * math.cos(math.radians(self._nns.heading))
+                            ,self._nns.yCoor + 5 * math.sin(math.radians(self._nns.heading)) ) , 2)
         if self._navi.GetPath() is not None:
             for i in self._navi.GetPath():
                 if ENGINE == ENGINES.OLEK:  

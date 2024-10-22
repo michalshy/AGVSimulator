@@ -1,12 +1,12 @@
-from pygame import *
 import pygame
+from pygame.locals import *
 from Simulation.Managers.ParamManager import ParamManager
 from Globals import *
 from OpcHandler.OpcHandler import OpcHandler
 from Simulation.AGV.AGV import AGV
 
 class WindowManager:
-    def __init__(self, canvas: Surface, pm: ParamManager, agv: AGV) -> None:
+    def __init__(self, canvas: pygame.Surface, pm: ParamManager, agv: AGV) -> None:
         self._canvas = canvas
         self._pm = pm
         self._agv = agv
@@ -19,11 +19,13 @@ class WindowManager:
         self._canvas.fill(self._backgroundColor)
         self._canvas.blit(self._roomImage, (self._startPos))
 
-    def CheckEvents(self, opcHandler: OpcHandler) -> bool:
+    def CheckEvents(self, canvas: pygame.Surface, opcHandler: OpcHandler) -> bool:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
                 opcHandler.CloseConnection()
                 return False      
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.Surface.blit(canvas, canvas, (100,100))
         return True
     
     def Draw(self):
