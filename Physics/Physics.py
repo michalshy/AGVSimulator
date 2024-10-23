@@ -29,6 +29,8 @@ class Physics:
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += val * timer.GetDt() # a = 0.1m/s^2
             self.DrainBattery(2, self._agv.GetENC())
+            if(self._agv.GetNNS().speed < 0):
+                self._agv.GetNNS().speed = 0
 
     def UpdatePosition(self):
         self._agv.GetNNS().xCoor += math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt()

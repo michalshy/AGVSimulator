@@ -33,3 +33,4 @@ Logs
 Simulation/AGV/MlNav/NAVO.keras
 Simulation/AGV/MlNav/NAVJ.keras
 Simulation/AGV/MlNav/LSTM_Olek/agv.pkl
+Resources/agv.pkl
