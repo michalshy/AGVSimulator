@@ -24,8 +24,6 @@ class WindowManager:
             if event.type == pygame.QUIT: 
                 opcHandler.CloseConnection()
                 return False      
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.Surface.blit(canvas, canvas, (100,100))
         return True
     
     def Draw(self):

@@ -100,9 +100,9 @@ class AGV:
         if self._navi.GetPath() is not None and ENGINE == ENGINES.OLEK:
             for i in self._navi.GetPath():
                 print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
-                print("X position predict: " + str(round(i[1], 10)) + "cm")
+                print("X position predict: " + str(round(i[0], 10)) + "cm")
                 print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
-                print("Y position predict: " + str(round(i[2], 10)) + "cm")
+                print("Y position predict: " + str(round(i[1], 10)) + "cm")
 
         elif self._navi.GetPath() is not None and ENGINE == ENGINES.JAKUB:
             for i in self._navi.GetPath():

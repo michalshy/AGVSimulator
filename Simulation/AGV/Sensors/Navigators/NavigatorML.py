@@ -120,37 +120,6 @@ class NavigatorML(Navigator):
                 self._headingRad = self._path[0][3]
                 if self._distance < 1:
                     self._data.append(self._path.pop(0))
-        # if timer.GetTicks() - self._cycle > PREDICT_CYCLE:
-        #     self._cycle += PREDICT_CYCLE
-        #     if len(self._data) > LOOKBACK:
-        #         #ENGINE CONDITIONAL
-        #         if ENGINE == ENGINES.OLEK:
-        #             df = pd.DataFrame(self._data, columns=['Battery cell voltage', 'X-coordinate', 'Y-coordinate', 'Going to ID', 'Heading'])
-        #         elif ENGINE == ENGINES.JAKUB:
-        #             df = pd.DataFrame(self._data, columns=['X-coordinate', 'Y-coordinate', 'Going to ID'])
-        #         df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
-        #         df = df.values
-        #         df = df.astype('float32')
-        #         scaler = MinMaxScaler(feature_range=(0, 1))
-        #         dataset = scaler.fit_transform(df)
-        #         toPredict = create_dataset(dataset)
-        #         self._path = scaler.inverse_transform(self._model.predict(toPredict))
-        #         self._path = self._path.tolist()
-        #         #ENGINE CONDITIONAL
-                # if ENGINE == ENGINES.OLEK:
-                #     yDiff = (agvPos[1] - self._path[0][2])
-                #     xDiff = (agvPos[0] - self._path[0][1])
-                #     self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                #     self._path[0][1] = xDiff + self._path[0][1]
-                #     self._path[0][2] = yDiff + self._path[0][2]
-                #     self._headingRad = self._path[0][4]
-                # elif ENGINE == ENGINES.JAKUB:
-                #     yDiff = (self._path[0][1] - agvPos[1])
-                #     xDiff = (self._path[0][0] - agvPos[0])
-                #     self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                #     #self._path[0][0] = xDiff + self._path[0][0]    
-                #     #self._path[0][1] = yDiff + self._path[0][1]
-                #     self._headingRad = self._path[0][2]
         
         if(len(self._data)  > MAX_DATA):
             self._data.pop(0)
