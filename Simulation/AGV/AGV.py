@@ -37,9 +37,12 @@ class AGV:
         self._wheels = Wheels()
         self._lidars = Lidars()
 
+        #flags
+        self._stopFlag = False
+
     def Init(self, img: pygame.Surface):
         self._enc.batteryValue = 120000
-        self._nns.heading = 30
+        self._nns.heading = self._navi.GetHeading()
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = STARTING_POS_X * 10
@@ -66,6 +69,8 @@ class AGV:
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
 
+        self._stopFlag = self._navi.GetStop()
+
 
     def GetENC(self):
         return self._enc
@@ -84,6 +89,9 @@ class AGV:
 
     def GetDriveMode(self):
         return self._wheels.GetDriveMode()
+    
+    def GetStopFlag(self):
+        return self._stopFlag
 
     def PrintState(self):
         print("Heading: " + str(round(self._nns.heading,2)) + "degree")
@@ -92,9 +100,9 @@ class AGV:
         if self._navi.GetPath() is not None and ENGINE == ENGINES.OLEK:
             for i in self._navi.GetPath():
                 print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
-                print("X position predict: " + str(round(i[1], 10)) + "cm")
+                print("X position predict: " + str(round(i[0], 10)) + "cm")
                 print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
-                print("Y position predict: " + str(round(i[2], 10)) + "cm")
+                print("Y position predict: " + str(round(i[1], 10)) + "cm")
 
         elif self._navi.GetPath() is not None and ENGINE == ENGINES.JAKUB:
             for i in self._navi.GetPath():
@@ -117,8 +125,8 @@ class AGV:
     def Navigate(self):
         self.CheckPaths()
 
-        #NEW ROTATION
-        #self._nns.heading = self._navi.GetHeading()
+        # NEW ROTATION
+        self._nns.heading = self._navi.GetHeading()
 
         #TEST POSITION FLICK JAKUB
         # if self._navi.GetPath() and timer.GetTicks() > 10000:
@@ -127,16 +135,16 @@ class AGV:
 
     def Draw(self):
        
-        pygame.draw.circle(self._canvas, GREEN,(self._nns.xCoor, self._nns.yCoor),AGV_SIZE)
+        pygame.draw.circle(self._canvas, GREEN,(self._nns.xCoor + ROOM_W_OFFSET, self._nns.yCoor + ROOM_H_OFFSET),AGV_SIZE)
         pygame.draw.circle(self._canvas,RED,
-                        (self._nns.xCoor + 25 * math.cos(math.radians(self._nns.heading))
-                            ,self._nns.yCoor + 25 * math.sin(math.radians(self._nns.heading)) ) , 7)
+                        (self._nns.xCoor + ROOM_W_OFFSET + 5 * math.cos(math.radians(self._nns.heading))
+                            ,self._nns.yCoor + ROOM_H_OFFSET + 5 * math.sin(math.radians(self._nns.heading)) ) , 2)
         if self._navi.GetPath() is not None:
             for i in self._navi.GetPath():
                 if ENGINE == ENGINES.OLEK:  
-                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[1], i[2], GRID_DENSITY, GRID_DENSITY))
+                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0] + ROOM_W_OFFSET, i[1] + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
                 if ENGINE == ENGINES.JAKUB:   
-                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0], i[1], GRID_DENSITY, GRID_DENSITY))
+                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0] + ROOM_W_OFFSET, i[1], GRID_DENSITY, GRID_DENSITY))
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)

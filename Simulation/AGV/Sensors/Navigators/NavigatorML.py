@@ -18,13 +18,13 @@ class ENGINES(Enum):
     OLEK = 1
     JAKUB = 2
 
-ENGINE = ENGINES.JAKUB
+ENGINE = ENGINES.OLEK
 
 if ENGINE == ENGINES.OLEK: # OLEK
-    LOOKBACK = 3
+    LOOKBACK = 10
     PARAM_NUMBER = 5
-    PREDICT_CYCLE = 50
-    POSITION_CYCLE = 20
+    PREDICT_CYCLE = 25
+    POSITION_CYCLE = 25
 
 elif ENGINE == ENGINES.JAKUB: # JAKUB
     LOOKBACK = 10
@@ -40,7 +40,7 @@ def create_dataset(dataset):
     if ENGINE == ENGINES.OLEK:
         data = []
         temp = []
-        for j in range(LOOKBACK):
+        for j in reversed(range(LOOKBACK)):
             a = dataset[len(dataset) - j - 1]
             temp.append(a)
         data.append(temp)
@@ -64,73 +64,62 @@ class NavigatorML(Navigator):
         elif ENGINE == ENGINES.JAKUB:
             self._model: keras.Model = keras.models.load_model(r'Simulation\AGV\MlNav\NAVJ.keras')
 
+        self._toDrive = []
         self._data = []
         self._path = []
         self._cycle = 0
         self._appendCycle = 0
         self._distance = 0
         self._headingRad = 0.36016902327537537
+        self._stopFlag = False
 
+        #static appending temporary
+        if ENGINE == ENGINES.OLEK:
+            df = pd.read_csv(r'Resources\agv.pkl', low_memory=False)
+            df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
+            df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
+            df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
+            df['Current segment'] = pd.to_numeric(df['Current segment'], errors='coerce')
+            df['Heading'] = pd.to_numeric(df['Heading'], errors='coerce')
+            df = df.dropna()
+            df = df[df['Current segment'] == 59.0]
+            print(df)
+            self._scaler = MinMaxScaler()
+            df_scaled = df.copy()
+            df_scaled[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']] = self._scaler.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']])
+            self._toDrive = df_scaled.values.tolist()
+            for i in range(LOOKBACK):
+                self._data.append(self._toDrive[i])
     def Init(self, img: Surface):
         self._image = img
 
     def DetermineFlags(self):
-        pass
+         if(len(self._path) != 0):
+            if self._distance < 10:
+                self._path.pop()
+                self._stopFlag = True
+            else:
+                self._stopFlag = False
 
     def FindPath(self, batteryVal, agvPos: tuple, heading, id):
-
-        print(self._distance)
-        if self._distance < 300:
-            if len(self._path) != 0:
-                self._data.append(self._path.pop(0))
-        # if len(self._data) < LOOKBACK:
-        #     #ENGINE CONDITIONAL
-        #     if ENGINE == ENGINES.OLEK:
-        #         self._data.append((batteryVal, agvPos[0], agvPos[1], math.radians(heading), id))
-        #     elif ENGINE == ENGINES.JAKUB:
-        #         self._data.append((agvPos[0], agvPos[1], math.radians(heading)))
-        if timer.GetTicks() - self._appendCycle > POSITION_CYCLE:
-            self._appendCycle += POSITION_CYCLE
-            #ENGINE CONDITIONAL
-            if len(self._data) <= LOOKBACK:
-                if ENGINE == ENGINES.OLEK:
-                    self._data.append((batteryVal, agvPos[0], agvPos[1], math.radians(heading), id))
-                elif ENGINE == ENGINES.JAKUB:
-                    self._data.append((agvPos[0], agvPos[1], math.radians(heading)))
-        if len(self._path) == 0:
-        #if timer.GetTicks() - self._cycle > PREDICT_CYCLE:
-            #self._cycle += PREDICT_CYCLE
-            if len(self._data) > LOOKBACK:
-                #ENGINE CONDITIONAL
-                if ENGINE == ENGINES.OLEK:
-                    df = pd.DataFrame(self._data, columns=['Battery cell voltage', 'X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID'])
-                elif ENGINE == ENGINES.JAKUB:
-                    df = pd.DataFrame(self._data, columns=['X-coordinate', 'Y-coordinate', 'Going to ID'])
-                df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
+        if ENGINE == ENGINES.OLEK:
+            if(len(self._path) == 0):
+                df = pd.DataFrame(self._data, columns=['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading'])
                 df = df.values
                 df = df.astype('float32')
-                scaler = MinMaxScaler(feature_range=(0, 1))
-                dataset = scaler.fit_transform(df)
-                toPredict = create_dataset(dataset)
-                self._path = scaler.inverse_transform(self._model.predict(toPredict))
+                toPredict = create_dataset(df)
+                predicted = self._model.predict(toPredict)
+                self._path = self._scaler.inverse_transform(predicted)
                 self._path = self._path.tolist()
-
-        if len(self._path) != 0:
-            #ENGINE CONDITIONAL
-            if ENGINE == ENGINES.OLEK:
-                yDiff = (agvPos[1] - self._path[0][2])
-                xDiff = (agvPos[0] - self._path[0][1])
+            if len(self._path) != 0:
+                yDiff = (agvPos[1] - self._path[0][1])
+                xDiff = (agvPos[0] - self._path[0][0])
                 self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                self._path[0][1] = 2*xDiff + self._path[0][1]
-                self._path[0][2] = 2*yDiff + self._path[0][2]
+                self._path[0][0] = xDiff + self._path[0][0]
+                self._path[0][1] = yDiff + self._path[0][1]
                 self._headingRad = self._path[0][3]
-            elif ENGINE == ENGINES.JAKUB:
-                yDiff = (self._path[0][1] - agvPos[1])
-                xDiff = (self._path[0][0] - agvPos[0])
-                self._distance = math.sqrt((xDiff*xDiff)+(yDiff*yDiff))
-                #self._path[0][0] = xDiff + self._path[0][0]    
-                #self._path[0][1] = yDiff + self._path[0][1]
-                self._headingRad = self._path[0][2]
+                if self._distance < 1:
+                    self._data.append(self._path.pop(0))
         
         if(len(self._data)  > MAX_DATA):
             self._data.pop(0)
@@ -142,4 +131,8 @@ class NavigatorML(Navigator):
         return self._distance
     
     def GetHeading(self):
+        print(self._headingRad)
         return math.degrees(self._headingRad)
+    
+    def GetStop(self):
+        return self._stopFlag

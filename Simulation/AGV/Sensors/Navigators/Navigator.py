@@ -49,3 +49,6 @@ class Navigator:
 
     def GetHeading(self):
         pass
+
+    def GetStop(self):
+        pass
