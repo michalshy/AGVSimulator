@@ -4,9 +4,7 @@ from Simulation.Frames.Frame6000.NNS import NNS
 from Simulation.Frames.Frame6100.NNC import NNC
 from Simulation.AGV.Sensors.Lidars import Lidars
 from Simulation.AGV.Sensors.Wheels import Wheels
-from Simulation.AGV.Sensors.Navigators.Navigator import Navigator
-from Simulation.AGV.Sensors.Navigators.NavigatorML import NavigatorML, ENGINE, ENGINES
-from Simulation.AGV.Sensors.Navigators.NavigatorA import NavigatorA
+from Simulation.AGV.Sensors.Navigator import Navigator
 from Simulation.AGV.Sensors.Battery import Battery
 from Simulation.Logic.Timer import *
 import pygame
@@ -30,10 +28,7 @@ class AGV:
         #sensors
         self._battery = Battery()
         self._navi: Navigator
-        if NAV_TYPE == 1:
-            self._navi = NavigatorA()
-        if NAV_TYPE == 0:
-            self._navi = NavigatorML()
+        self._navi = Navigator()
         self._wheels = Wheels()
         self._lidars = Lidars()
 
@@ -96,24 +91,11 @@ class AGV:
     def PrintState(self):
         print("Heading: " + str(round(self._nns.heading,2)) + "degree")
         print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
-        
-        if self._navi.GetPath() is not None and ENGINE == ENGINES.OLEK:
-            for i in self._navi.GetPath():
-                print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
-                print("X position predict: " + str(round(i[0], 10)) + "cm")
-                print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
-                print("Y position predict: " + str(round(i[1], 10)) + "cm")
-
-        elif self._navi.GetPath() is not None and ENGINE == ENGINES.JAKUB:
-            for i in self._navi.GetPath():
-                print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
-                print("X position predict: " + str(round(i[0], 10)) + "cm")
-                print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
-                print("Y position predict: " + str(round(i[1], 10)) + "cm")
-
-        else:
+        for i in self._navi.GetPath():
             print("X position: " + str(round(self._nns.xCoor, 10)) + "cm")
+            print("X position predict: " + str(round(i[0], 10)) + "cm")
             print("Y position: " + str(round(self._nns.yCoor, 10)) + "cm")
+            print("Y position predict: " + str(round(i[1], 10)) + "cm")
         print("Battery value: " + str(self._enc.batteryValue) + "mAh")
         print("Destination ID:" + str(self._nns.goingToID))
         print("Destination Triger:" + str(self._wheels.GetDriveMode()))
@@ -141,10 +123,7 @@ class AGV:
                             ,self._nns.yCoor + ROOM_H_OFFSET + 5 * math.sin(math.radians(self._nns.heading)) ) , 2)
         if self._navi.GetPath() is not None:
             for i in self._navi.GetPath():
-                if ENGINE == ENGINES.OLEK:  
-                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0] + ROOM_W_OFFSET, i[1] + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
-                if ENGINE == ENGINES.JAKUB:   
-                    pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0] + ROOM_W_OFFSET, i[1], GRID_DENSITY, GRID_DENSITY))
+                pygame.draw.rect(self._canvas, RED, pygame.Rect(i[0] + ROOM_W_OFFSET, i[1] + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)
