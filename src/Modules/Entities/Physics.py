@@ -1,8 +1,7 @@
-from Simulation.Logic.Timer import *
+from Modules.Simulation.Logic.Timer import *
 import math
-from Simulation.Frames.Frame6000.ENC import ENC
-from Simulation.Frames.Frame6000.NNS import NNS
-from Simulation.AGV.AGV import AGV
+from Modules.Entities.Frame6000 import ENC, NNS
+from Modules.Entities.AGV import AGV
 from Globals import *
 
 

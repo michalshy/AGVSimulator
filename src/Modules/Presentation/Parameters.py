@@ -1,9 +1,9 @@
-from Simulation.Frames.Frame6100.NNC import NNC
-from Simulation.Frames.Frame6100.MC import MC
+from Modules.Entities.Frame6100.MC import MC
+from Modules.Entities.Frame6100.NNC import NNC
 
 
 # Class for reading variables from server
-class ParamManager:
+class Parameters:
     def __init__(self):
         self._mc = MC()
         self._nnc = NNC()
@@ -18,4 +18,4 @@ class ParamManager:
         self._nnc.destID = destID
 
     def GetRoomPath(self):
-        return "./Resources/room2.png"
+        return "./Config/Rooms/room2.png"

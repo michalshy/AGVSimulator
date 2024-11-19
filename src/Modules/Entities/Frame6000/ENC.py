@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+@dataclass
 class ENC:
     momentCurrConsump = 0
     batteryCellVolt = 0
