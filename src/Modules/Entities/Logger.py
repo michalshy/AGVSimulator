@@ -1,10 +1,10 @@
 from datetime import datetime
-from Simulation.AGV.AGV import AGV
-from Simulation.Logic.Timer import *
+from Modules.Entities.AGV.AGV import AGV
+from Modules.Simulation.Logic.Timer import *
 
 INIT_CYCLE = 1000
 
-class LogManager:
+class Logger:
     def __init__(self) -> None:
         self._nameOfFile = datetime.now().strftime("./Logs/%d%m%Y%H%M%S") + ".txt"
         f = open(self._nameOfFile, "w")

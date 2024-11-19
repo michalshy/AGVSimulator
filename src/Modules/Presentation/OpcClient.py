@@ -1,15 +1,15 @@
 import sys
 sys.dont_write_bytecode
-from Simulation.Managers.ParamManager import ParamManager
+from Modules.Presentation.Parameters import Parameters
+from Modules.Entities.AGV import AGV
 from opcua import Client
-from Simulation.AGV.AGV import AGV
 
-class OpcHandler:
-    def __init__(self, paramManager: ParamManager, agv: AGV):
-        self._param_manager = paramManager
+
+class OpcClient:
+    def __init__(self, params: Parameters):
+        self._params = params
         self._url = "opc.tcp://localhost:4841/freeopcua/server/"
         self._dataFromServer = 0
-        self._agv = agv
         self._nodeId = "ns=2;i="
         self._updateStep = 0
         self._stepAmount = 5
@@ -27,15 +27,15 @@ class OpcHandler:
         self.client.disconnect()
        
     #Receive data from server
-    def ReceiveDataFromServer(self):
+    def ReceiveDataFromServer(self, params: Parameters):
         tab = [13,14]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
             self.StartReception(tab[it])
-            self._param_manager.SetDestID(self._dataFromServer)
+            params.SetDestID(self._dataFromServer)
             it+=1
             self.StartReception(tab[it])
-            self._param_manager.SetDestTrig(self._dataFromServer)
+            params.SetDestTrig(self._dataFromServer)
             self._updateStep = 0
         self._updateStep += 1    
 
@@ -46,18 +46,18 @@ class OpcHandler:
         self._nodeId = "ns=2;i="   
 
     #Send to server
-    def SendToServer(self):
+    def SendToServer(self, agv: AGV):
         tab = [7,8,5,10,6]  
         it = 0   
         if self._updateStep % self._stepAmount == 0:
-            self.Transmit(self._agv.GetNNS().xCoor, tab[it])    
+            self.Transmit(agv.GetNNS().xCoor, tab[it])    
             it+=1 
-            self.Transmit(self._agv.GetNNS().yCoor,tab[it])     
+            self.Transmit(agv.GetNNS().yCoor,tab[it])     
             it+=1
-            self.Transmit(self._agv.GetNNS().heading,tab[it])     
+            self.Transmit(agv.GetNNS().heading,tab[it])     
             it+=1
-            self.Transmit(self._agv.GetENC().batteryValue,tab[it])     
+            self.Transmit(agv.GetENC().batteryValue,tab[it])     
             it+=1
-            self.Transmit(self._agv.GetNNS().speed,tab[it])     
+            self.Transmit(agv.GetNNS().speed,tab[it])     
             self._updateStep = 0
         self._updateStep += 1   

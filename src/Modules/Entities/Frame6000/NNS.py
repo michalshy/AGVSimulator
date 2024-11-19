@@ -1,4 +1,5 @@
-
+from dataclasses import dataclass
+@dataclass
 class NNS:
     naturalNavStatus = 0
     posInitStatus = 0
