@@ -40,6 +40,7 @@ class Physics:
         self._agv.GetNNS().yCoor += math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt()
         self.DrainBattery(1, self._agv.GetENC())
 
+
     def UpdateParams(self):
         if not self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed = 0

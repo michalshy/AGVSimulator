@@ -13,7 +13,7 @@ class Wheels:
         self._driveMode = False
 
     def Init(self):
-        self._maxSpeed = 50 #TODO: figure out when agv can move faster to 150
+        self._maxSpeed = 50
 
     def DetermineFlags(self, speed):
         # Max speed

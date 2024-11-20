@@ -22,6 +22,7 @@ Simulation also uses flags to control flow.
 class AGV:
     def __init__(self):
         self._isOrder = False
+        self._order = []
 
         # For frames
         self._enc = ENC()
@@ -52,18 +53,23 @@ class AGV:
         self._wheels.Init()
         self._lidars.Init()
 
-    def SetRouteParams(self, nnc: NNC):
-        self.SetDestId(nnc)
-        self.SetDestTrig(nnc)
-
-    def SetOrder(self, state: bool):
+    def SetOrder(self, state: bool, segments: list):
         self._isOrder = state
+        self._order = segments
 
     def DetermineFlags(self):
         self._battery.DetermineFlags(self._enc.batteryValue)
         self._navi.DetermineFlags()
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
+
+        self._isOrder = self._navi.TaskInProgress()
+
+    def GetIsOrder(self):
+        return self._isOrder
+
+    def GetOrder(self):
+        return self._order
 
     def GetENC(self):
         return self._enc
@@ -82,8 +88,10 @@ class AGV:
 
     def CheckDrive(self):
         if(self._isOrder):
+            self._stopFlag = False
             self._wheels.SetDriveMode(True)
         else:
+            self._stopFlag = True
             self._wheels.SetDriveMode(False)
         
         return self._wheels.GetDriveMode()
@@ -100,7 +108,8 @@ class AGV:
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
-        self._navi.FindPath() #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+        if self._isOrder:
+            self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
 
     def Navigate(self):
         self.CheckPaths()

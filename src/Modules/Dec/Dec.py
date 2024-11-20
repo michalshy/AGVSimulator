@@ -9,11 +9,11 @@ class Dec:
         self._path = []
         self._heading = 0
 
-    def PredictPath(self): #TODO: PREDICT
+    def PredictPath(self, segments_to_traverse: list): #TODO: PREDICT
         self._path = ((100,100), (200,200), (300,300), (400,400), (500,500), (600,600))
         self._heading = 90 
 
-    def ReturnPredictedPath(self, segments_to_traverse: list):
+    def ReturnPredictedPath(self):
         return self._path
     
     def ReturnPredictedHeading(self):
