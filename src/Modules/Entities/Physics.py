@@ -3,9 +3,13 @@ import math
 from Modules.Entities.Frame6000 import ENC, NNS
 from Modules.Entities.AGV import AGV
 from Globals import *
+# -*- coding: utf-8 -*-
+"""Physics module
 
-
-# Class responsible for changing the state of desired AGV
+Module attached to desired AGV, used to provide simple physics for one vehicle.
+It manipulates its fields to simulate real life physic. Does not control vehicle
+flags.
+"""
 class Physics:
     def __init__(self, agv: AGV):
         self._agv = agv

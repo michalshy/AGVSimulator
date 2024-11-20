@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""Battery module
+
+Controls battery flag. If battery is too low, it makes driving impossible.
+"""
 class Battery:
     def __init__(self) -> None:
         self._batteryAvailable = False

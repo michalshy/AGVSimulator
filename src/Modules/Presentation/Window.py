@@ -4,7 +4,12 @@ from Modules.Presentation.Parameters import Parameters
 from Globals import *
 from Modules.Presentation.OpcClient import OpcClient
 from Modules.Entities.AGV.AGV import AGV
+# -*- coding: utf-8 -*-
+"""Window module
 
+Window is mostly wrapper around pygame functions, provided for eliminating
+redundance over project 
+"""
 class Window:
     def __init__(self, pm: Parameters) -> None:
         self._canvas = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

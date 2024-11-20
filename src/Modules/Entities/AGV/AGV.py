@@ -10,8 +10,15 @@ from Modules.Simulation.Logic.Timer import *
 import pygame
 import math
 from Globals import *
+# -*- coding: utf-8 -*-
+"""AGV module
 
-# Class that holds state of AGV
+Module responsible for single AGV behaviour. Does not take any action on its own,
+provides API functions for Simulation module to use.
+The manipulation it provides on its own is flags it controls.
+By this flags Physics module can know if some action is possible.
+Simulation also uses flags to control flow.
+"""
 class AGV:
     def __init__(self):
         # For frames
@@ -31,12 +38,12 @@ class AGV:
         #flags
         self._stopFlag = False
 
-    def Init(self):
+    def Init(self, x, y):
         self._enc.batteryValue = 120000
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
-        self._nns.xCoor = STARTING_POS_X * 10
-        self._nns.yCoor = STARTING_POS_Y * 10
+        self._nns.xCoor = x * 10
+        self._nns.yCoor = y * 10
 
         self._battery.Init(self._enc.batteryValue)
         self._navi.Init()
@@ -58,9 +65,6 @@ class AGV:
         self._navi.DetermineFlags()
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
-
-        self._stopFlag = self._navi.GetStop()
-
 
     def GetENC(self):
         return self._enc

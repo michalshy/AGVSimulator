@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""Wheels module
+
+Module of AGV, simulating its wheels, checks for max speed and controls max speed
+flag.
+"""
 class Wheels:
     def __init__(self) -> None:
         self._maxSpeed = 0 

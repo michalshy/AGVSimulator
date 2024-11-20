@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""NNS module
+
+Structure containing NNS field of 6000 frame.
+"""
 from dataclasses import dataclass
 @dataclass
 class NNS:

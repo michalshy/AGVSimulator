@@ -3,8 +3,12 @@ sys.dont_write_bytecode
 from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV import AGV
 from opcua import Client
+# -*- coding: utf-8 -*-
+"""OpcClient module
 
-
+Responsible for communication with OpcServer, provides set of API methods for
+simulation to execute during their controlled cycles.
+"""
 class OpcClient:
     def __init__(self, params: Parameters):
         self._params = params
@@ -24,8 +28,8 @@ class OpcClient:
         self._nodeId = "ns=2;i=" 
 
     def CloseConnection(self):
-        self.client.disconnect()
-       
+        self.client.disconnect()       
+
     #Receive data from server
     def ReceiveDataFromServer(self, params: Parameters):
         tab = [13,14]  
@@ -60,4 +64,7 @@ class OpcClient:
             it+=1
             self.Transmit(agv.GetNNS().speed,tab[it])     
             self._updateStep = 0
-        self._updateStep += 1   
+        self._updateStep += 1  
+
+    def GetStatus(self):
+        return self.client

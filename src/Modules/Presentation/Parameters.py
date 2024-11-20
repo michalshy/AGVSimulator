@@ -1,8 +1,12 @@
 from Modules.Entities.Frame6100.MC import MC
 from Modules.Entities.Frame6100.NNC import NNC
+# -*- coding: utf-8 -*-
+"""Parameters module
 
-
-# Class for reading variables from server
+Parameters module is responsible for reading configuration parameters and loading
+them inside of project to according modules.
+Uses mostly public API which is shared around modules.
+"""
 class Parameters:
     def __init__(self):
         self._mc = MC()

@@ -1,7 +1,12 @@
 from datetime import datetime
 from Modules.Entities.AGV.AGV import AGV
 from Modules.Simulation.Logic.Timer import *
+# -*- coding: utf-8 -*-
+"""Logger module
 
+Module provided for logging purposes. On its cycle, when simulation calls desired
+method, logger appends AGV state into specified file.
+"""
 INIT_CYCLE = 1000
 
 class Logger:

@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""ENC module
+
+Structure containing ENC field of 6000 frame.
+"""
 from dataclasses import dataclass
 @dataclass
 class ENC:

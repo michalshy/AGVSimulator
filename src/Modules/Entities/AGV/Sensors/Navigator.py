@@ -1,15 +1,11 @@
-from pygame import Surface
-from Globals import *
-from Modules.Entities.Frame6000.NNS import NNS
-import tensorflow as tf
-import keras
-from sklearn.preprocessing import MinMaxScaler
-import numpy as np
-import pandas as pd
-from Modules.Simulation.Logic.Timer import *
-import math
-from enum import Enum
+# -*- coding: utf-8 -*-
+"""Navigator module
 
+Module which communicates with main deep learning module - Dec and
+returns to AGV class.
+It is responsible for controlling and holding current paths and upcoming changes in
+navigation.
+"""
 class Navigator():
     def __init__(self):
         pass
@@ -31,6 +27,3 @@ class Navigator():
     
     def GetHeading(self):
         return 10
-    
-    def GetStop(self):
-        pass

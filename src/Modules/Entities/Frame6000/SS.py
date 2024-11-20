@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""SS module
+
+Structure containing SS field of 6000 frame.
+"""
 from dataclasses import dataclass
 @dataclass
 class SS:

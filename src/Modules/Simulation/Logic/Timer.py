@@ -1,6 +1,12 @@
 import pygame
 from pygame import *
+# -*- coding: utf-8 -*-
+"""Timer module
 
+Global Timer module provided for updating of main loop with delta time
+(for simulator to work properly on different platforms), and updating of
+transmission, reception and logging cycles accordingly to variables set in Globals
+"""
 class Timer:
     def __init__(self) -> None:
         self._fps = 60
