@@ -7,7 +7,7 @@ from Modules.Entities.Logger import Logger
 from Modules.Presentation.OpcClient import OpcClient
 from Modules.Simulation.Logic.Timer import *
 from Modules.Entities.Physics import Physics
-from Modules.Simulation.Network import Network
+from Modules.Simulation.Network.Network import Network
 from Globals import *
 # -*- coding: utf-8 -*-
 """Simulation module
@@ -32,7 +32,7 @@ class Simulation:
         while not self._finishFlag:
             wm.PrepWindow()                             # Pygame section
             self._logger.WriteToFile(self._agv)         # Logger section
-            self._network.HandleNetwork()               # Network section            
+            self._network.HandleNetwork(opc, self._agv) # Network section            
             self._agv.SetRouteParams(params.GetNNC())   # AGV section
             if self._agv.GetDriveMode():
                 _clear()

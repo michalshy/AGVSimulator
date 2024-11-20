@@ -100,7 +100,6 @@ class AGV:
 
     def Navigate(self):
         self.CheckPaths()
-        self._nns.heading = self._navi.GetHeading()
 
     def Draw(self, canvas):
        
@@ -108,8 +107,7 @@ class AGV:
         pygame.draw.circle(canvas,RED,
                         (self._nns.xCoor + ROOM_W_OFFSET + 5 * math.cos(math.radians(self._nns.heading))
                             ,self._nns.yCoor + ROOM_H_OFFSET + 5 * math.sin(math.radians(self._nns.heading)) ) , 2)
-        if self._navi.GetPath() is not None:
-            pygame.draw.rect(canvas, RED, pygame.Rect(self._navi.GetPath()[0] + ROOM_W_OFFSET, self._navi.GetPath()[1] + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
+        self._navi.DrawPath(canvas)        
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)

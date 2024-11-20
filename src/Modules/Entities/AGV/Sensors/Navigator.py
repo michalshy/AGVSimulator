@@ -1,3 +1,6 @@
+import pygame
+from Globals import *
+from Modules.Dec.Dec import Dec
 # -*- coding: utf-8 -*-
 """Navigator module
 
@@ -8,7 +11,8 @@ navigation.
 """
 class Navigator():
     def __init__(self):
-        pass
+        self._dec = Dec()
+        self._path = []
 
     def Init(self):
         pass
@@ -17,13 +21,17 @@ class Navigator():
         pass
 
     def FindPath(self):
-        pass
+        self._dec.PredictPath()
         
     def GetPath(self):
-        return (0,0,0,0,0)
+        self._dec.ReturnPredictedPath()
     
     def GetDistance(self):
         return 0
     
     def GetHeading(self):
-        return 10
+        self._dec.ReturnPredictedHeading()
+    
+    def DrawPath(self, canvas):
+        for coord in self._path:
+            pygame.draw.rect(canvas, RED, pygame.Rect(coord[0] + ROOM_W_OFFSET, coord[1] + ROOM_H_OFFSET, 5, 5))

@@ -1,4 +1,4 @@
-import src.AppEngine as AppEngine
+import AppEngine as AppEngine
 
 # Main of the whole AGV Simulator, calls loop declared deeper into Simulation
 def main():
