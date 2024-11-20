@@ -33,8 +33,7 @@ class Simulation:
             wm.PrepWindow()                             # Pygame section
             self._logger.WriteToFile(self._agv)         # Logger section
             self._network.HandleNetwork(opc, self._agv) # Network section            
-            self._agv.SetRouteParams(params.GetNNC())   # AGV section
-            if self._agv.GetDriveMode():
+            if self._agv.CheckDrive():
                 _clear()
                 self.Route()
             wm.Draw(self._agv)                          # Draw after update

@@ -21,6 +21,8 @@ Simulation also uses flags to control flow.
 """
 class AGV:
     def __init__(self):
+        self._isOrder = False
+
         # For frames
         self._enc = ENC()
         self._ss = SS()
@@ -54,11 +56,8 @@ class AGV:
         self.SetDestId(nnc)
         self.SetDestTrig(nnc)
 
-    def SetDestId(self, nnc: NNC):
-        self._nns.goingToID = nnc.destID
-
-    def SetDestTrig(self, nnc: NNC):
-        self._wheels.SetDriveMode(nnc.goDestTrig)
+    def SetOrder(self, state: bool):
+        self._isOrder = state
 
     def DetermineFlags(self):
         self._battery.DetermineFlags(self._enc.batteryValue)
@@ -81,7 +80,12 @@ class AGV:
     def GetAtMaxSpeed(self):
         return self._wheels.GetAtMaxSpeed()
 
-    def GetDriveMode(self):
+    def CheckDrive(self):
+        if(self._isOrder):
+            self._wheels.SetDriveMode(True)
+        else:
+            self._wheels.SetDriveMode(False)
+        
         return self._wheels.GetDriveMode()
     
     def GetStopFlag(self):
