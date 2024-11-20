@@ -1,17 +1,23 @@
+# -*- coding: utf-8 -*-
+"""Globals module
+
+Does not contain any classes nor methods.
+Responsible only for maintainance of variables and constants with global scope.
+"""
+
 #SCREEN
 SCREEN_WIDTH = 1600
 SCREEN_HEIGHT = 800
+
+#SIMULATION
+SIMULATION_RX_CYCLE = 200
+SIMULATION_TX_CYCLE = 200
 
 #AGV
 AGV_SIZE = 10
 AGV_TURN_TOLERANCE = 15
 
 #NAVIGATION
-GRID_DENSITY = 5
-GRID_OFFSET_AMOUNT = int(AGV_SIZE/GRID_DENSITY) + 5
-# 0 - Machine Learning navigation provided by LSTM Neural Network
-# 1 - A* navigation, harcoded algorithm
-NAV_TYPE = 0
 
 #ROOM
 ROOM_WIDTH = 1000

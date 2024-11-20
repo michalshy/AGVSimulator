@@ -10,10 +10,20 @@ from Modules.Simulation.Logic.Timer import *
 import pygame
 import math
 from Globals import *
+# -*- coding: utf-8 -*-
+"""AGV module
 
-# Class that holds state of AGV
+Module responsible for single AGV behaviour. Does not take any action on its own,
+provides API functions for Simulation module to use.
+The manipulation it provides on its own is flags it controls.
+By this flags Physics module can know if some action is possible.
+Simulation also uses flags to control flow.
+"""
 class AGV:
     def __init__(self):
+        self._isOrder = False
+        self._order = []
+
         # For frames
         self._enc = ENC()
         self._ss = SS()
@@ -31,27 +41,21 @@ class AGV:
         #flags
         self._stopFlag = False
 
-    def Init(self):
+    def Init(self, x, y):
         self._enc.batteryValue = 120000
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
-        self._nns.xCoor = STARTING_POS_X * 10
-        self._nns.yCoor = STARTING_POS_Y * 10
+        self._nns.xCoor = x * 10
+        self._nns.yCoor = y * 10
 
         self._battery.Init(self._enc.batteryValue)
         self._navi.Init()
         self._wheels.Init()
         self._lidars.Init()
 
-    def SetRouteParams(self, nnc: NNC):
-        self.SetDestId(nnc)
-        self.SetDestTrig(nnc)
-
-    def SetDestId(self, nnc: NNC):
-        self._nns.goingToID = nnc.destID
-
-    def SetDestTrig(self, nnc: NNC):
-        self._wheels.SetDriveMode(nnc.goDestTrig)
+    def SetOrder(self, state: bool, segments: list):
+        self._isOrder = state
+        self._order = segments
 
     def DetermineFlags(self):
         self._battery.DetermineFlags(self._enc.batteryValue)
@@ -59,8 +63,13 @@ class AGV:
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
 
-        self._stopFlag = self._navi.GetStop()
+        self._isOrder = self._navi.TaskInProgress()
 
+    def GetIsOrder(self):
+        return self._isOrder
+
+    def GetOrder(self):
+        return self._order
 
     def GetENC(self):
         return self._enc
@@ -77,7 +86,14 @@ class AGV:
     def GetAtMaxSpeed(self):
         return self._wheels.GetAtMaxSpeed()
 
-    def GetDriveMode(self):
+    def CheckDrive(self):
+        if(self._isOrder):
+            self._stopFlag = False
+            self._wheels.SetDriveMode(True)
+        else:
+            self._stopFlag = True
+            self._wheels.SetDriveMode(False)
+        
         return self._wheels.GetDriveMode()
     
     def GetStopFlag(self):
@@ -92,11 +108,11 @@ class AGV:
 
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
-        self._navi.FindPath() #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+        if self._isOrder:
+            self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
 
     def Navigate(self):
         self.CheckPaths()
-        self._nns.heading = self._navi.GetHeading()
 
     def Draw(self, canvas):
        
@@ -104,8 +120,7 @@ class AGV:
         pygame.draw.circle(canvas,RED,
                         (self._nns.xCoor + ROOM_W_OFFSET + 5 * math.cos(math.radians(self._nns.heading))
                             ,self._nns.yCoor + ROOM_H_OFFSET + 5 * math.sin(math.radians(self._nns.heading)) ) , 2)
-        if self._navi.GetPath() is not None:
-            pygame.draw.rect(canvas, RED, pygame.Rect(self._navi.GetPath()[0] + ROOM_W_OFFSET, self._navi.GetPath()[1] + ROOM_H_OFFSET, GRID_DENSITY, GRID_DENSITY))
+        self._navi.DrawPath(canvas)        
         
     def CalculateTurn(self):
         return self._navi.CalculateTurn(self._nns)

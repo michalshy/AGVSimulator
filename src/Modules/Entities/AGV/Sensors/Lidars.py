@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""Lidar module
+
+Module which simulates Lidar system of AGV, based on provided image of room,
+checks for approaching walls to potentialy stop AGV before collision.
+"""
 class Lidars:
     def __init__(self) -> None:
         self._emergencyStop = False

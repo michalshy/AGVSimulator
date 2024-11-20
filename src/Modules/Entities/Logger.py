@@ -1,7 +1,12 @@
 from datetime import datetime
 from Modules.Entities.AGV.AGV import AGV
 from Modules.Simulation.Logic.Timer import *
+# -*- coding: utf-8 -*-
+"""Logger module
 
+Module provided for logging purposes. On its cycle, when simulation calls desired
+method, logger appends AGV state into specified file.
+"""
 INIT_CYCLE = 1000
 
 class Logger:
@@ -14,7 +19,7 @@ class Logger:
 
     def ConstructLine(self, agv: AGV):
         self._infoToWrite = str(agv.GetNNS().heading) + ":" + str(agv.GetNNS().speed) + ":" + str(agv.GetNNS().xCoor) + ":" \
-                            + str(agv.GetNNS().yCoor) + ":" + str(agv.GetENC().batteryValue) + ":" + str(agv.GetNNS().goingToID) + ":" + str(agv.GetDriveMode()) + "\n"
+                            + str(agv.GetNNS().yCoor) + ":" + str(agv.GetENC().batteryValue) + "\n"
 
     def WriteToFile(self, agv: AGV):
         if timer.GetTicks() > (self._cycle + INIT_CYCLE):

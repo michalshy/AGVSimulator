@@ -4,12 +4,16 @@ from Modules.Presentation.Parameters import Parameters
 from Modules.Presentation.Window import Window
 import pygame
 from Globals import *
+# -*- coding: utf-8 -*-
+"""AppEngine module
 
-# AppEngine - class used to control whole flow, declare variables that are unique
+Initializes upper layer classes like Parameters (Configuration), Window (PyGame render),
+OpcClient (communication with OPCUA server).
+Also initializes lower layer Simulation module and triggers its main loop. 
+"""
 class AppEngine:
 
     def __init__(self):
-        #pygame
         pygame.init()
         
         self._params = Parameters()

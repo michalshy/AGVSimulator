@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""MC module
+
+Structure containing MC field of 6100 frame.
+"""
 from dataclasses import dataclass
 @dataclass
 class MC:
