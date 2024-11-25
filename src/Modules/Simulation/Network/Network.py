@@ -36,7 +36,6 @@ class Network:
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + SIMULATION_RX_CYCLE):
             self._rxTime = timer.GetTicks()
-            #TODO: TMS HANDLE
             if self._tms.CheckForOrders():
                 agv.SetOrder(True, self._tms.GetOrder())
 
