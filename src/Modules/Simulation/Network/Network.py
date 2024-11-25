@@ -29,6 +29,9 @@ class Network:
         while not self._eot:
             self.HandleRx(agv)
             self.HandleTx(opc, agv)
+        
+        self._tms.EndTransmission()
+        self._tms_thread.join()
 
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + SIMULATION_RX_CYCLE):
@@ -43,6 +46,4 @@ class Network:
             opc.SendToServer(agv)
 
     def EndTransmission(self):
-        self._tms.EndTransmission()
-        self._tms_thread.join()
         self._eot = True

@@ -48,6 +48,7 @@ class Simulation:
                 self.Exit()
             
         #Threads section
+        self._network.EndTransmission()
         self._network_thread.join()
         #--------EOS--------
 

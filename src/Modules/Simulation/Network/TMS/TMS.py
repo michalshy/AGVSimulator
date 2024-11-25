@@ -20,7 +20,6 @@ class TMS:
         return segments
     
     def Run(self):
-        print("running")
         while not self._eot:
             if timer.GetTicks() > (self._simulatedOrder + SIMULATED_ORDER_CYCLE):
                 self._orderReady = True
