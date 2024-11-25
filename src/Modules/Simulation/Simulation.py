@@ -1,5 +1,6 @@
 import os
 import pygame
+import threading
 from Modules.Presentation.Window import Window
 from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV.AGV import AGV
@@ -28,11 +29,16 @@ class Simulation:
 
     # Main function of the program, responsible for simulation of AGV movement
     def Simulate(self, params: Parameters, opc: OpcClient, wm: Window):
+        # Threads section
+        self._network_thread = threading.Thread(target=self._network.HandleNetwork, args=(opc, self._agv))
+        self._network_thread.start()
+        #--------EOS--------
+
         _clear = lambda: os.system('cls || clear')      # Additional clear for cli
         while not self._finishFlag:
             wm.PrepWindow()                             # Pygame section
             self._logger.WriteToFile(self._agv)         # Logger section
-            self._network.HandleNetwork(opc, self._agv) # Network section            
+            #self._network.HandleNetwork(opc, self._agv) # Network section            
             if self._agv.CheckDrive():
                 _clear()
                 self.Route()
@@ -40,6 +46,11 @@ class Simulation:
             timer.UpdateDelta()                         # Update timer
             if not wm.CheckEvents(opc):                 # Check events
                 self.Exit()
+            
+        #Threads section
+        self._network.EndTransmission()
+        self._network_thread.join()
+        #--------EOS--------
 
     def Exit(self):
         self._finishFlag = True                         # Flags set to exit main loop
