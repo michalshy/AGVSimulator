@@ -1,3 +1,4 @@
+import threading
 from Modules.Simulation.Logic.Timer import *
 from Modules.Presentation.OpcClient import OpcClient
 from Modules.Entities.AGV.AGV import AGV
@@ -17,18 +18,31 @@ class Network:
         self._rxTime = 0
         self._txTime = 0
 
+        self._eot = False
+
+        # Threads section
+        self._tms_thread = threading.Thread(target=self._tms.Run)
+        self._tms_thread.start()
+        #--------EOS--------
+
     def HandleNetwork(self, opc: OpcClient, agv: AGV):
-        self.HandleRx(agv)
-        self.HandleTx(opc, agv)
+        while not self._eot:
+            self.HandleRx(agv)
+            self.HandleTx(opc, agv)
 
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + SIMULATION_RX_CYCLE):
             self._rxTime = timer.GetTicks()
             #TODO: TMS HANDLE
-            self._tms.CheckForOrders(agv)
-
+            if self._tms.CheckForOrders():
+                agv.SetOrder(True, self._tms.GetOrder())
 
     def HandleTx(self, opc: OpcClient, agv: AGV):
         if timer.GetTicks() > (self._txTime + SIMULATION_TX_CYCLE):
             self._txTime = timer.GetTicks()
             opc.SendToServer(agv)
+
+    def EndTransmission(self):
+        self._tms.EndTransmission()
+        self._tms_thread.join()
+        self._eot = True
