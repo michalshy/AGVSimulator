@@ -7,7 +7,6 @@ from datetime import datetime
 def main():
     finishFlag = False
     opcclient = OPCDataGrabber()
-    print("1")
     opcclient.SetTimeInterval()
 
     print(opcclient.timeInterval)
@@ -24,12 +23,10 @@ def main():
 
         f = open(filename, "w")
         f.write(opcclient.dataReceived)
-        print("2")
 
         time.sleep(opcclient.timeInterval)
 
         if opcclient.client == None:
-            print("3")
 
             opcclient.CloseConnection
             finishFlag = True
