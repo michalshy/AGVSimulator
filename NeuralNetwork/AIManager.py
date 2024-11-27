@@ -204,7 +204,7 @@ class AI_Manager:
 
         # Combine all predictions into a single DataFrame
         predicted_df = pd.concat(predictions, ignore_index=True)
-        return predicted_df
+        return predicted_df.values.tolist()
 
     # Load segment boundaries from file
     def load_segment_boundaries(self):
