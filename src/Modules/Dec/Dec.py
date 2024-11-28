@@ -1,4 +1,5 @@
 from NeuralNetwork.AIManager import AI_Manager
+from NeuralNetwork.DataManager import DataManager
 
 # -*- coding: utf-8 -*-
 """Dec module
@@ -15,7 +16,9 @@ class Dec:
         self._path = []
 
     def PredictPath(self,initial_data ,segments_to_traverse):
-        self._path = AiApiGetRoute(initial_data ,segments_to_traverse)
+        dataManager = DataManager('Config/agv.pkl')
+        df = dataManager._fullData[233:254]
+        self._path = AiApiGetRoute(df ,segments_to_traverse)
 
     def ReturnPredictedPath(self):
         return self._path
