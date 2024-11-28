@@ -1,0 +1,1 @@
+python -B src/NeuralNetwork/main.py Config/agv.pkl 20
