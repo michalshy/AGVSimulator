@@ -21,7 +21,8 @@ class Navigator():
         pass
 
     def FindPath(self, segments: list):
-        self._dec.PredictPath(segments)
+        initial_data = [] # TODO 
+        self._dec.PredictPath(initial_data,segments)
 
         self._path = self.GetPath()
         
