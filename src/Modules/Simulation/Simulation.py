@@ -4,7 +4,7 @@ import threading
 from Modules.Presentation.Window import Window
 from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV.AGV import AGV
-from Modules.Entities.Logger import Logger
+from Logger import *
 from Modules.Presentation.OpcClient import OpcClient
 from Modules.Simulation.Logic.Timer import *
 from Modules.Entities.Physics import Physics
@@ -22,25 +22,22 @@ class Simulation:
         self._finishFlag = False                        # Initialize main loop flag
         self._agv = AGV()                               # Create AGV
         self._pe = Physics(self._agv)                   # Create physics with agv passed
-        self._logger = Logger()                         # Create logger
         self._network = Network()                       # Create network module
 
         self._agv.Init(x=STARTING_POS_X,y=STARTING_POS_Y)   # Init with position
 
     # Main function of the program, responsible for simulation of AGV movement
-    def Simulate(self, params: Parameters, opc: OpcClient, wm: Window):
+    def Simulate(self, opc: OpcClient, wm: Window):
         # Threads section
         self._network_thread = threading.Thread(target=self._network.HandleNetwork, args=(opc, self._agv))
         self._network_thread.start()
+        logger.Debug("Network thread started")
         #--------EOS--------
 
-        _clear = lambda: os.system('cls || clear')      # Additional clear for cli
         while not self._finishFlag:
             wm.PrepWindow()                             # Pygame section
-            self._logger.WriteToFile(self._agv)         # Logger section
-            #self._network.HandleNetwork(opc, self._agv) # Network section            
+            self._agv.LogToFile()            # Logger section
             if self._agv.CheckDrive():
-                _clear()
                 self.Route()
             wm.Draw(self._agv)                          # Draw after update
             timer.UpdateDelta()                         # Update timer
@@ -50,13 +47,13 @@ class Simulation:
         #Threads section
         self._network.EndTransmission()
         self._network_thread.join()
+        logger.Debug("Network thread joined")
         #--------EOS--------
 
     def Exit(self):
         self._finishFlag = True                         # Flags set to exit main loop
 
     def Route(self):
-        self._agv.PrintState()                          # Print state of agv to CLI
         self._agv.DetermineFlags()                      # Check for agv flags
         self._agv.Navigate()                            # Trigger navigation
         if not self._agv.GetStopFlag():                 # Check if allowed to

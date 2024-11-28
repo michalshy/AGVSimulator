@@ -1,6 +1,7 @@
 import pygame
 from Globals import *
 from Modules.Dec.Dec import Dec
+from Logger import *
 # -*- coding: utf-8 -*-
 """Navigator module
 
@@ -23,6 +24,7 @@ class Navigator():
     def FindPath(self, segments: list):
         initial_data = [] # TODO 
         self._dec.PredictPath(initial_data,segments)
+        logger.Debug("Path predicted")
 
         self._path = self.GetPath()
         

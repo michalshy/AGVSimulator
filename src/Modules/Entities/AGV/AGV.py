@@ -8,6 +8,7 @@ from Modules.Entities.AGV.Sensors.Navigator import Navigator
 from Modules.Entities.AGV.Sensors.Battery import Battery
 from Modules.Simulation.Logic.Timer import *
 import pygame
+from Logger import *
 import math
 from Globals import *
 # -*- coding: utf-8 -*-
@@ -40,6 +41,9 @@ class AGV:
 
         #flags
         self._stopFlag = False
+
+        #logging
+        self._logCycle = 0
 
     def Init(self, x, y):
         self._enc.batteryValue = 120000
@@ -99,16 +103,10 @@ class AGV:
     def GetStopFlag(self):
         return self._stopFlag
 
-    def PrintState(self):
-        print("Heading: " + str(round(self._nns.heading,2)) + "degree")
-        print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
-        print("Battery value: " + str(self._enc.batteryValue) + "mAh")
-        print("Destination ID:" + str(self._nns.goingToID))
-        print("Destination Triger:" + str(self._wheels.GetDriveMode()))
-
     #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def CheckPaths(self):
         if self._isOrder:
+            logger.Info("Order detected")
             self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
 
     def Navigate(self):
@@ -127,3 +125,21 @@ class AGV:
     
     def GetDistance(self):
         return self._navi.GetDistance()
+    
+    def ConstructLine(self):
+        return str(self._nns.heading) + "," + str(self._nns.speed) + "," + str(self._nns.xCoor) + "," \
+                            + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"
+
+    def LogToFile(self):
+        if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
+            f = open(logger.GetFileName(), "a")
+            f.write(self.ConstructLine())
+            f.close()
+            self._logCycle = timer.GetTicks()
+
+            _txt = "h:" + str(round(self._nns.heading,2)) + \
+                ", x:" + str(round(self._nns.xCoor,2)) + \
+                ", y:" + str(round(self._nns.yCoor,2)) + \
+                ", s:" + str(round(self._nns.speed / 100,2)) + \
+                ", b:" + str(self._enc.batteryValue)
+            logger.Debug(_txt)
