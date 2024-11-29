@@ -26,8 +26,7 @@ class Navigator():
         initial_data = pd.read_csv('initial_data.csv', low_memory=False)
         if self._dec.PredictPath(initial_data,segments):
             logger.Debug("Path predicted")
-            self._path = self.GetPath()
-
+            self._path = self._dec.ReturnPredictedPath()
         
     def TaskInProgress(self):
         if(len(self._path) != 0):
@@ -44,8 +43,8 @@ class Navigator():
     def DrawPath(self, canvas):
         for coord in self._path:
             pygame.draw.rect(canvas, RED, pygame.Rect(
-                coord[0] * MAP_DENSITY + SCREEN_WIDTH,
-                coord[1] * MAP_DENSITY + SCREEN_HEIGHT, 
-                5, 
-                5
+                PointsInterpolationWidth(coord[0]) + ROOM_W_OFFSET,
+                PointsInterpolationHeight(coord[1]) + ROOM_H_OFFSET, 
+                3, 
+                3
             ))
