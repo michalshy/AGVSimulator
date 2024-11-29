@@ -108,6 +108,7 @@ class AGV:
         if self._isOrder:
             logger.Info("Order detected")
             self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._isOrder = False
 
     def Navigate(self):
         self.CheckPaths()

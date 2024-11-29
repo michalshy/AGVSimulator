@@ -2,6 +2,7 @@ import pygame
 from Globals import *
 from Modules.Dec.Dec import Dec
 from Logger import *
+import pandas as pd
 # -*- coding: utf-8 -*-
 """Navigator module
 
@@ -22,24 +23,29 @@ class Navigator():
         pass
 
     def FindPath(self, segments: list):
-        initial_data = [] # TODO 
-        self._dec.PredictPath(initial_data,segments)
-        logger.Debug("Path predicted")
+        initial_data = pd.read_csv('initial_data.csv', low_memory=False)
+        if self._dec.PredictPath(initial_data,segments):
+            logger.Debug("Path predicted")
+            self._path = self.GetPath()
 
-        self._path = self.GetPath()
         
     def TaskInProgress(self):
-        return True
+        if(len(self._path) != 0):
+            return True
+        else:
+            return False
 
     def GetPath(self):
-        return self._dec.ReturnPredictedPath()
+        return self._path
     
     def GetDistance(self):
         return 0
     
-    def GetHeading(self):
-        return self._dec.ReturnPredictedHeading()
-    
     def DrawPath(self, canvas):
         for coord in self._path:
-            pygame.draw.rect(canvas, RED, pygame.Rect(coord[0], coord[1], 10, 10))
+            pygame.draw.rect(canvas, RED, pygame.Rect(
+                coord[0] * MAP_DENSITY + SCREEN_WIDTH,
+                coord[1] * MAP_DENSITY + SCREEN_HEIGHT, 
+                5, 
+                5
+            ))

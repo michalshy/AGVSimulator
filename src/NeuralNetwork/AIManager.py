@@ -91,9 +91,9 @@ class AI_Manager:
         self.X_val_seq, self.y_val_seq = create_sequences(X_val, y_val, self._n_steps)
 
         # Save the OneHotEncoder and scalers
-        joblib.dump(self.segment_encoder, 'Config/segment_encoder.pkl') 
-        joblib.dump(self._scaler_X, 'Config/scaler_X.pkl')
-        joblib.dump(self._scaler_y, 'Config/scaler_y.pkl')
+        joblib.dump(self.segment_encoder, 'Config/AI/segment_encoder.pkl') 
+        joblib.dump(self._scaler_X, 'Config/AI/scaler_X.pkl')
+        joblib.dump(self._scaler_y, 'Config/AI/scaler_y.pkl')
 
     def train_model(self):
         # Input layer
@@ -136,10 +136,10 @@ class AI_Manager:
         df = pd.DataFrame(df)
 
         # Load previously saved scalers, encoder and trained model
-        self._scaler_X = joblib.load('Config/scaler_X.pkl')
-        self._scaler_y = joblib.load('Config/scaler_y.pkl')
-        self.segment_encoder = joblib.load('Config/segment_encoder.pkl')
-        model = load_model('Config/model.keras')
+        self._scaler_X = joblib.load('Config/AI/scaler_X.pkl')
+        self._scaler_y = joblib.load('Config/AI/scaler_y.pkl')
+        self.segment_encoder = joblib.load('Config/AI/segment_encoder.pkl')
+        model = load_model('Config/AI/model.keras')
         
         # Initialize the input DataFrame with the last `n_steps`
         df = df[-self._n_steps:].copy()
@@ -210,9 +210,9 @@ class AI_Manager:
     # Load segment boundaries from file
     def load_segment_boundaries(self):
         try:
-            with open('Config/segment_boundaries.txt', 'r') as file:
+            with open('Config/AI/segment_boundaries.txt', 'r') as file:
                 segment_boundaries = json.load(file)
-            print(f"Segment boundaries successfully read from {'Config/segment_boundaries.txt'}")
+            print(f"Segment boundaries successfully read from {'Config/AI/segment_boundaries.txt'}")
             self._segment_boundaries = segment_boundaries # Store segment boundaries
         except Exception as e:
             print(f"Error reading segment boundaries from file: {e}")
