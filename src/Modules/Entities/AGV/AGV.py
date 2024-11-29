@@ -147,4 +147,3 @@ class AGV:
                 ", y:" + str(round(self._nns.yCoor,2)) + \
                 ", s:" + str(round(self._nns.speed / 100,2)) + \
                 ", b:" + str(self._enc.batteryValue)
-            logger.Debug(_txt)
