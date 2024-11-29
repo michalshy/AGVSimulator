@@ -1,6 +1,7 @@
 import pygame
 from Globals import *
 from Modules.Dec.Dec import Dec
+import threading
 from Logger import *
 import pandas as pd
 # -*- coding: utf-8 -*-
@@ -11,10 +12,10 @@ returns to AGV class.
 It is responsible for controlling and holding current paths and upcoming changes in
 navigation.
 """
+
 class Navigator():
     def __init__(self):
         self._dec = Dec()
-        self._path = []
 
     def Init(self):
         pass
@@ -24,9 +25,11 @@ class Navigator():
 
     def FindPath(self, segments: list):
         initial_data = pd.read_csv('initial_data.csv', low_memory=False)
-        if self._dec.PredictPath(initial_data,segments):
-            logger.Debug("Path predicted")
-            self._path = self._dec.ReturnPredictedPath()
+        self._dec.SetSegments(segments, initial_data)
+        if not self._dec.GetInPrediction():
+            self._dec.Start()
+            dec_thread = threading.Thread(target=self._dec.PredictPath)
+            dec_thread.start()
         
     def TaskInProgress(self):
         if(len(self._path) != 0):
@@ -35,13 +38,13 @@ class Navigator():
             return False
 
     def GetPath(self):
-        return self._path
+        return self._dec.ReturnPredictedPath()
     
     def GetDistance(self):
         return 0
     
     def DrawPath(self, canvas):
-        for coord in self._path:
+        for coord in self._dec.ReturnPredictedPath():
             pygame.draw.rect(canvas, RED, pygame.Rect(
                 PointsInterpolationWidth(coord[0]) + ROOM_W_OFFSET,
                 PointsInterpolationHeight(coord[1]) + ROOM_H_OFFSET, 
