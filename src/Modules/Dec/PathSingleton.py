@@ -29,3 +29,19 @@ class PathSingleton(metaclass=PathMetaclass):
         finally:
             _PATH_MUTEX.release()
         return path
+    
+    def PopBack(self):
+        global _PATH_MUTEX
+        _PATH_MUTEX.acquire()
+        try:
+            _PATH.pop()
+        finally:
+            _PATH_MUTEX.release()
+
+    def PopFront(self):
+        global _PATH_MUTEX
+        _PATH_MUTEX.acquire()
+        try:
+            _PATH.pop(0)
+        finally:
+            _PATH_MUTEX.release()

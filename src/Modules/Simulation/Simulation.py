@@ -54,7 +54,7 @@ class Simulation:
 
     def Route(self):
         self._agv.DetermineFlags()                      # Check for agv flags
-        self._agv.Navigate()                            # Trigger navigation
+        self._agv.Navigate(self._pe)                            # Trigger navigation
         if self._agv.CheckDrive():                      # Check if allowed to
             self._pe.Accelerate(0.01)
         else:

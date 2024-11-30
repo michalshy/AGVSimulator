@@ -28,13 +28,16 @@ class Navigator():
         self._dec.SetSegments(segments, initial_data)
         if not self._dec.GetInPrediction():
             self._dec.Start()
-            threading.Thread(target=self._dec.PredictPath, daemon=True).start()
-        
+            threading.Thread(target=self._dec.PredictPath).start()
+
     def TaskInProgress(self):
         if(self._dec.IsStarted()):
             return True
         else:
             return False
+
+    def PopFrontPath(self):
+        self._dec.PopFront()
 
     def GetPath(self):
         return self._dec.ReturnPredictedPath()

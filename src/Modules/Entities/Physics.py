@@ -15,20 +15,6 @@ class Physics:
     def __init__(self, agv: AGV):
         self._agv = agv
 
-    #TODO: faster the agv, slower the rotate
-
-    def RotateLeft(self):
-        if self._agv._nns.speed:
-            self._agv.GetNNS().heading += ROTATE_VAL * timer.GetDt()
-            self.DrainBattery(1, self._agv.GetENC())
-    
-    #TODO: faster the agv, slower the rotate
-    
-    def RotateRight(self):
-        if self._agv._nns.speed:
-            self._agv.GetNNS().heading -= ROTATE_VAL * timer.GetDt()
-            self.DrainBattery(1, self._agv.GetENC())
-    
     def Accelerate(self, val):
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += val * timer.GetDt() # a = 0.1m/s^2
@@ -50,6 +36,17 @@ class Physics:
     def Update(self):
         self.UpdatePosition()
         self.UpdateParams()
+
+    def GetAngle(self, a, b, c):
+        ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
+        return ang + 360 if ang < 0 else ang
+
+    def CalculateTurn(self, nns: NNS, path):
+        retVal = 0
+        pointBeginning = (nns.xCoor, nns.yCoor)
+        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
+        retVal = self.GetAngle(path, pointBeginning, pointHeading)
+        return retVal
 
     @staticmethod
     def DrainBattery(val, enc: ENC):

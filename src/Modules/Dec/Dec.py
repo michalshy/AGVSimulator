@@ -51,6 +51,11 @@ class Dec:
     def IsStarted(self):
         return self._started
     
+    def PopFront(self):
+        # ------------------------------ CRITICAL SECTION ------------------------------
+        self._path = PathSingleton().PopFront()
+        # --------------------------- END OF CRITICAL SECTION ---------------------------
+    
 class AI_Manager:
 
     def __init__(self, steps: int):
@@ -77,7 +82,7 @@ class AI_Manager:
         
         exitThread = False
 
-        for idx, curr_segment in enumerate(tms_data):
+        for curr_segment in tms_data:
             if exitThread:
                 continue
             # Extract boundaries for the current segment
@@ -126,14 +131,10 @@ class AI_Manager:
                     if consecutive_moving_away >= 2:
                         print(f"Switching to the next segment due to consecutive moving-away points.")
                         break
-
                 except RuntimeError as Err:
                     exitThread = True
                     logger.Error(str(Err))
                 except ValueError as Err:
-                    exitThread = True
-                    logger.Error(str(Err))
-                except TypeError as Err:
                     exitThread = True
                     logger.Error(str(Err))
 

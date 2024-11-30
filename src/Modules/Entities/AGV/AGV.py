@@ -7,6 +7,7 @@ from Modules.Entities.AGV.Sensors.Wheels import Wheels
 from Modules.Entities.AGV.Sensors.Navigator import Navigator
 from Modules.Entities.AGV.Sensors.Battery import Battery
 from Modules.Simulation.Logic.Timer import *
+from Modules.Entities.Physics import Physics
 import pygame
 from Logger import *
 import math
@@ -23,7 +24,7 @@ Simulation also uses flags to control flow.
 class AGV:
     def __init__(self):
         self._isOrder = False
-        self._setStart = False
+        self._setHeading = False
         self._order = []
 
         # For frames
@@ -57,11 +58,6 @@ class AGV:
         self._navi.Init()
         self._wheels.Init()
         self._lidars.Init()
-
-    def InitSim(self, x, y):
-        self._setStart = True
-        self._nns.xCoor = x
-        self._nns.yCoor = y
 
     def SetPosition(self, x, y):
         self._nns.xCoor = x
@@ -111,8 +107,9 @@ class AGV:
     def GetStopFlag(self):
         return self._stopFlag
 
-    def Navigate(self):
+    def Navigate(self, physics: Physics):
         self._CheckPaths()
+        self._ControlNavigation(physics)
 
 
     def Draw(self, canvas):
@@ -132,26 +129,26 @@ class AGV:
         return str(self._nns.heading) + "," + str(self._nns.speed) + "," + str(self._nns.xCoor) + "," \
                             + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"
     
-    #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
     def _CheckPaths(self):
         if self._isOrder:
             logger.Info("Order detected")
             self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
             self._isOrder = False
-        if not self._setStart:
-            if len(self._navi.GetPath()) != 0:
-                self.InitSim(self._navi.GetPath()[0][0], self._navi.GetPath()[0][1])
-                self.GetNNS().heading = self._navi.GetPath()[0][2]
 
+    def _ControlNavigation(self, physics: Physics):
+        if len(self._navi.GetPath()) != 0:
+            tempPos = self._navi.GetPath()[0]
+            if not self._setHeading:
+                logger.Debug(physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1])))
+                self._nns.heading += physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1]))
+                self._setHeading = True
+            if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:
+                if self._nns.yCoor > tempPos[1] - 0.1 and self._nns.yCoor < tempPos[1] + 0.1:
+                    self._navi.PopFrontPath()
+                    self._setHeading = False
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
             f = open(logger.GetFileName(), "a")
             f.write(self._ConstructLine())
             f.close()
             self._logCycle = timer.GetTicks()
-
-            _txt = "h:" + str(round(self._nns.heading,2)) + \
-                ", x:" + str(round(self._nns.xCoor,2)) + \
-                ", y:" + str(round(self._nns.yCoor,2)) + \
-                ", s:" + str(round(self._nns.speed / 100,2)) + \
-                ", b:" + str(self._enc.batteryValue)
