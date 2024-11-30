@@ -23,6 +23,7 @@ Simulation also uses flags to control flow.
 class AGV:
     def __init__(self):
         self._isOrder = False
+        self._setStart = False
         self._order = []
 
         # For frames
@@ -134,6 +135,10 @@ class AGV:
             logger.Info("Order detected")
             self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
             self._isOrder = False
+        if not self._setStart:
+            if len(self._navi.GetPath()) != 0:
+                self.SetPosition(self._navi.GetPath()[0][0], self._navi.GetPath()[0][1])
+                self.GetNNS().heading = self._navi.GetPath()[0][2]
 
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):

@@ -44,7 +44,7 @@ class Network:
     def HandleTx(self, opc: OpcClient, agv: AGV):
         if timer.GetTicks() > (self._txTime + SIMULATION_TX_CYCLE):
             self._txTime = timer.GetTicks()
-            opc.SendToServer(agv)
+            #opc.SendToServer(agv)
 
     def EndTransmission(self):
         self._eot = True
