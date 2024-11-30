@@ -1,4 +1,5 @@
 import threading
+from Logger import *
 from Modules.Simulation.Logic.Timer import *
 from Modules.Presentation.OpcClient import OpcClient
 from Modules.Entities.AGV.AGV import AGV
@@ -32,6 +33,7 @@ class Network:
         
         self._tms.EndTransmission()
         self._tms_thread.join()
+        logger.Debug("TMS thread joined")
 
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + SIMULATION_RX_CYCLE):

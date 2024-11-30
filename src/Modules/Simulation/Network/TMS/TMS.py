@@ -10,19 +10,21 @@ class TMS:
         self._orderReady = False
         self._simulatedOrder = 0
         self._eot = False
+        self._notInvoked = True
 
     def CheckForOrders(self): #TEMPORARY FUNCTION TO TRIGGER DRIVE
         return self._orderReady
 
     def GetOrder(self):
-        segments = [56.0,20.0,48.0,52.0,16.0,44.0,12.0,36.0,4.0]
+        segments = [56.0,20.0,48.0]
         self._orderReady = False
         return segments
     
     def Run(self):
         while not self._eot:
-            if timer.GetTicks() > (self._simulatedOrder + SIMULATED_ORDER_CYCLE):
+            if timer.GetTicks() > (self._simulatedOrder + SIMULATED_ORDER_CYCLE) and self._notInvoked: #TEMPORARY
                 self._orderReady = True
+                self._notInvoked = False
                 self._simulatedOrder += SIMULATED_ORDER_CYCLE
 
     def EndTransmission(self):

@@ -113,8 +113,8 @@ class DataManager:
     # Save segment boundaries into a .txt file
     def save_segment_boundaries(self):
         try:
-            with open('Config/segment_boundaries.txt', 'w') as file: 
+            with open('Config/AI/segment_boundaries.txt', 'w') as file: 
                 json.dump(self._segment_boundaries, file, indent=4)
-            print(f"Segment boundaries successfully written to {'Config/segment_boundaries.txt'}")
+            print(f"Segment boundaries successfully written to {'Config/AI/segment_boundaries.txt'}")
         except Exception as e:
             print(f"Error writing segment boundaries to file: {e}")

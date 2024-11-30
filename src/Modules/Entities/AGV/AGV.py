@@ -8,6 +8,7 @@ from Modules.Entities.AGV.Sensors.Navigator import Navigator
 from Modules.Entities.AGV.Sensors.Battery import Battery
 from Modules.Simulation.Logic.Timer import *
 import pygame
+from Logger import *
 import math
 from Globals import *
 # -*- coding: utf-8 -*-
@@ -41,17 +42,24 @@ class AGV:
         #flags
         self._stopFlag = False
 
+        #logging
+        self._logCycle = 0
+
     def Init(self, x, y):
         self._enc.batteryValue = 120000
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
-        self._nns.xCoor = x * 10
-        self._nns.yCoor = y * 10
+        self._nns.xCoor = x
+        self._nns.yCoor = y
 
         self._battery.Init(self._enc.batteryValue)
         self._navi.Init()
         self._wheels.Init()
         self._lidars.Init()
+
+    def SetPosition(self, x, y):
+        self._nns.xCoor = x
+        self._nns.yCoor = y
 
     def SetOrder(self, state: bool, segments: list):
         self._isOrder = state
@@ -63,7 +71,7 @@ class AGV:
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
 
-        self._isOrder = self._navi.TaskInProgress()
+        #self._isOrder = self._navi.TaskInProgress()
 
     def GetIsOrder(self):
         return self._isOrder
@@ -99,31 +107,43 @@ class AGV:
     def GetStopFlag(self):
         return self._stopFlag
 
-    def PrintState(self):
-        print("Heading: " + str(round(self._nns.heading,2)) + "degree")
-        print("Speed: " + str(round(self._nns.speed / 100,2)) + "m/s")
-        print("Battery value: " + str(self._enc.batteryValue) + "mAh")
-        print("Destination ID:" + str(self._nns.goingToID))
-        print("Destination Triger:" + str(self._wheels.GetDriveMode()))
-
-    #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
-    def CheckPaths(self):
-        if self._isOrder:
-            self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
-
     def Navigate(self):
-        self.CheckPaths()
+        self._CheckPaths()
+
 
     def Draw(self, canvas):
        
-        pygame.draw.circle(canvas, GREEN,(self._nns.xCoor + ROOM_W_OFFSET, self._nns.yCoor + ROOM_H_OFFSET), AGV_SIZE)
-        pygame.draw.circle(canvas,RED,
-                        (self._nns.xCoor + ROOM_W_OFFSET + 5 * math.cos(math.radians(self._nns.heading))
-                            ,self._nns.yCoor + ROOM_H_OFFSET + 5 * math.sin(math.radians(self._nns.heading)) ) , 2)
+        pygame.draw.circle(canvas, GREEN, \
+                           (PointsInterpolationWidth(self._nns.xCoor) + ROOM_W_OFFSET, \
+                            PointsInterpolationHeight(self._nns.yCoor) + ROOM_H_OFFSET), \
+                            AGV_SIZE)
+        pygame.draw.circle(canvas,RED, \
+                        (PointsInterpolationWidth(self._nns.xCoor) + ROOM_W_OFFSET + \
+                         5 * math.cos(math.radians(self._nns.heading))
+                        ,PointsInterpolationHeight(self._nns.yCoor) + ROOM_H_OFFSET + \
+                        5 * math.sin(math.radians(self._nns.heading)) ) , 2)
         self._navi.DrawPath(canvas)        
-        
-    def CalculateTurn(self):
-        return self._navi.CalculateTurn(self._nns)
     
-    def GetDistance(self):
-        return self._navi.GetDistance()
+    def _ConstructLine(self):
+        return str(self._nns.heading) + "," + str(self._nns.speed) + "," + str(self._nns.xCoor) + "," \
+                            + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"
+    
+    #TODO: PROVIDE DESTINATION FROM PARAMMANAGER
+    def _CheckPaths(self):
+        if self._isOrder:
+            logger.Info("Order detected")
+            self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._isOrder = False
+
+    def LogToFile(self):
+        if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
+            f = open(logger.GetFileName(), "a")
+            f.write(self._ConstructLine())
+            f.close()
+            self._logCycle = timer.GetTicks()
+
+            _txt = "h:" + str(round(self._nns.heading,2)) + \
+                ", x:" + str(round(self._nns.xCoor,2)) + \
+                ", y:" + str(round(self._nns.yCoor,2)) + \
+                ", s:" + str(round(self._nns.speed / 100,2)) + \
+                ", b:" + str(self._enc.batteryValue)

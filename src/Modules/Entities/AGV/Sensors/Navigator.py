@@ -1,6 +1,9 @@
 import pygame
 from Globals import *
 from Modules.Dec.Dec import Dec
+import threading
+from Logger import *
+import pandas as pd
 # -*- coding: utf-8 -*-
 """Navigator module
 
@@ -9,10 +12,10 @@ returns to AGV class.
 It is responsible for controlling and holding current paths and upcoming changes in
 navigation.
 """
+
 class Navigator():
     def __init__(self):
         self._dec = Dec()
-        self._path = []
 
     def Init(self):
         pass
@@ -21,13 +24,18 @@ class Navigator():
         pass
 
     def FindPath(self, segments: list):
-        initial_data = [] # TODO 
-        self._dec.PredictPath(initial_data,segments)
-
-        self._path = self.GetPath()
+        initial_data = pd.read_csv('initial_data.csv', low_memory=False)
+        self._dec.SetSegments(segments, initial_data)
+        if not self._dec.GetInPrediction():
+            self._dec.Start()
+            dec_thread = threading.Thread(target=self._dec.PredictPath)
+            dec_thread.start()
         
     def TaskInProgress(self):
-        return True
+        if(len(self._path) != 0):
+            return True
+        else:
+            return False
 
     def GetPath(self):
         return self._dec.ReturnPredictedPath()
@@ -35,9 +43,11 @@ class Navigator():
     def GetDistance(self):
         return 0
     
-    def GetHeading(self):
-        return self._dec.ReturnPredictedHeading()
-    
     def DrawPath(self, canvas):
-        for coord in self._path:
-            pygame.draw.rect(canvas, RED, pygame.Rect(coord[0], coord[1], 10, 10))
+        for coord in self._dec.ReturnPredictedPath():
+            pygame.draw.rect(canvas, RED, pygame.Rect(
+                PointsInterpolationWidth(coord[0]) + ROOM_W_OFFSET,
+                PointsInterpolationHeight(coord[1]) + ROOM_H_OFFSET, 
+                3, 
+                3
+            ))

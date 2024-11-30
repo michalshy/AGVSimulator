@@ -3,6 +3,7 @@ from Modules.Presentation.OpcClient import OpcClient
 from Modules.Presentation.Parameters import Parameters
 from Modules.Presentation.Window import Window
 import pygame
+from Logger import *
 from Globals import *
 # -*- coding: utf-8 -*-
 """AppEngine module
@@ -22,6 +23,7 @@ class AppEngine:
         self._simulation = Simulation()
 
     def LoopProgram(self):
+        logger.Info("Starting simulation")
         # Start simulation
-        self._simulation.Simulate(self._params, self._opcClient, self._window)
+        self._simulation.Simulate(self._opcClient, self._window)
         # End simulation

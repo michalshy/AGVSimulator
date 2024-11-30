@@ -29,8 +29,11 @@ Transmission/__pycache__/Transmission.cpython-311.pyc
 Simulation/Frame6000/__pycache__/SS.cpython-311.pyc
 Simulation/Frame6100/__pycache__/NNC.cpython-311.pyc
 OpcHandler/__pycache__/OpcHandler.cpython-311.pyc
-Logs
+Config/AI/*
+Config/Rooms/*
+Logs/*
 Simulation/AGV/MlNav/NAVO.keras
 Simulation/AGV/MlNav/NAVJ.keras
 Simulation/AGV/MlNav/LSTM_Olek/agv.pkl
 Resources/agv.pkl
+initial_data.csv
