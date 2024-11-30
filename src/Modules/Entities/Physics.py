@@ -1,8 +1,9 @@
 from Modules.Simulation.Logic.Timer import *
-import math
 from Modules.Entities.Frame6000 import ENC, NNS
 from Modules.Entities.AGV import AGV
 from Globals import *
+from Logger import *
+import math
 # -*- coding: utf-8 -*-
 """Physics module
 

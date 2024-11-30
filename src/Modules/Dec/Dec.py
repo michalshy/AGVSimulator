@@ -23,6 +23,7 @@ class Dec:
         self._segments = []
         self._finished = True
         self._started = False
+        
 
     def Start(self):
         self._finished = False
@@ -35,9 +36,6 @@ class Dec:
 
     def PredictPath(self):
         self._ai.predict_route(self._segments)
-        # ------------------------------ CRITICAL SECTION ------------------------------
-        length = len(PathSingleton().Return())
-        # --------------------------- END OF CRITICAL SECTION ---------------------------
         self._finished = True
         self._started = False
 
@@ -49,18 +47,21 @@ class Dec:
         self._path = PathSingleton().Return()
         # --------------------------- END OF CRITICAL SECTION ---------------------------
         return self._path
+
+    def IsStarted(self):
+        return self._started
     
 class AI_Manager:
 
     def __init__(self, steps: int):
-        self._scaler_X = joblib.load('Config/AI/scaler_X.pkl')
-        self._scaler_y = joblib.load('Config/AI/scaler_y.pkl')
-        self._segment_encoder = joblib.load('Config/AI/segment_encoder.pkl')
-        self._model = load_model('Config/AI/model.keras')
         self._n_steps = steps
         self.load_segment_boundaries() # Load segment boundaries from a file
         self._initial_data = []
         self._segments = []
+        self._scaler_X = joblib.load('Config/AI/scaler_X.pkl')
+        self._scaler_y = joblib.load('Config/AI/scaler_y.pkl')
+        self._segment_encoder = joblib.load('Config/AI/segment_encoder.pkl')
+        self._model = load_model('Config/AI/model.keras')
 
     def SetParams(self, segments, initial):
         self._initial_data = initial
@@ -68,6 +69,7 @@ class AI_Manager:
 
     # Predict a route based on initial input data and a trained LSTM model
     def predict_route(self, tms_data):
+        
         # Change ordinary array to pandas dataframe
         df = pd.DataFrame(self._initial_data)
         # Initialize the input DataFrame with the last `n_steps`
@@ -128,7 +130,12 @@ class AI_Manager:
                 except RuntimeError as Err:
                     exitThread = True
                     logger.Error(str(Err))
-                    
+                except ValueError as Err:
+                    exitThread = True
+                    logger.Error(str(Err))
+                except TypeError as Err:
+                    exitThread = True
+                    logger.Error(str(Err))
 
     # Load segment boundaries from file
     def load_segment_boundaries(self):

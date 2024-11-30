@@ -1,5 +1,3 @@
-import os
-import pygame
 import threading
 from Modules.Presentation.Window import Window
 from Modules.Presentation.Parameters import Parameters
@@ -33,17 +31,17 @@ class Simulation:
         self._network_thread.start()
         logger.Debug("Network thread started")
         #--------EOS--------
-
+        logger.Debug("Enter main loop")
         while not self._finishFlag:
             wm.PrepWindow()                             # Pygame section
-            self._agv.LogToFile()            # Logger section
-            if self._agv.CheckDrive():
-                self.Route()
+            self._agv.LogToFile()                       # Logger section
+            self.Route()
             wm.Draw(self._agv)                          # Draw after update
             timer.UpdateDelta()                         # Update timer
             if not wm.CheckEvents(opc):                 # Check events
                 self.Exit()
-            
+        
+        logger.Debug("Exit main loop")    
         #Threads section
         self._network.EndTransmission()
         self._network_thread.join()
@@ -51,15 +49,16 @@ class Simulation:
         #--------EOS--------
 
     def Exit(self):
+        logger.Debug("Finish flag on true")    
         self._finishFlag = True                         # Flags set to exit main loop
 
     def Route(self):
         self._agv.DetermineFlags()                      # Check for agv flags
         self._agv.Navigate()                            # Trigger navigation
-        if not self._agv.GetStopFlag():                 # Check if allowed to
-            self._pe.Accelerate(10)
+        if self._agv.CheckDrive():                      # Check if allowed to
+            self._pe.Accelerate(0.01)
         else:
-            self._pe.Accelerate(-10)
+            self._pe.Accelerate(-0.01)
         self._pe.Update()                               # Update position
 
         

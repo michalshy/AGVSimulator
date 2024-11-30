@@ -58,6 +58,11 @@ class AGV:
         self._wheels.Init()
         self._lidars.Init()
 
+    def InitSim(self, x, y):
+        self._setStart = True
+        self._nns.xCoor = x
+        self._nns.yCoor = y
+
     def SetPosition(self, x, y):
         self._nns.xCoor = x
         self._nns.yCoor = y
@@ -71,8 +76,6 @@ class AGV:
         self._navi.DetermineFlags()
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
-
-        #self._isOrder = self._navi.TaskInProgress()
 
     def GetIsOrder(self):
         return self._isOrder
@@ -96,7 +99,7 @@ class AGV:
         return self._wheels.GetAtMaxSpeed()
 
     def CheckDrive(self):
-        if(self._isOrder):
+        if(self._navi.TaskInProgress()):
             self._stopFlag = False
             self._wheels.SetDriveMode(True)
         else:
@@ -137,7 +140,7 @@ class AGV:
             self._isOrder = False
         if not self._setStart:
             if len(self._navi.GetPath()) != 0:
-                self.SetPosition(self._navi.GetPath()[0][0], self._navi.GetPath()[0][1])
+                self.InitSim(self._navi.GetPath()[0][0], self._navi.GetPath()[0][1])
                 self.GetNNS().heading = self._navi.GetPath()[0][2]
 
     def LogToFile(self):
