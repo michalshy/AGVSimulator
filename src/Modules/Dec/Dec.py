@@ -113,23 +113,23 @@ class AI_Manager:
                     # Analyze the predicted point
                     predicted_point = result_df.iloc[-1][['X-coordinate', 'Y-coordinate']].values
                     distance_to_end = np.linalg.norm(predicted_point - end_coords)
-                    print(f"Predicted point: {predicted_point}, Distance to endpoint: {distance_to_end:.4f}")
+                    logger.Debug(f"Predicted point: {predicted_point}, Distance to endpoint: {distance_to_end:.4f}")
                     # Check if the predicted point is close enough to the segment's endpoint
                     if distance_to_end <= 0.3:
-                        print(f"Reached the endpoint of Segment {curr_segment}. Moving to next segment.")
+                        logger.Debug(f"Reached the endpoint of Segment {curr_segment}. Moving to next segment.")
                         break
                     # Check if the predicted point is moving away from the endpoint
                     if previous_distance_to_end is not None:
                         if distance_to_end > previous_distance_to_end or round(distance_to_end, 4) == round(previous_distance_to_end, 4):
                             consecutive_moving_away += 1
-                            print(f"Point is moving away from endpoint. Count: {consecutive_moving_away}")
+                            logger.Debug(f"Point is moving away from endpoint. Count: {consecutive_moving_away}")
                         else:
                             consecutive_moving_away = 0  # Reset if moving closer
                     # Update previous distance
                     previous_distance_to_end = distance_to_end
                     # Switch segment if moving away for 2 consecutive points
                     if consecutive_moving_away >= 2:
-                        print(f"Switching to the next segment due to consecutive moving-away points.")
+                        logger.Debug(f"Switching to the next segment due to consecutive moving-away points.")
                         break
                 except RuntimeError as Err:
                     exitThread = True
@@ -143,7 +143,7 @@ class AI_Manager:
         try:
             with open('Config/AI/segment_boundaries.txt', 'r') as file:
                 self._segment_boundaries = json.load(file)
-            print(f"Segment boundaries successfully read from {'Config/AI/segment_boundaries.txt'}")
+            logger.Debug(f"Segment boundaries successfully read from {'Config/AI/segment_boundaries.txt'}")
         except Exception as e:
-            print(f"Error reading segment boundaries from file: {e}")
+            logger.Debug(f"Error reading segment boundaries from file: {e}")
     
