@@ -39,7 +39,7 @@ class Window:
     
     def DrawInformations(self, agv: AGV):
         TITLE = "AGV INFO:"
-        heading = "Heading:" + str(round(agv.GetNNS().heading,2))
+        heading = "Heading:" + str(round(agv.GetNNS().heading,6))
         corX = "X:" + str(round(agv.GetNNS().xCoor,2))
         corY = "Y:" + str(round(agv.GetNNS().yCoor,2))
         speed = "Speed:" + str(round(agv.GetNNS().speed / 100,2))

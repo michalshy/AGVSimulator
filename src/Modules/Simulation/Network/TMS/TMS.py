@@ -16,7 +16,7 @@ class TMS:
         return self._orderReady
 
     def GetOrder(self):
-        segments = [56.0,20.0,48.0]
+        segments = [56.0,20.0,48.0,52.0,16.0,44.0,12.0,36.0,4.0]
         self._orderReady = False
         return segments
     

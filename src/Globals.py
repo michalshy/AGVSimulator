@@ -1,3 +1,4 @@
+import math
 # -*- coding: utf-8 -*-
 """Globals module
 
@@ -10,12 +11,14 @@ SCREEN_WIDTH = 1600
 SCREEN_HEIGHT = 800
 
 #SIMULATION
-SIMULATION_RX_CYCLE = 200
-SIMULATION_TX_CYCLE = 200
+SIMULATION_RX_CYCLE = 500
+SIMULATION_TX_CYCLE = 500
 
 #AGV
 AGV_SIZE = 10
 AGV_TURN_TOLERANCE = 15
+def Degrees(x):
+    return math.degrees(x)
 
 #ROOM
 ROOM_WIDTH = 1000

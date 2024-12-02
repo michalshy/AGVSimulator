@@ -23,7 +23,7 @@ class AppEngine:
         self._simulation = Simulation()
 
     def LoopProgram(self):
-        logger.Info("Starting simulation")
+        logger.Info("Starting application")
         # Start simulation
         self._simulation.Simulate(self._opcClient, self._window)
         # End simulation
