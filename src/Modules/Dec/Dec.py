@@ -23,6 +23,7 @@ class Dec:
         self._segments = []
         self._finished = True
         self._started = False
+        self._initial_data = []
         
 
     def Start(self):
