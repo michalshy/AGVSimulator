@@ -1,5 +1,5 @@
 from Modules.Simulation.Simulation import Simulation
-from Modules.Presentation.OpcClient import OpcClient, ServerEnum
+from Modules.Presentation.OpcClient import OpcClient, ServerUrl
 from Modules.Presentation.Parameters import Parameters
 from Modules.Presentation.Window import Window
 import pygame
@@ -17,10 +17,9 @@ class AppEngine:
     def __init__(self):
         pygame.init()
         
-        self._enum = ServerEnum()
         self._params = Parameters()
         self._window = Window(self._params)
-        self._opcClient = OpcClient(self._params, self._enum.localhost)
+        self._opcClient = OpcClient(self._params, ServerUrl.localhost)
         self._simulation = Simulation()
 
     def LoopProgram(self):

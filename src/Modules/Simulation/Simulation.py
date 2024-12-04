@@ -27,7 +27,8 @@ class Simulation:
     # Main function of the program, responsible for simulation of AGV movement
     def Simulate(self, opc: OpcClient, wm: Window):
         # Threads section
-        self._network_thread = threading.Thread(target=self._network.HandleNetwork, args=(opc, self._agv))
+        self._network_thread = threading.Thread(target=self._network.HandleNetwork, args=(self._agv,))
+        self._network.HandleReadingData(self._agv)
         self._network_thread.start()
         logger.Debug("Network thread started")
         #--------EOS--------

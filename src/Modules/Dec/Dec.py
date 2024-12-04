@@ -30,7 +30,7 @@ class Dec:
         self._finished = False
         self._started = True
 
-    def SetSegments(self, segments, initial_data):
+    def SetSegments(self, segments, initial_data: pd.DataFrame):
         self._initial_data = initial_data
         self._segments = segments
         self._ai.SetParams(self._segments, self._initial_data)

@@ -28,12 +28,7 @@ class Navigator():
     def DetermineFlags(self):
         pass
 
-    def FindPath(self, segments: list):
-        params = Parameters()
-        enum = OpcClient.ServerEnum()
-        opc = OpcClient.OpcClient(params, enum.server)
-        opc.ReceiveDataFromServer()
-        initial_data = opc.GetInitialData()
+    def FindPath(self, segments: list, initial_data: pd.DataFrame):
         self._dec.SetSegments(segments, initial_data)
         if not self._dec.GetInPrediction():
             self._dec.Start()

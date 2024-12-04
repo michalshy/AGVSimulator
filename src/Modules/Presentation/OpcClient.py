@@ -7,20 +7,23 @@ from opcua import Client
 import opcua
 import pandas as pd
 # -*- coding: utf-8 -*-
+
+
+class ServerUrl():
+    localhost = 'opc.tcp://localhost:48060'
+    server = 'opc.tcp://localhost:4841/freeopcua/server/'
+    agvServer = 'opc.tcp://157.158.57.71:48050'
+
 """OpcClient module
 
 Responsible for communication with OpcServer, provides set of API methods for
 simulation to execute during their controlled cycles.
 """
 
-class ServerEnum():
-    localhost = 'opc.tcp://localhost:48060'
-    server = 'opc.tcp://localhost:4841/freeopcua/server/'
-
 class OpcClient:
-    def __init__(self, params: Parameters, enum: str):
+    def __init__(self, params: Parameters, url: str):
         self._params = params
-        self._url = enum
+        self._url = url
         self._dataFromServer = 0
         self._nodeId = None
         self._updateStep = 0
@@ -42,7 +45,7 @@ class OpcClient:
             self.client = Client(self._url)
             self.client.connect()
             print("Connected to OPC UA server.")
-            if self._url == ServerEnum.localhost:
+            if self._url == ServerUrl.localhost:
                 self._frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
                 self._NNS = self._frame6000[-5].get_children()
                 self._ENS = self._frame6000[-6].get_children()
@@ -90,11 +93,10 @@ class OpcClient:
                 for  i in range(20):
                     for j in self._tab:
                         self.StartReception(j)
-                    time.sleep(0.2)
-                self._initial_data = self._initial_data.iloc[:,0:]
+                    time.sleep(2)
                 print(self._initial_data)
-                time.sleep(5)
                 self.CloseConnection()
+                return self._initial_data
             except ConnectionResetError:
                 print("Connection was reset. Attempting to reconnect...")
                 self.ConnectToServer()
@@ -129,6 +131,7 @@ class OpcClient:
     
     def GetInitialData(self):
             return self._initial_data
+    
 
     def GetStatus(self):
         return self.client

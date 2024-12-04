@@ -12,6 +12,7 @@ import pygame
 from Logger import *
 import math
 from Globals import *
+import pandas as pd
 # -*- coding: utf-8 -*-
 """AGV module
 
@@ -26,6 +27,8 @@ class AGV:
         self._isOrder = False
         self._setHeading = False
         self._order = []
+
+        self._data = None
 
         # For frames
         self._enc = ENC()
@@ -66,6 +69,9 @@ class AGV:
     def SetOrder(self, state: bool, segments: list):
         self._isOrder = state
         self._order = segments
+
+    def SetData(self, data: pd.DataFrame):
+        self._data = data
 
     def DetermineFlags(self):
         self._battery.DetermineFlags(self._enc.batteryValue)
@@ -132,7 +138,7 @@ class AGV:
     def _CheckPaths(self):
         if self._isOrder:
             logger.Info("Order detected")
-            self._navi.FindPath(self._order) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._navi.FindPath(self._order, self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
             self._isOrder = False
 
     def _ControlNavigation(self, physics: Physics):
