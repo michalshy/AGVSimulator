@@ -5,7 +5,10 @@ import threading
 from Logger import *
 import pandas as pd
 
-from Modules.Presentation.OpcClient import OpcClient
+from Modules.Presentation import OpcClient
+from Modules.Presentation.Parameters import Parameters
+
+
 # -*- coding: utf-8 -*-
 """Navigator module
 
@@ -25,7 +28,10 @@ class Navigator():
     def DetermineFlags(self):
         pass
 
-    def FindPath(self, segments: list, opc: OpcClient):
+    def FindPath(self, segments: list):
+        params = Parameters()
+        enum = OpcClient.ServerEnum()
+        opc = OpcClient.OpcClient(params, enum.server)
         opc.ReceiveDataFromServer()
         initial_data = opc.GetInitialData()
         self._dec.SetSegments(segments, initial_data)

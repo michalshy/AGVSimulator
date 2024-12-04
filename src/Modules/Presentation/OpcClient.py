@@ -1,19 +1,26 @@
 import sys
+import time
 sys.dont_write_bytecode
 from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV.AGV import AGV
 from opcua import Client
 import opcua
+import pandas as pd
 # -*- coding: utf-8 -*-
 """OpcClient module
 
 Responsible for communication with OpcServer, provides set of API methods for
 simulation to execute during their controlled cycles.
 """
+
+class ServerEnum():
+    localhost = 'opc.tcp://localhost:48060'
+    server = 'opc.tcp://localhost:4841/freeopcua/server/'
+
 class OpcClient:
-    def __init__(self, params: Parameters):
+    def __init__(self, params: Parameters, enum: str):
         self._params = params
-        self._url = "opc.tcp://157.158.57.71:48050"
+        self._url = enum
         self._dataFromServer = 0
         self._nodeId = None
         self._updateStep = 0
@@ -23,7 +30,9 @@ class OpcClient:
         self._ENS = None
         self.client = None
         self._temp_data = []
-        self._initial_data = []
+        self._initial_data = pd.DataFrame(columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment'])
+        self._nodeId = "ns=2;i="
+        self._tab = [4,5,6,7]
         
         self.ConnectToServer()
 
@@ -33,10 +42,12 @@ class OpcClient:
             self.client = Client(self._url)
             self.client.connect()
             print("Connected to OPC UA server.")
-            self.frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
-            self.NNS = self.frame6000[-4].get_children()
-            self._ENS = self.frame6000[-6].get_children()
-            self._nodeId = self._NNS
+            if self._url == ServerEnum.localhost:
+                self._frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
+                self._NNS = self._frame6000[-5].get_children()
+                self._ENS = self._frame6000[-6].get_children()
+            else:
+                pass
         except Exception as e:
             print("Failed to connect to OPC UA server:", e)
 
@@ -47,16 +58,18 @@ class OpcClient:
         self.frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()    
         self._NNS = self.frame6000[-5].get_children()
         self._ENS = self.frame6000[-6].get_children()
-        self._nodeId = self._NNS
     
     def StartReception(self,it):
         try:
-            node = self.client.get_node(self.NNS[it])
+            node = self.client.get_node(self._nodeId + str(it))
             value = node.get_value()
-            self.dataReceived += f"{value}"
+            # self.dataReceived += f"{value}"
+            
             self._temp_data.append(value)
-            if(it == 13):
-                 self._initial_data.append(self._temp_data)
+            
+            if(it == 7):
+                 temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment'])
+                 self._initial_data = pd.concat([self._initial_data,temp])
                  self._temp_data = []
             
         except Exception as e:
@@ -67,18 +80,21 @@ class OpcClient:
         self.client.disconnect()       
 
     #Receive data from server
-    def ReceiveDataFromServer(self, params: Parameters):
+    def ReceiveDataFromServer(self):
         if self.client is None:
             self.ConnectToServer()
 
         if self.client is not None:
-            tab = [5,6,7]
+            # tab = [5,6,7]
             try:
-                for  i in range(15):
-                    for i in tab:
-                        self.StartReception(i)
+                for  i in range(20):
+                    for j in self._tab:
+                        self.StartReception(j)
+                    time.sleep(0.2)
+                self._initial_data = self._initial_data.iloc[:,0:]
+                print(self._initial_data)
+                time.sleep(5)
                 self.CloseConnection()
-                self.ConnectToLocalhost()
             except ConnectionResetError:
                 print("Connection was reset. Attempting to reconnect...")
                 self.ConnectToServer()

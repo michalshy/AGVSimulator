@@ -5,6 +5,7 @@ from Modules.Presentation.OpcClient import OpcClient
 from Modules.Entities.AGV.AGV import AGV
 from Modules.Simulation.Network.TMS.TMS import TMS
 from Globals import *
+import time
 # -*- coding: utf-8 -*-
 """Network module
 
@@ -42,6 +43,7 @@ class Network:
                 agv.SetOrder(True, self._tms.GetOrder())
 
     def HandleTx(self, opc: OpcClient, agv: AGV):
+        time.sleep(4)
         if timer.GetTicks() > (self._txTime + SIMULATION_TX_CYCLE):
             self._txTime = timer.GetTicks()
             opc.SendToServer(agv)
