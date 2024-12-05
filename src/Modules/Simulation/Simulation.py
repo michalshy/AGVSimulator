@@ -56,9 +56,9 @@ class Simulation:
         self._agv.DetermineFlags()                      # Check for agv flags
         self._agv.Navigate(self._pe)                            # Trigger navigation
         if self._agv.CheckDrive():                      # Check if allowed to
-            self._pe.Accelerate(0.01)
+            self._pe.Accelerate(10)
         else:
-            self._pe.Accelerate(-0.01)
+            self._pe.Accelerate(-1)
         self._pe.Update()                               # Update position
 
         

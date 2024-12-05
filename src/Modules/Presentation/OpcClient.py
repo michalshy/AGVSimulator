@@ -3,6 +3,7 @@ sys.dont_write_bytecode
 from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV import AGV
 from opcua import Client
+from Logger import *
 # -*- coding: utf-8 -*-
 """OpcClient module
 
@@ -18,7 +19,11 @@ class OpcClient:
         self._updateStep = 0
         self._stepAmount = 5
         self.client = Client(self._url)
-        self.client.connect()
+        try:
+            self.client.connect()
+        except ConnectionRefusedError as Err:
+            _txt = "Error while connecting to server: " + str(Err)
+            logger.Critical(_txt)
 
     def StartReception(self,it):
         self._nodeId += str(it)

@@ -13,7 +13,7 @@ class Wheels:
         self._driveMode = False
 
     def Init(self):
-        self._maxSpeed = 0.1
+        self._maxSpeed = 200
 
     def DetermineFlags(self, speed):
         # Max speed

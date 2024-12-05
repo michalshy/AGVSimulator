@@ -23,8 +23,8 @@ class Physics:
                 self._agv.GetNNS().speed = 0
 
     def UpdatePosition(self):
-        self._agv.GetNNS().xCoor += math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt()
-        self._agv.GetNNS().yCoor += math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt()
+        self._agv.GetNNS().xCoor += (math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/1000
+        self._agv.GetNNS().yCoor -= (math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/1000
         self.DrainBattery(1, self._agv.GetENC())
 
 
@@ -38,13 +38,13 @@ class Physics:
         self.UpdateParams()
 
     def GetAngle(self, a, b, c):
-        ang = math.degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
+        ang = Degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
         return ang + 360 if ang < 0 else ang
 
     def CalculateTurn(self, nns: NNS, path):
         retVal = 0
         pointBeginning = (nns.xCoor, nns.yCoor)
-        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor + 25 * math.sin(math.radians(nns.heading)))
+        pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor - 25 * math.sin(math.radians(nns.heading)))
         retVal = self.GetAngle(path, pointBeginning, pointHeading)
         return retVal
 
