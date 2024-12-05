@@ -37,3 +37,5 @@ Simulation/AGV/MlNav/NAVJ.keras
 Simulation/AGV/MlNav/LSTM_Olek/agv.pkl
 Resources/agv.pkl
 initial_data.csv
+
+*.pyc
