@@ -1,13 +1,9 @@
 import pygame
-from Globals import *
+from Config import *
 from Modules.Dec.Dec import Dec
 import threading
 from Logger import *
 import pandas as pd
-
-from Modules.Presentation import OpcClient
-from Modules.Presentation.Parameters import Parameters
-
 
 # -*- coding: utf-8 -*-
 """Navigator module
@@ -31,7 +27,6 @@ class Navigator():
     def FindPath(self, segments: list, initial_data: pd.DataFrame):
         self._dec.SetSegments(segments, initial_data)
         if not self._dec.GetInPrediction():
-            self._dec.Start()
             threading.Thread(target=self._dec.PredictPath).start()
 
     def TaskInProgress(self):
@@ -52,8 +47,8 @@ class Navigator():
     def DrawPath(self, canvas):
         for coord in self._dec.ReturnPredictedPath():
             pygame.draw.rect(canvas, RED, pygame.Rect(
-                PointsInterpolationWidth(coord[0]) + ROOM_W_OFFSET,
-                PointsInterpolationHeight(coord[1]) + ROOM_H_OFFSET, 
+                PointsInterpolationWidth(coord[0]) + Additional.ROOM_W_OFFSET,
+                PointsInterpolationHeight(coord[1]) + Additional.ROOM_H_OFFSET, 
                 3, 
                 3
             ))

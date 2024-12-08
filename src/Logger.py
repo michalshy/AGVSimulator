@@ -13,12 +13,7 @@ output stream during simulation execution
 
 STATE_CYCLE = 1000
 
-class L(Enum):
-    DEBUG = 0,
-    INFO = 1,
-    WARNING = 2,
-    ERROR = 3,
-    CRITICAL = 4
+Levels = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
 
 class Logger:
 
@@ -26,36 +21,36 @@ class Logger:
         self._nameOfFile = ""
         self._InitAGVFile()
         self._cycle = STATE_CYCLE
-        self._lvl = L.DEBUG
+        self._lvl = 0
 
     def GetFileName(self):
         return self._nameOfFile
 
     def Debug(self, msg):
-        self._SetLevel(L.DEBUG)
-        self._Log(msg)
+        if self._lvl >= 4:
+            self._Log(msg, 4)
 
     def Info(self, msg):
-        self._SetLevel(L.INFO)
-        self._Log(msg)
+        if self._lvl >= 3:
+            self._Log(msg, 3)
 
     def Warning(self, msg):
-        self._SetLevel(L.WARNING)
-        self._Log(msg)
+        if self._lvl >= 2:
+            self._Log(msg, 2)
 
     def Error(self, msg):
-        self._SetLevel(L.ERROR)
-        self._Log(msg)
+        if self._lvl >= 1:
+            self._Log(msg, 1)
 
     def Critical(self, msg):
-        self._SetLevel(L.CRITICAL)
-        self._Log(msg)
+        if self._lvl >= 0:
+            self._Log(msg, 0)
 
-    def _SetLevel(self, level: L):
+    def SetLevel(self, level):
         self._lvl = level
     
-    def _Log(self, msg):
-        print(f'{self._lvl.name:10} {datetime.now():10}  {msg:100}')
+    def _Log(self, msg, lvl):
+        print(f'{Levels[lvl]:10} {datetime.now()}  {msg:100}')
 
     def _InitAGVFile(self):
         self._nameOfFile = datetime.now().strftime("./Logs/%d%m%Y%H%M%S") + ".csv"

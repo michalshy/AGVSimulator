@@ -11,7 +11,7 @@ from Modules.Entities.Physics import Physics
 import pygame
 from Logger import *
 import math
-from Globals import *
+from Config import *
 import pandas as pd
 # -*- coding: utf-8 -*-
 """AGV module
@@ -25,8 +25,11 @@ Simulation also uses flags to control flow.
 class AGV:
     def __init__(self):
         self._isOrder = False
-        self._setHeading = False
+        self._setFirst = False
         self._order = []
+        self._toHeading = 0
+
+        self._shouldSlow = False
 
         self._data = None
 
@@ -101,6 +104,11 @@ class AGV:
         return self._wheels.GetAtMaxSpeed()
 
     def CheckDrive(self):
+        if self._nns.speed > self._wheels.GetMaxSpeed():
+            self._shouldSlow = True
+        else:
+            self._shouldSlow = False
+
         if(self._navi.TaskInProgress()):
             self._stopFlag = False
             self._wheels.SetDriveMode(True)
@@ -117,22 +125,24 @@ class AGV:
         self._CheckPaths()
         self._ControlNavigation(physics)
 
+    def ShouldSlow(self):
+        return self._shouldSlow
 
     def Draw(self, canvas):
        
         pygame.draw.circle(canvas, GREEN, \
-                           (PointsInterpolationWidth(self._nns.xCoor) + ROOM_W_OFFSET, \
-                            PointsInterpolationHeight(self._nns.yCoor) + ROOM_H_OFFSET), \
-                            AGV_SIZE)
+                           (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET, \
+                            PointsInterpolationHeight(self._nns.yCoor) + Additional.ROOM_H_OFFSET), \
+                            config['agv']['agv_size'])
         pygame.draw.circle(canvas,RED, \
-                        (PointsInterpolationWidth(self._nns.xCoor) + ROOM_W_OFFSET + \
+                        (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET + \
                          5 * math.cos(math.radians(self._nns.heading))
-                        ,PointsInterpolationHeight(self._nns.yCoor) + ROOM_H_OFFSET + \
+                        ,PointsInterpolationHeight(self._nns.yCoor) + Additional.ROOM_H_OFFSET + \
                         5 * math.sin(math.radians(self._nns.heading)) ) , 2)
         self._navi.DrawPath(canvas)        
     
     def _ConstructLine(self):
-        return str(self._nns.heading) + "," + str(self._nns.speed) + "," + str(self._nns.xCoor) + "," \
+        return str(self._nns.heading) + "," + str(self._nns.speed * 100) + "," + str(self._nns.xCoor) + "," \
                             + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"
     
     def _CheckPaths(self):
@@ -144,14 +154,24 @@ class AGV:
     def _ControlNavigation(self, physics: Physics):
         if len(self._navi.GetPath()) != 0:
             tempPos = self._navi.GetPath()[0]
-            if not self._setHeading:
-                logger.Debug(physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1])))
-                self._nns.heading += physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1]))
-                self._setHeading = True
+            heading, dist = physics.CalculatePath(self._nns, tempPos)
+            if not self._setFirst:
+                self._nns.xCoor = tempPos[0]
+                self._nns.yCoor = tempPos[1]
+                self._nns.heading = Degrees(tempPos[2])
             if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:
                 if self._nns.yCoor > tempPos[1] - 0.1 and self._nns.yCoor < tempPos[1] + 0.1:
                     self._navi.PopFrontPath()
-                    self._setHeading = False
+                    _txt = "Dist is " + str(dist)
+                    logger.Debug(_txt)
+                    if self._setFirst:
+                        self._wheels.SetMaxSpeed(dist/config['agv']['amplifier'])
+                    self._setFirst = True
+            if heading > 0 and heading < 180:
+                self._nns.heading -= 1
+            else:
+                self._nns.heading += 1
+
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
             f = open(logger.GetFileName(), "a")

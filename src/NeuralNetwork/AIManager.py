@@ -128,7 +128,7 @@ class AI_Manager:
         )
 
         # Save the trained model
-        model.save('Config/model.keras')
+        model.save('Config/AI/model.keras')
 
     # Predict a route based on initial input data and a trained LSTM model
     def predict_route(self, df, tms_data):
