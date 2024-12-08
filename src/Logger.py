@@ -55,7 +55,7 @@ class Logger:
         self._lvl = level
     
     def _Log(self, msg):
-        print(f'{self._lvl.name:10} {datetime.now():10}  {msg:100}')
+        print(f'{self._lvl.name:10} {datetime.now()}  {msg:100}')
 
     def _InitAGVFile(self):
         self._nameOfFile = datetime.now().strftime("./Logs/%d%m%Y%H%M%S") + ".csv"

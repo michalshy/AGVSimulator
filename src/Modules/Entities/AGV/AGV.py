@@ -146,12 +146,13 @@ class AGV:
             tempPos = self._navi.GetPath()[0]
             if not self._setHeading:
                 logger.Debug(physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1])))
-                self._nns.heading += physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1]))
+                self._nns.heading -= physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1]))
                 self._setHeading = True
-            if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:
-                if self._nns.yCoor > tempPos[1] - 0.1 and self._nns.yCoor < tempPos[1] + 0.1:
+            if self._nns.xCoor > tempPos[0] - 0.2 and self._nns.xCoor < tempPos[0] + 0.2:
+                if self._nns.yCoor > tempPos[1] - 0.2 and self._nns.yCoor < tempPos[1] + 0.2:
                     self._navi.PopFrontPath()
                     self._setHeading = False
+
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
             f = open(logger.GetFileName(), "a")

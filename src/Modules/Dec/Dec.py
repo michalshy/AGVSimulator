@@ -102,7 +102,7 @@ class AI_Manager:
                 input_data = np.expand_dims(full_features, axis=0)  # Add batch dimension
                 # Predict the next step
                 try:
-                    predicted_scaled = self._model.predict(input_data)
+                    predicted_scaled = self._model.predict(input_data, verbose = 0)
                     predicted_original = self._scaler_y.inverse_transform(predicted_scaled)
                     # Create a prediction DataFrame
                     result_df = pd.DataFrame(predicted_original, columns=['X-coordinate', 'Y-coordinate', 'Heading'])

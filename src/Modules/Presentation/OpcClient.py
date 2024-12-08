@@ -6,6 +6,7 @@ from Modules.Entities.AGV.AGV import AGV
 from opcua import Client
 import opcua
 import pandas as pd
+from Logger import *
 # -*- coding: utf-8 -*-
 
 
@@ -61,7 +62,6 @@ class OpcClient:
         self.frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()    
         self._NNS = self.frame6000[-5].get_children()
         self._ENS = self.frame6000[-6].get_children()
-    
     def StartReception(self,it):
         try:
             node = self.client.get_node(self._nodeId + str(it))
