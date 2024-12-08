@@ -4,6 +4,11 @@ from Modules.Dec.Dec import Dec
 import threading
 from Logger import *
 import pandas as pd
+
+from Modules.Presentation import OpcClient
+from Modules.Presentation.Parameters import Parameters
+
+
 # -*- coding: utf-8 -*-
 """Navigator module
 
@@ -23,8 +28,7 @@ class Navigator():
     def DetermineFlags(self):
         pass
 
-    def FindPath(self, segments: list):
-        initial_data = pd.read_csv('initial_data.csv', low_memory=False)
+    def FindPath(self, segments: list, initial_data: pd.DataFrame):
         self._dec.SetSegments(segments, initial_data)
         if not self._dec.GetInPrediction():
             self._dec.Start()
