@@ -1,10 +1,9 @@
 from Modules.Simulation.Simulation import Simulation
-from Modules.Presentation.OpcClient import OpcClient, ServerUrl
-from Modules.Presentation.Parameters import Parameters
 from Modules.Presentation.Window import Window
+from Modules.Presentation.Network.Network import Network
 import pygame
 from Logger import *
-from Globals import *
+from Config import *
 # -*- coding: utf-8 -*-
 """AppEngine module
 
@@ -16,14 +15,12 @@ class AppEngine:
 
     def __init__(self):
         pygame.init()
-        
-        self._params = Parameters()
-        self._window = Window(self._params)
-        self._opcClient = OpcClient(self._params, ServerUrl.localhost)
+        self._window = Window()
+        self._network = Network()                       # Create network module
         self._simulation = Simulation()
 
     def LoopProgram(self):
         logger.Info("Starting application")
         # Start simulation
-        self._simulation.Simulate(self._opcClient, self._window)
+        self._simulation.Simulate(self._network, self._window)
         # End simulation

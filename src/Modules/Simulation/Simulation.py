@@ -1,13 +1,12 @@
 import threading
 from Modules.Presentation.Window import Window
-from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV.AGV import AGV
 from Logger import *
-from Modules.Presentation.OpcClient import OpcClient
+from Modules.Presentation.Network.OpcClient import OpcClient
 from Modules.Simulation.Logic.Timer import *
 from Modules.Entities.Physics import Physics
-from Modules.Simulation.Network.Network import Network
-from Globals import *
+from Modules.Presentation.Network.Network import Network
+from Config import *
 # -*- coding: utf-8 -*-
 """Simulation module
 
@@ -20,16 +19,16 @@ class Simulation:
         self._finishFlag = False                        # Initialize main loop flag
         self._agv = AGV()                               # Create AGV
         self._pe = Physics(self._agv)                   # Create physics with agv passed
-        self._network = Network()                       # Create network module
 
-        self._agv.Init(x=STARTING_POS_X,y=STARTING_POS_Y)   # Init with position
+        self._agv.Init(x = config['navigation']['starting_pos_x'],
+                       y = config['navigation']['starting_pos_y'])   # Init with position
 
     # Main function of the program, responsible for simulation of AGV movement
-    def Simulate(self, opc: OpcClient, wm: Window):
+    def Simulate(self, network: Network, wm: Window):
         # Threads section
-        self._network_thread = threading.Thread(target=self._network.HandleNetwork, args=(self._agv,))
-        self._network.HandleReadingData(self._agv)
-        self._network_thread.start()
+        _network_thread = threading.Thread(target=network.HandleNetwork, args=(self._agv,))
+        # self._network.HandleReadingData(self._agv)
+        _network_thread.start()
         logger.Debug("Network thread started")
         #--------EOS--------
         logger.Debug("Enter main loop")
@@ -39,13 +38,13 @@ class Simulation:
             self.Route()
             wm.Draw(self._agv)                          # Draw after update
             timer.UpdateDelta()                         # Update timer
-            if not wm.CheckEvents(opc):                 # Check events
+            if not wm.CheckEvents(network):                 # Check events
                 self.Exit()
         
         logger.Debug("Exit main loop")    
         #Threads section
-        self._network.EndTransmission()
-        self._network_thread.join()
+        network.EndTransmission()
+        _network_thread.join()
         logger.Debug("Network thread joined")
         #--------EOS--------
 

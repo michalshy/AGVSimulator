@@ -11,7 +11,7 @@ from Modules.Entities.Physics import Physics
 import pygame
 from Logger import *
 import math
-from Globals import *
+from Config import *
 import pandas as pd
 # -*- coding: utf-8 -*-
 """AGV module
@@ -121,13 +121,13 @@ class AGV:
     def Draw(self, canvas):
        
         pygame.draw.circle(canvas, GREEN, \
-                           (PointsInterpolationWidth(self._nns.xCoor) + ROOM_W_OFFSET, \
-                            PointsInterpolationHeight(self._nns.yCoor) + ROOM_H_OFFSET), \
-                            AGV_SIZE)
+                           (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET, \
+                            PointsInterpolationHeight(self._nns.yCoor) + Additional.ROOM_H_OFFSET), \
+                            config['agv']['agv_size'])
         pygame.draw.circle(canvas,RED, \
-                        (PointsInterpolationWidth(self._nns.xCoor) + ROOM_W_OFFSET + \
+                        (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET + \
                          5 * math.cos(math.radians(self._nns.heading))
-                        ,PointsInterpolationHeight(self._nns.yCoor) + ROOM_H_OFFSET + \
+                        ,PointsInterpolationHeight(self._nns.yCoor) + Additional.ROOM_H_OFFSET + \
                         5 * math.sin(math.radians(self._nns.heading)) ) , 2)
         self._navi.DrawPath(canvas)        
     

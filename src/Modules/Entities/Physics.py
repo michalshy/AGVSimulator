@@ -1,7 +1,7 @@
 from Modules.Simulation.Logic.Timer import *
 from Modules.Entities.Frame6000 import ENC, NNS
 from Modules.Entities.AGV import AGV
-from Globals import *
+from Config import *
 from Logger import *
 import math
 # -*- coding: utf-8 -*-

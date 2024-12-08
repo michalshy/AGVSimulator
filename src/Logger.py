@@ -14,6 +14,7 @@ output stream during simulation execution
 STATE_CYCLE = 1000
 
 class L(Enum):
+    OFF = -1,
     DEBUG = 0,
     INFO = 1,
     WARNING = 2,
@@ -26,32 +27,32 @@ class Logger:
         self._nameOfFile = ""
         self._InitAGVFile()
         self._cycle = STATE_CYCLE
-        self._lvl = L.DEBUG
+        self._lvl = L.OFF.value
 
     def GetFileName(self):
         return self._nameOfFile
 
     def Debug(self, msg):
-        self._SetLevel(L.DEBUG)
-        self._Log(msg)
+        if self._lvl >= L.DEBUG.value:
+            self._Log(msg)
 
     def Info(self, msg):
-        self._SetLevel(L.INFO)
-        self._Log(msg)
+        if self._lvl >= L.INFO.value:
+            self._Log(msg)
 
     def Warning(self, msg):
-        self._SetLevel(L.WARNING)
-        self._Log(msg)
+        if self._lvl >= L.WARNING.value:
+            self._Log(msg)
 
     def Error(self, msg):
-        self._SetLevel(L.ERROR)
-        self._Log(msg)
+        if self._lvl >= L.ERROR.value:
+            self._Log(msg)
 
     def Critical(self, msg):
-        self._SetLevel(L.CRITICAL)
-        self._Log(msg)
+        if self._lvl >= L.CRITICAL.value:
+            self._Log(msg)
 
-    def _SetLevel(self, level: L):
+    def _SetLevel(self, level):
         self._lvl = level
     
     def _Log(self, msg):

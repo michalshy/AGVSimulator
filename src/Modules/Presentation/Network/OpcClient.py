@@ -1,7 +1,6 @@
 import sys
 import time
 sys.dont_write_bytecode
-from Modules.Presentation.Parameters import Parameters
 from Modules.Entities.AGV.AGV import AGV
 from opcua import Client
 import opcua
@@ -22,8 +21,7 @@ simulation to execute during their controlled cycles.
 """
 
 class OpcClient:
-    def __init__(self, params: Parameters, url: str):
-        self._params = params
+    def __init__(self, url: str):
         self._url = url
         self._dataFromServer = 0
         self._nodeId = None
@@ -36,6 +34,7 @@ class OpcClient:
         self._temp_data = []
         self._initial_data = pd.DataFrame(columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment'])
         self._nodeId = "ns=2;i="
+        self._connected = False
         self._tab = [4,5,6,7]
         
         self.ConnectToServer()
@@ -45,6 +44,7 @@ class OpcClient:
         try:
             self.client = Client(self._url)
             self.client.connect()
+            self._connected = True
             print("Connected to OPC UA server.")
             if self._url == ServerUrl.localhost:
                 self._frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
@@ -53,6 +53,7 @@ class OpcClient:
             else:
                 pass
         except Exception as e:
+            self._connected = False
             print("Failed to connect to OPC UA server:", e)
 
     def ConnectToLocalhost(self):
@@ -62,6 +63,7 @@ class OpcClient:
         self.frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()    
         self._NNS = self.frame6000[-5].get_children()
         self._ENS = self.frame6000[-6].get_children()
+
     def StartReception(self,it):
         try:
             node = self.client.get_node(self._nodeId + str(it))
@@ -101,9 +103,6 @@ class OpcClient:
                 print("Connection was reset. Attempting to reconnect...")
                 self.ConnectToServer()
 
-        
-        
-
     def Transmit(self,input,it):
         if it == 13:
             input = opcua.ua.DataValue(opcua.ua.Variant(input, opcua.ua.VariantType.UInt16))
@@ -132,6 +131,8 @@ class OpcClient:
     def GetInitialData(self):
             return self._initial_data
     
-
     def GetStatus(self):
         return self.client
+    
+    def GetTrStatus(self):
+        return self._connected

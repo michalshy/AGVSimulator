@@ -1,0 +1,43 @@
+title = "AGV SIM"
+
+[screen]
+screen_width = 1600
+screen_height = 800
+
+[simulation]
+sim_rx_cycle = 500
+sim_tx_cycle = 500
+
+[agv]
+agv_size = 10
+agv_turn_tolerance = 15
+rotation = 360
+
+[navigation]
+starting_pos_x = 40
+starting_pos_y = 18
+min_x = 29
+max_x = 53
+min_y = 27
+max_y = 10
+
+[room]
+room_width = 1000
+room_height = 600
+room_image = "./Config/Rooms/room2.png"
+
+[physics]
+rotateVal = 100
+
+[info_window]
+info_window_sizex = 250 
+info_window_sizey = 150
+info_padding = 40
+info_border = 20
+
+[server_rx]
+url = ""
+
+[server_tx]
+url = ""
+
