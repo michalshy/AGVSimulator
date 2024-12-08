@@ -2,8 +2,8 @@ from Modules.Simulation.Simulation import Simulation
 from Modules.Presentation.Window import Window
 from Modules.Presentation.Network.Network import Network
 import pygame
-from Logger import *
 from Config import *
+from Logger import *
 # -*- coding: utf-8 -*-
 """AppEngine module
 

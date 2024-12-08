@@ -25,8 +25,11 @@ Simulation also uses flags to control flow.
 class AGV:
     def __init__(self):
         self._isOrder = False
-        self._setHeading = False
+        self._setFirst = False
         self._order = []
+        self._toHeading = 0
+
+        self._shouldSlow = False
 
         self._data = None
 
@@ -101,6 +104,11 @@ class AGV:
         return self._wheels.GetAtMaxSpeed()
 
     def CheckDrive(self):
+        if self._nns.speed > self._wheels.GetMaxSpeed():
+            self._shouldSlow = True
+        else:
+            self._shouldSlow = False
+
         if(self._navi.TaskInProgress()):
             self._stopFlag = False
             self._wheels.SetDriveMode(True)
@@ -117,6 +125,8 @@ class AGV:
         self._CheckPaths()
         self._ControlNavigation(physics)
 
+    def ShouldSlow(self):
+        return self._shouldSlow
 
     def Draw(self, canvas):
        
@@ -132,7 +142,7 @@ class AGV:
         self._navi.DrawPath(canvas)        
     
     def _ConstructLine(self):
-        return str(self._nns.heading) + "," + str(self._nns.speed) + "," + str(self._nns.xCoor) + "," \
+        return str(self._nns.heading) + "," + str(self._nns.speed * 100) + "," + str(self._nns.xCoor) + "," \
                             + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"
     
     def _CheckPaths(self):
@@ -144,14 +154,23 @@ class AGV:
     def _ControlNavigation(self, physics: Physics):
         if len(self._navi.GetPath()) != 0:
             tempPos = self._navi.GetPath()[0]
-            if not self._setHeading:
-                logger.Debug(physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1])))
-                self._nns.heading -= physics.CalculateTurn(self._nns, (tempPos[0], tempPos[1]))
-                self._setHeading = True
-            if self._nns.xCoor > tempPos[0] - 0.2 and self._nns.xCoor < tempPos[0] + 0.2:
-                if self._nns.yCoor > tempPos[1] - 0.2 and self._nns.yCoor < tempPos[1] + 0.2:
+            heading, dist = physics.CalculatePath(self._nns, tempPos)
+            if not self._setFirst:
+                self._nns.xCoor = tempPos[0]
+                self._nns.yCoor = tempPos[1]
+                self._nns.heading = Degrees(tempPos[2])
+            if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:
+                if self._nns.yCoor > tempPos[1] - 0.1 and self._nns.yCoor < tempPos[1] + 0.1:
                     self._navi.PopFrontPath()
-                    self._setHeading = False
+                    _txt = "Dist is " + str(dist)
+                    logger.Debug(_txt)
+                    if self._setFirst:
+                        self._wheels.SetMaxSpeed(dist/config['agv']['amplifier'])
+                    self._setFirst = True
+            if heading > 0 and heading < 180:
+                self._nns.heading -= 1
+            else:
+                self._nns.heading += 1
 
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):

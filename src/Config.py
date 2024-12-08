@@ -1,6 +1,7 @@
 import math
 import tomllib
 from dataclasses import dataclass
+from Logger import logger
 # -*- coding: utf-8 -*-
 """Config module
 
@@ -10,6 +11,9 @@ Contains config and handle all additional functionalities around it.
 config = ''
 with open("Config.toml", "rb") as f:
     config = tomllib.load(f)
+
+print(config['logger']['lvl'])
+logger.SetLevel(config['logger']['lvl'])
 
 def Degrees(x):
     return math.degrees(x)

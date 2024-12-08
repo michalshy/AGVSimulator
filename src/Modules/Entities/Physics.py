@@ -19,14 +19,21 @@ class Physics:
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += val * timer.GetDt() # a = 0.1m/s^2
             self.DrainBattery(2, self._agv.GetENC())
+
+    def Slow(self, val):
+        if self._agv.ShouldSlow():
+            self._agv.GetNNS().speed -= val * timer.GetDt() # a = 0.1m/s^2
+            self.DrainBattery(2, self._agv.GetENC())
             if(self._agv.GetNNS().speed < 0):
-                self._agv.GetNNS().speed = 0
+                self._agv.GetNNS().speed = 0  
+        
+    def Stop(self):
+        self._agv.GetNNS().speed = 0
 
     def UpdatePosition(self):
-        self._agv.GetNNS().xCoor += (math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/1000
-        self._agv.GetNNS().yCoor -= (math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/1000
+        self._agv.GetNNS().xCoor += (math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/10000
+        self._agv.GetNNS().yCoor -= (math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/10000
         self.DrainBattery(1, self._agv.GetENC())
-
 
     def UpdateParams(self):
         if not self._agv.GetBatteryAvailable():
@@ -40,13 +47,18 @@ class Physics:
     def GetAngle(self, a, b, c):
         ang = Degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
         return ang + 360 if ang < 0 else ang
+    
+    def GetDistance(self, a, b):
+        return math.dist(a, b)
 
-    def CalculateTurn(self, nns: NNS, path):
-        retVal = 0
+    def CalculatePath(self, nns: NNS, path) -> tuple:
+        retH = 0
+        retD = 0
         pointBeginning = (nns.xCoor, nns.yCoor)
         pointHeading = (nns.xCoor + 25 * math.cos(math.radians(nns.heading)), nns.yCoor - 25 * math.sin(math.radians(nns.heading)))
-        retVal = self.GetAngle(path, pointBeginning, pointHeading)
-        return retVal
+        retD = self.GetDistance(pointBeginning, (path[0], path[1]))
+        retH = self.GetAngle(path, pointBeginning, pointHeading)
+        return (retH, retD)
 
     @staticmethod
     def DrainBattery(val, enc: ENC):

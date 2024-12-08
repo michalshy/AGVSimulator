@@ -27,7 +27,6 @@ class Navigator():
     def FindPath(self, segments: list, initial_data: pd.DataFrame):
         self._dec.SetSegments(segments, initial_data)
         if not self._dec.GetInPrediction():
-            self._dec.Start()
             threading.Thread(target=self._dec.PredictPath).start()
 
     def TaskInProgress(self):

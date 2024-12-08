@@ -36,6 +36,7 @@ class Dec:
         self._ai.SetParams(self._segments, self._initial_data)
 
     def PredictPath(self):
+        self.Start()
         self._ai.predict_route(self._segments)
         self._finished = True
         self._started = False
