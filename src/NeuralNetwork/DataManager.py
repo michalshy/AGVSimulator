@@ -40,12 +40,12 @@ class DataManager:
             'Current segment', 'Going to ID', 'Battery cell voltage'
         ]
 
+        # Read the CSV file into a DataFrame
+        data = pd.read_csv(self._dataFileName, low_memory=False)
+
         missing_columns = [col for col in required_columns if col not in data.columns]
         if missing_columns:
             raise ValueError(f"Missing required columns in the file: {', '.join(missing_columns)}")
-
-        # Read the CSV file into a DataFrame
-        data = pd.read_csv(self._dataFileName, low_memory=False)
 
         # Select only relevant columns and coerce invalid data to NaN
         data = data[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Going to ID','Battery cell voltage']]
