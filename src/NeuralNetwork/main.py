@@ -13,6 +13,8 @@ if __name__ == "__main__":
 
     data = dataManager._divided_data[-1]
 
+    aiManager.train_battery_model(data)
+
     size = int(len(data) * 0.8)
     train_data = data[:size] 
     validation_data = data[size:]

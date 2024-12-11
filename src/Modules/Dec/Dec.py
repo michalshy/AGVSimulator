@@ -76,6 +76,9 @@ class AI_Manager:
 
     # Predict a route based on initial input data and a trained LSTM model
     def predict_route(self, tms_data):
+
+        battery_scaler = joblib.load('Config/AI/scaler_battery.pkl')
+        battery_model = load_model('Config/AI/battery_model.keras')
         
         # Change ordinary array to pandas dataframe
         df = pd.DataFrame(self._initial_data)
@@ -98,15 +101,22 @@ class AI_Manager:
                 data = df[-self._n_steps:].copy()
                 segment_data = self._segment_encoder.transform(data[['Current segment']])  # One-hot encode segment
                 scaled_features = self._scaler_X.transform(data[['X-coordinate', 'Y-coordinate', 'Heading']])
+                battery_scaled = battery_scaler.transform(data[['Battery cell voltage']])
                 # Concatenate scaled features with one-hot-encoded segment
                 full_features = np.hstack([scaled_features, segment_data])
                 input_data = np.expand_dims(full_features, axis=0)  # Add batch dimension
+                battery_input_data = np.expand_dims(battery_scaled, axis=0)
                 # Predict the next step
                 try:
                     predicted_scaled = self._model.predict(input_data, verbose = 0)
+                    predicted_scaled_battery = battery_model.predict(battery_input_data, verbose=0)
+                    # print(predicted_scaled_battery)
                     predicted_original = self._scaler_y.inverse_transform(predicted_scaled)
+                    predicted_original_battery = battery_scaler.inverse_transform(predicted_scaled_battery)
                     # Create a prediction DataFrame
                     result_df = pd.DataFrame(predicted_original, columns=['X-coordinate', 'Y-coordinate', 'Heading'])
+                    result_df['Battery cell voltage'] = predicted_original_battery[0]
+                    print(result_df.values.tolist()[0])
                     # ------------------------------ CRITICAL SECTION ------------------------------
                     PathSingleton().Append(result_df.values.tolist()[0])
                     # --------------------------- END OF CRITICAL SECTION ---------------------------

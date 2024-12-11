@@ -40,10 +40,11 @@ class DataManager:
         data = pd.read_csv(self._dataFileName, low_memory=False)
 
         # Select only relevant columns and coerce invalid data to NaN
-        data = data[['Timestamp', 'X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Going to ID']]
+        data = data[['Timestamp', 'X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Going to ID','Battery cell voltage']]
         data['X-coordinate'] = pd.to_numeric(data['X-coordinate'], errors='coerce')
         data['Y-coordinate'] = pd.to_numeric(data['Y-coordinate'], errors='coerce')
         data['Heading'] = pd.to_numeric(data['Heading'], errors='coerce')
+        data['Battery cell voltage'] = pd.to_numeric(data['Battery cell voltage'], errors='coerce')
         data['Going to ID'] = pd.to_numeric(data['Going to ID'], errors='coerce')
         data['Current segment'] = pd.to_numeric(data['Current segment'], errors='coerce')
 
