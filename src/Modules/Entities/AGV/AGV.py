@@ -155,6 +155,7 @@ class AGV:
         if len(self._navi.GetPath()) != 0:
             tempPos = self._navi.GetPath()[0]
             heading, dist = physics.CalculatePath(self._nns, tempPos)
+            self._enc.batteryValue = tempPos[3]
             if not self._setFirst:
                 self._nns.xCoor = tempPos[0]
                 self._nns.yCoor = tempPos[1]

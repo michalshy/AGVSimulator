@@ -10,7 +10,7 @@ import json
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
-from tensorflow.keras.models import load_model, Model
+from tensorflow.keras.models import load_model, Model, Sequential
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.layers import Input, LSTM, Dense, Dropout
 
@@ -121,7 +121,7 @@ class AI_Manager:
         early_stopping = EarlyStopping(monitor='val_loss', patience=7, restore_best_weights=True)
 
         # Train the model
-        history = model.fit(
+        model.fit(
             self.X_train_seq, self.y_train_seq,
             validation_data=(self.X_val_seq, self.y_val_seq),
             epochs=250, batch_size=32, callbacks=[early_stopping], verbose=1
@@ -129,6 +129,44 @@ class AI_Manager:
 
         # Save the trained model
         model.save('Config/AI/model.keras')
+
+    def train_battery_model(self, data):
+
+        data = data[['Battery cell voltage']]
+
+        scaler = MinMaxScaler()
+        scaled_data = scaler.fit_transform(data)
+
+        # Create sequences of 20 timesteps
+        X, y = [], []
+        for i in range(len(scaled_data) - self._n_steps):
+            X.append(scaled_data[i:i + self._n_steps, 0])
+            y.append(scaled_data[i + self._n_steps, 0])
+
+        X = np.array(X)
+        y = np.array(y)
+
+        # Reshape X for LSTM (samples, timesteps, features)
+        X = X.reshape((X.shape[0], X.shape[1], 1))
+
+        # Create the LSTM model
+        model = Sequential([
+            LSTM(16, input_shape=(X.shape[1], 1)),
+            Dense(16, activation='relu'),
+            Dense(1)  # Single output for the next voltage value
+        ])
+
+        # Compile the model
+        model.compile(optimizer='adam', loss='mse')
+
+        # Train the model
+        model.fit(X, y, epochs=12, batch_size=32, validation_split=0.2)
+
+        # Save the model
+        model.save('Config/AI/battery_model.keras')
+
+        # Save the scaler
+        joblib.dump(scaler, 'Config/AI/scaler_battery.pkl')
 
     # Predict a route based on initial input data and a trained LSTM model
     def predict_route(self, df, tms_data):
@@ -140,6 +178,9 @@ class AI_Manager:
         self._scaler_y = joblib.load('Config/AI/scaler_y.pkl')
         self.segment_encoder = joblib.load('Config/AI/segment_encoder.pkl')
         model = load_model('Config/AI/model.keras')
+
+        battery_scaler = joblib.load('Config/AI/scaler_battery.pkl')
+        battery_model = load_model('Config/AI/battery_model.keras')
         
         # Initialize the input DataFrame with the last `n_steps`
         df = df[-self._n_steps:].copy()
@@ -159,18 +200,24 @@ class AI_Manager:
                 data = df[-self._n_steps:].copy()
                 segment_data = self.segment_encoder.transform(data[['Current segment']])  # One-hot encode segment
                 scaled_features = self._scaler_X.transform(data[['X-coordinate', 'Y-coordinate', 'Heading']])
+                scaled_battery = battery_scaler.transform(data[['Battery cell voltage']])
                 
                 # Concatenate scaled features with one-hot-encoded segment
                 full_features = np.hstack([scaled_features, segment_data])
                 input_data = np.expand_dims(full_features, axis=0)  # Add batch dimension
+                battery_input_data = np.expand_dims('Battery cell voltage', axis=0)
 
                 # Predict the next step
                 predicted_scaled = model.predict(input_data)
                 predicted_original = self._scaler_y.inverse_transform(predicted_scaled)
 
+                predicted_battery = battery_model.predict(battery_input_data)
+                predicted_original_battery = battery_scaler.inverse_transform(predicted_battery)
+
                 # Create a prediction DataFrame
                 result_df = pd.DataFrame(predicted_original, columns=['X-coordinate', 'Y-coordinate', 'Heading'])
                 result_df['Current segment'] = curr_segment
+                result_df['Battery cell voltage'] = predicted_original_battery
 
                 # Append the prediction to the sequence and update input data
                 predictions.append(result_df)
