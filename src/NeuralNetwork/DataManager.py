@@ -31,12 +31,19 @@ class DataManager:
         self.read_data_from_csv() # Load and clean the data from the CSV file
         self.get_segment_boundaries() # Identify start and end points for each segment
         self.filter_stationary_rows() # Filter rows where vechicle does not move
-        # self.find_jumps(3) # Divide data into segments based on a distance threshold
-        # self._fullData.drop(columns=['Timestamp'],inplace=True)  # Drop the 'Timestamp' column
-        # self._divided_data = sorted(self._divided_data, key=len) # Sort chunks by their lengths
 
     # Load data from a CSV file and perform initial cleaning 
     def read_data_from_csv(self):
+        # Define the required columns
+        required_columns = [
+            'X-coordinate', 'Y-coordinate', 'Heading', 
+            'Current segment', 'Going to ID', 'Battery cell voltage'
+        ]
+
+        missing_columns = [col for col in required_columns if col not in data.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns in the file: {', '.join(missing_columns)}")
+
         # Read the CSV file into a DataFrame
         data = pd.read_csv(self._dataFileName, low_memory=False)
 
