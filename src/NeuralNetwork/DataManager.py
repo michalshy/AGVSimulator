@@ -31,14 +31,21 @@ class DataManager:
         self.read_data_from_csv() # Load and clean the data from the CSV file
         self.get_segment_boundaries() # Identify start and end points for each segment
         self.filter_stationary_rows() # Filter rows where vechicle does not move
-        # self.find_jumps(3) # Divide data into segments based on a distance threshold
-        # self._fullData.drop(columns=['Timestamp'],inplace=True)  # Drop the 'Timestamp' column
-        # self._divided_data = sorted(self._divided_data, key=len) # Sort chunks by their lengths
 
     # Load data from a CSV file and perform initial cleaning 
     def read_data_from_csv(self):
+        # Define the required columns
+        required_columns = [
+            'X-coordinate', 'Y-coordinate', 'Heading', 
+            'Current segment', 'Battery cell voltage'
+        ]
+
         # Read the CSV file into a DataFrame
         data = pd.read_csv(self._dataFileName, low_memory=False)
+
+        missing_columns = [col for col in required_columns if col not in data.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns in the file: {', '.join(missing_columns)}")
 
         # Select only relevant columns and coerce invalid data to NaN
         data = data[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Going to ID','Battery cell voltage']]
@@ -46,7 +53,6 @@ class DataManager:
         data['Y-coordinate'] = pd.to_numeric(data['Y-coordinate'], errors='coerce')
         data['Heading'] = pd.to_numeric(data['Heading'], errors='coerce')
         data['Battery cell voltage'] = pd.to_numeric(data['Battery cell voltage'], errors='coerce')
-        data['Going to ID'] = pd.to_numeric(data['Going to ID'], errors='coerce')
         data['Current segment'] = pd.to_numeric(data['Current segment'], errors='coerce')
 
         # Remove rows with any NaN values
@@ -54,6 +60,21 @@ class DataManager:
         
         # Return data as a SegmentDataFrame instead of a regular DataFrame
         self._fullData = SegmentDataFrame(data)
+
+    def filter_stationary_rows(self,  movement_threshold: float = 0.01):
+            # Compute differences between consecutive rows
+            self._fullData['delta_x'] = self._fullData['X-coordinate'].diff().abs()
+            self._fullData['delta_y'] = self._fullData['Y-coordinate'].diff().abs()
+            self._fullData['delta_heading'] = self._fullData['Heading'].diff().abs()
+            
+            # Compute a combined metric for movement
+            self._fullData['movement_metric'] = np.sqrt(self._fullData['delta_x']**2 + self._fullData['delta_y']**2) + self._fullData['delta_heading']
+            
+            # Filter rows where movement is above the threshold
+            self._fullData = self._fullData[self._fullData['movement_metric'] > movement_threshold].copy()
+            
+            # Drop intermediate columns
+            self._fullData.drop(columns=['delta_x', 'delta_y', 'delta_heading', 'movement_metric'], inplace=True)
 
     def filter_stationary_rows(self,  movement_threshold: float = 0.01):
             # Compute differences between consecutive rows
