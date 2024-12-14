@@ -77,6 +77,21 @@ class DataManager:
             # Drop intermediate columns
             self._fullData.drop(columns=['delta_x', 'delta_y', 'delta_heading', 'movement_metric'], inplace=True)
 
+    def filter_stationary_rows(self,  movement_threshold: float = 0.01):
+            # Compute differences between consecutive rows
+            self._fullData['delta_x'] = self._fullData['X-coordinate'].diff().abs()
+            self._fullData['delta_y'] = self._fullData['Y-coordinate'].diff().abs()
+            self._fullData['delta_heading'] = self._fullData['Heading'].diff().abs()
+            
+            # Compute a combined metric for movement
+            self._fullData['movement_metric'] = np.sqrt(self._fullData['delta_x']**2 + self._fullData['delta_y']**2) + self._fullData['delta_heading']
+            
+            # Filter rows where movement is above the threshold
+            self._fullData = self._fullData[self._fullData['movement_metric'] > movement_threshold].copy()
+            
+            # Drop intermediate columns
+            self._fullData.drop(columns=['delta_x', 'delta_y', 'delta_heading', 'movement_metric'], inplace=True)
+
     # Divide the dataset into segments based on large "jumps" in coordinates
     def find_jumps(self, threshold):
         segments = [] # List to hold identified segments
