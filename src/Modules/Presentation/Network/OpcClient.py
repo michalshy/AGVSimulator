@@ -1,11 +1,12 @@
 import sys
-import time
 sys.dont_write_bytecode
 from Modules.Entities.AGV.AGV import AGV
 from opcua import Client
 import opcua
 import pandas as pd
 from Logger import *
+import time
+
 # -*- coding: utf-8 -*-
 
 
@@ -35,7 +36,7 @@ class OpcClient:
         self._initial_data = pd.DataFrame(columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment'])
         self._nodeId = "ns=2;i="
         self._connected = False
-        self._tab = [4,5,6,7]
+        self._tab = [5,6,7,13]
         
         self.ConnectToServer()
 
@@ -51,7 +52,9 @@ class OpcClient:
                 self._NNS = self._frame6000[-5].get_children()
                 self._ENS = self._frame6000[-6].get_children()
             else:
-                pass
+                self._frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
+                self._NNS = self._frame6000[-4].get_children()
+                self._ENS = self._frame6000[-6].get_children()
         except Exception as e:
             self._connected = False
             print("Failed to connect to OPC UA server:", e)
@@ -66,13 +69,13 @@ class OpcClient:
 
     def StartReception(self,it):
         try:
-            node = self.client.get_node(self._nodeId + str(it))
+            node = self.client.get_node(self._NNS[it])
             value = node.get_value()
             # self.dataReceived += f"{value}"
             
             self._temp_data.append(value)
             
-            if(it == 7):
+            if(it == 13):
                  temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment'])
                  self._initial_data = pd.concat([self._initial_data,temp])
                  self._temp_data = []

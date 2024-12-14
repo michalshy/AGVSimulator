@@ -1,3 +1,4 @@
+import os
 import time
 
 from OpcDataGrabber import OPCDataGrabber
@@ -14,7 +15,9 @@ def main():
     now = datetime.now()
     current_time = now.strftime("%H-%M-%S")
 
-    filename = "../Data/" + current_time + ".csv"
+    if not os.path.exists("./Data"):
+            os.makedirs("./Data")
+    filename = "./Data/" + current_time + ".csv"
 
     while not finishFlag:
         opcclient.ReceiveDataFromServer()

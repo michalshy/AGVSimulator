@@ -39,3 +39,4 @@ Resources/agv.pkl
 initial_data.csv
 
 *.pyc
+*.csv

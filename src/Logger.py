@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from Modules.Simulation.Logic.Timer import *
+import os
 # -*- coding: utf-8 -*-
 """Logger module
 Wrapper around python logging module with additional functionality or providing
@@ -53,6 +54,8 @@ class Logger:
         print(f'{Levels[lvl]:10} {datetime.now()}  {msg:100}')
 
     def _InitAGVFile(self):
+        if not os.path.exists("./Logs"):
+            os.makedirs("./Logs")
         self._nameOfFile = datetime.now().strftime("./Logs/%d%m%Y%H%M%S") + ".csv"
         f = open(self._nameOfFile, "w")
         f.close()

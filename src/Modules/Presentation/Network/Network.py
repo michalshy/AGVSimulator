@@ -17,7 +17,7 @@ with Order module, which means is responsible for reception of new orders from T
 class Network:
     def __init__(self) -> None:
         self._tms = TMS()
-        self._opcRead = OpcClient(ServerUrl.server)
+        self._opcRead = OpcClient(ServerUrl.agvServer)
         self._opcWrite = OpcClient(ServerUrl.localhost)
 
         self._rxTime = 0
@@ -31,7 +31,11 @@ class Network:
         #--------EOS--------
 
     def HandleNetwork(self, agv: AGV):
-        initial = pd.read_csv('initial_data.csv') # TODO:TEMPORARY
+        if self._opcRead._connected == False:
+            initial = pd.read_csv('initial_data.csv') # TODO:TEMPORARY
+        else:
+            self.HandleReadingData(agv)
+            initial = self._opcRead.GetInitialData()
         agv.SetData(initial)                       # TODO:TEMPORARY
         while not self._eot:
             self.HandleRx(agv)
