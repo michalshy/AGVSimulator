@@ -17,7 +17,7 @@ with Order module, which means is responsible for reception of new orders from T
 class Network:
     def __init__(self) -> None:
         self._tms = TMS()
-        self._opcRead = OpcClient(ServerUrl.agvServer)
+        self._opcRead = OpcClient(ServerUrl.testServer)
         self._opcWrite = OpcClient(ServerUrl.localhost)
 
         self._rxTime = 0
@@ -31,12 +31,7 @@ class Network:
         #--------EOS--------
 
     def HandleNetwork(self, agv: AGV):
-        if self._opcRead._connected == False:
-            initial = pd.read_csv('initial_data.csv') # TODO:TEMPORARY
-        else:
-            self.HandleReadingData(agv)
-            initial = self._opcRead.GetInitialData()
-        agv.SetData(initial)                       # TODO:TEMPORARY
+        self.InitializeServerData(agv)
         while not self._eot:
             self.HandleRx(agv)
             if self._opcWrite.GetTrStatus():
@@ -61,6 +56,14 @@ class Network:
         if timer.GetTicks() > (self._txTime + config['simulation']['sim_tx_cycle']):
             self._txTime = timer.GetTicks()
             self._opcWrite.SendToServer(agv)
+
+    def InitializeServerData(self, agv: AGV):
+        if self._opcRead._connected == False:
+            initial = pd.read_csv('src\\Modules\\Presentation\\Network\\initial_data.csv')
+        else:
+            self.HandleReadingData(agv)
+            initial = self._opcRead.GetInitialData()
+        agv.SetData(initial)                      
 
     def EndTransmission(self):
         self._eot = True

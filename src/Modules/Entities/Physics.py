@@ -1,5 +1,5 @@
 from Modules.Simulation.Logic.Timer import *
-from Modules.Entities.Frame6000 import ENC, NNS
+from Modules.Entities.Frame6000 import ENS, NNS
 from Modules.Entities.AGV import AGV
 from Config import *
 from Logger import *
@@ -18,12 +18,12 @@ class Physics:
     def Accelerate(self, val):
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += val * timer.GetDt() # a = 0.1m/s^2
-            self.DrainBattery(2, self._agv.GetENC())
+            self.DrainBattery(2, self._agv.GetENS())
 
     def Slow(self, val):
         if self._agv.ShouldSlow():
             self._agv.GetNNS().speed -= val * timer.GetDt() # a = 0.1m/s^2
-            self.DrainBattery(2, self._agv.GetENC())
+            self.DrainBattery(2, self._agv.GetENS())
             if(self._agv.GetNNS().speed < 0):
                 self._agv.GetNNS().speed = 0  
         
@@ -33,12 +33,12 @@ class Physics:
     def UpdatePosition(self):
         self._agv.GetNNS().xCoor += (math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/10000
         self._agv.GetNNS().yCoor -= (math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/10000
-        self.DrainBattery(1, self._agv.GetENC())
+        self.DrainBattery(1, self._agv.GetENS())
 
     def UpdateParams(self):
         if not self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed = 0
-            self.DrainBattery(5, self._agv.GetENC())
+            self.DrainBattery(5, self._agv.GetENS())
 
     def Update(self):
         self.UpdatePosition()
@@ -61,5 +61,5 @@ class Physics:
         return (retH, retD)
 
     @staticmethod
-    def DrainBattery(val, enc: ENC):
-        enc.batteryValue -= val
+    def DrainBattery(val, ens: ENS):
+        ens.batteryCellVolt -= val

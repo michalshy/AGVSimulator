@@ -12,7 +12,7 @@ import time
 
 class ServerUrl():
     localhost = 'opc.tcp://localhost:48060'
-    server = 'opc.tcp://localhost:4841/freeopcua/server/'
+    testServer = 'opc.tcp://localhost:4841/freeopcua/server/'
     agvServer = 'opc.tcp://157.158.57.71:48050'
 
 """OpcClient module
@@ -50,11 +50,13 @@ class OpcClient:
             if self._url == ServerUrl.localhost:
                 self._frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
                 self._NNS = self._frame6000[-5].get_children()
-                self._ENS = self._frame6000[-6].get_children()
-            else:
+                self._ENS = self._frame6000[-7].get_children()
+            elif self._url == ServerUrl.agvServer:
                 self._frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
                 self._NNS = self._frame6000[-4].get_children()
                 self._ENS = self._frame6000[-6].get_children()
+            else:
+                self._tab = [4,5,6,7,8]
         except Exception as e:
             self._connected = False
             print("Failed to connect to OPC UA server:", e)
@@ -69,16 +71,30 @@ class OpcClient:
 
     def StartReception(self,it):
         try:
-            node = self.client.get_node(self._NNS[it])
-            value = node.get_value()
-            # self.dataReceived += f"{value}"
-            
-            self._temp_data.append(value)
-            
-            if(it == 13):
-                 temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment'])
+            if self._url == ServerUrl.agvServer:
+                node = self.client.get_node(self._NNS[it])
+                value = node.get_value()
+
+                self._temp_data.append(value)
+                
+                if(it == 13): # TODO: CHECK ENS BATTERY CELL VOLTAGE SIGNAL
+                 temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3], self._temp_data[4]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Battery cell voltage'])
                  self._initial_data = pd.concat([self._initial_data,temp])
                  self._temp_data = []
+            elif self._url == ServerUrl.testServer:
+                node = self.client.get_node(self._nodeId + str(it))
+                value = node.get_value()
+
+                self._temp_data.append(value)
+            
+                if(it == 8):
+                    temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3],self._temp_data[4]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Battery cell voltage'])
+                    self._initial_data = pd.concat([self._initial_data,temp])
+                    self._temp_data = []
+            
+            
+            
+          
             
         except Exception as e:
             print("Error during StartReception:", e)
@@ -107,17 +123,22 @@ class OpcClient:
                 self.ConnectToServer()
 
     def Transmit(self,input,it):
-        if it == 13:
-            input = opcua.ua.DataValue(opcua.ua.Variant(input, opcua.ua.VariantType.UInt16))
+        if it == 13 or it == 1:
+            input = opcua.ua.DataValue(opcua.ua.Variant(int(input), opcua.ua.VariantType.UInt16))
         else:
             input = opcua.ua.DataValue(opcua.ua.Variant(input, opcua.ua.VariantType.Float))
-        node = self.client.get_node(self._NNS[it])
-        node.set_value(input)
+
+        if it == 1:
+            node = self.client.get_node(self._ENS[it])
+            node.set_value(input)
+        else:
+            node = self.client.get_node(self._NNS[it])
+            node.set_value(input)
         # self._nodeId = "ns=2;i="   
 
     #Send to server
     def SendToServer(self, agv: AGV):
-        tab = [5,6,7,13]  
+        tab = [5,6,7,13,1]  
         it = 0   
         i = 0
         if self._updateStep % self._stepAmount == 0:
@@ -128,6 +149,8 @@ class OpcClient:
             self.Transmit(agv.GetNNS().heading,tab[i])
             i+=1     
             self.Transmit(agv.GetNNS().currSegment,tab[i])
+            i+=1
+            self.Transmit(agv.GetENS().batteryCellVolt,tab[i])
             self._updateStep = 0
         self._updateStep += 1  
     
