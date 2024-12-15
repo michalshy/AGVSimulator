@@ -40,3 +40,4 @@ initial_data.csv
 initial_data2.csv
 
 *.pyc
+*.csv

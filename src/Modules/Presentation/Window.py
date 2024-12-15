@@ -46,7 +46,7 @@ class Window:
         corX = "X:" + str(round(agv.GetNNS().xCoor,2))
         corY = "Y:" + str(round(agv.GetNNS().yCoor,2))
         speed = "Speed:" + str(round(agv.GetNNS().speed / 100,2))
-        battery = "Battery:" + str(agv.GetENC().batteryValue)
+        battery = "Battery:" + str(agv.GetENS().batteryCellVolt)
         pygame.draw.rect(self._canvas, self._borderColor, self._infoRectBorder)
         pygame.draw.rect(self._canvas, self._infoColor, self._infoRect)
         self._canvas.blit(self._font.render(TITLE, True, WHITE), 

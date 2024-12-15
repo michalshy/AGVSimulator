@@ -7,12 +7,14 @@ class OPCDataGrabber:
     def __init__(self):
         self._url = "opc.tcp://157.158.57.71:48050"
         self._dataFromServer = 0
-        self.dataReceived = "X-coordinate,Y-coordinate,Heading,Going to ID,Current segment\n"  #brakuje battery cell voltage
+        self.dataReceived = "X-coordinate,Y-coordinate,Heading,Going to ID,Current segment,Battery cell voltage\n"  #brakuje battery cell voltage
         self.frame6000 = None
         self.NNS = None
         self.ENS = None
         self.client = None
         self.timeInterval = None
+        self.tempData = ""
+        self.tempData2 = ""
         self.ConnectToServer()
 
     def ConnectToServer(self):
@@ -42,17 +44,30 @@ class OPCDataGrabber:
 
 
 
-        print(self.client.get_objects_node())
+        # print(self.client.get_objects_node())
 
     def StartReception(self, it):
         try:
-            node = self.client.get_node(self.NNS[it])
-            value = node.get_value()
-            self.dataReceived += f"{value}"
-            if(it == 13):
-                 self.dataReceived += ".0\n"
+            if it == 1:
+                node = self.client.get_node(self.ENS[it])
             else:
-                 self.dataReceived += ","
+                node = self.client.get_node(self.NNS[it])
+            value = node.get_value()
+            self.tempData += f"{value}"
+            if(it == 13):
+                self.tempData += ".0,"
+            elif it == 1:
+                self.tempData += "\n"
+                if self.tempData != self.tempData2:
+                    self.dataReceived += self.tempData
+                    self.tempData2 = self.tempData
+                    self.tempData = ""
+                else:
+                    self.tempData2 = self.tempData
+                    self.tempData = ""
+            else:
+                 self.tempData += ","
+                 
         except Exception as e:
             print("Error during StartReception:", e)
             self.ConnectToServer()
@@ -68,7 +83,7 @@ class OPCDataGrabber:
             self.ConnectToServer()
 
         if self.client is not None:
-            tab = [5,6,7,11,13]
+            tab = [5,6,7,11,13,1]
             try:
                 for i in tab:
                     self.StartReception(i)
@@ -78,6 +93,6 @@ class OPCDataGrabber:
                 # self.client = None
 
     def SetTimeInterval(self):
-        file = open("../../Config/config.txt")
+        file = open("././Config/config.txt")
 
         self.timeInterval = float(file.read())
