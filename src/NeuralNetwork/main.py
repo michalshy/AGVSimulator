@@ -11,7 +11,7 @@ if __name__ == "__main__":
     dataManager = DataManager(path)  # Initialize DataManager class object with path to file with data
     aiManager = AI_Manager(steps)    # Initialize AiManager class object with amount of last steps for LSTM
 
-    data = dataManager._divided_data[-1]
+    data = dataManager._fullData[-1]
 
     aiManager.train_battery_model(data)
 

@@ -18,27 +18,26 @@ class Physics:
     def Accelerate(self, val):
         if not self._agv.GetAtMaxSpeed() and self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed += val * timer.GetDt() # a = 0.1m/s^2
-            self.DrainBattery(2, self._agv.GetENC())
 
     def Slow(self, val):
         if self._agv.ShouldSlow():
             self._agv.GetNNS().speed -= val * timer.GetDt() # a = 0.1m/s^2
-            self.DrainBattery(2, self._agv.GetENC())
             if(self._agv.GetNNS().speed < 0):
                 self._agv.GetNNS().speed = 0  
         
+    def SetSpeed(self, val):
+        self._agv.GetNNS().speed = val
+
     def Stop(self):
         self._agv.GetNNS().speed = 0
 
     def UpdatePosition(self):
-        self._agv.GetNNS().xCoor += (math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/10000
-        self._agv.GetNNS().yCoor -= (math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/10000
-        self.DrainBattery(1, self._agv.GetENC())
+        self._agv.GetNNS().xCoor += (math.cos(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/1000
+        self._agv.GetNNS().yCoor -= (math.sin(math.radians(self._agv.GetNNS().heading)) * self._agv.GetNNS().speed * timer.GetDt())/1000
 
     def UpdateParams(self):
         if not self._agv.GetBatteryAvailable():
             self._agv.GetNNS().speed = 0
-            self.DrainBattery(5, self._agv.GetENC())
 
     def Update(self):
         self.UpdatePosition()
@@ -46,7 +45,7 @@ class Physics:
 
     def GetAngle(self, a, b, c):
         ang = Degrees(math.atan2(a[1]-b[1], a[0]-b[0]) - math.atan2(c[1]-b[1], c[0]-b[0]))
-        return ang + 360 if ang < 0 else ang
+        return ang
     
     def GetDistance(self, a, b):
         return math.dist(a, b)
@@ -59,7 +58,3 @@ class Physics:
         retD = self.GetDistance(pointBeginning, (path[0], path[1]))
         retH = self.GetAngle(path, pointBeginning, pointHeading)
         return (retH, retD)
-
-    @staticmethod
-    def DrainBattery(val, enc: ENC):
-        enc.batteryValue -= val
