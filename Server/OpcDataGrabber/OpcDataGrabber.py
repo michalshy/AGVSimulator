@@ -25,9 +25,6 @@ class OPCDataGrabber:
             self.frame6000 = self.client.get_root_node().get_children()[0].get_children()[1].get_children()[1].get_children()
             self.NNS = self.frame6000[-4].get_children()
             self.ENS = self.frame6000[-6].get_children()
-            print(self.frame6000)
-            print("xdd")
-            print(self.ENS)
         except Exception as e:
             print("Failed to connect to OPC UA server:", e)
 
