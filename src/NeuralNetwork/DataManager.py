@@ -19,7 +19,6 @@ class DataManager:
     _dataFileName: str # Filename of the input CSV file
     _fullData = [] # The full dataset after loading and cleaning
     _allSegments = [] # Unique segment identifiers in the dataset
-    _divided_data = [] # List of segments divided by "jumps" (discontinuous segments)
     _segment_boundaries = {}  # Dictionary of segment start and end boundaries
 
     # Constructor: Initializes the object and sets up the data
@@ -40,8 +39,14 @@ class DataManager:
             'Current segment', 'Battery cell voltage'
         ]
 
-        # Read the CSV file into a DataFrame
-        data = pd.read_csv(self._dataFileName, low_memory=False)
+        try:
+            data = pd.read_csv(self._dataFileName, low_memory=False)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Error reading the file: {e}")
+        except pd.errors.EmptyDataError:
+            raise ValueError("The file is empty.")
+        except Exception as e:
+            raise RuntimeError(f"Unexpected error: {e}")
 
         missing_columns = [col for col in required_columns if col not in data.columns]
         if missing_columns:
@@ -75,47 +80,6 @@ class DataManager:
             
             # Drop intermediate columns
             self._fullData.drop(columns=['delta_x', 'delta_y', 'delta_heading', 'movement_metric'], inplace=True)
-
-    def filter_stationary_rows(self,  movement_threshold: float = 0.01):
-            # Compute differences between consecutive rows
-            self._fullData['delta_x'] = self._fullData['X-coordinate'].diff().abs()
-            self._fullData['delta_y'] = self._fullData['Y-coordinate'].diff().abs()
-            self._fullData['delta_heading'] = self._fullData['Heading'].diff().abs()
-            
-            # Compute a combined metric for movement
-            self._fullData['movement_metric'] = np.sqrt(self._fullData['delta_x']**2 + self._fullData['delta_y']**2) + self._fullData['delta_heading']
-            
-            # Filter rows where movement is above the threshold
-            self._fullData = self._fullData[self._fullData['movement_metric'] > movement_threshold].copy()
-            
-            # Drop intermediate columns
-            self._fullData.drop(columns=['delta_x', 'delta_y', 'delta_heading', 'movement_metric'], inplace=True)
-
-    # Divide the dataset into segments based on large "jumps" in coordinates
-    def find_jumps(self, threshold):
-        segments = [] # List to hold identified segments
-        last_index = 0  # Initialize the start index for the first segment
-        
-        # Iterate through the dataset to calculate distances between consecutive points
-        for i in range(1, len(self._fullData)):
-            # Extract coordinates of consecutive points
-            x1, y1 = self._fullData.iloc[i-1][['X-coordinate', 'Y-coordinate']]
-            x2, y2 = self._fullData.iloc[i][['X-coordinate', 'Y-coordinate']]
-            
-            # Calculate the Euclidean distance between the points
-            distance = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-            
-            if distance > threshold: # Check if the distance exceeds the threshold
-                # Create a segment from the last_index to the current point
-                segments.append(self._fullData.iloc[last_index:i])
-                last_index = i  # Update the starting index for the next segment
-        
-       # Append the final segment after the last jump
-        if last_index < len(self._fullData):
-            segments.append(self._fullData.iloc[last_index:])
-        
-        # Store the divided segments
-        self._divided_data = segments
 
     # Determine the boundaries (start and end points) for each segment
     def get_segment_boundaries(self):
