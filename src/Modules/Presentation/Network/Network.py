@@ -54,7 +54,10 @@ class Network:
 
     def InitializeServerData(self, agv: AGV):
         if self._opcRead._connected == False:
-            initial = pd.read_csv('initial_data.csv')
+            try:
+                initial = pd.read_csv('initial_data.csv')
+            except Exception as e:
+                print("Can't read initial_data.csv", e)
         else:
             self.HandleReadingData(agv)
             initial = self._opcRead.GetInitialData()
@@ -64,7 +67,7 @@ class Network:
         self._eot = True
 
     def CloseConns(self):
-        if self._opcRead.GetTrStatus():
+        if self._opcRead._connected == True:
             self._opcRead.CloseConnection()
-        if self._opcWrite.GetTrStatus():
+        if self._opcWrite._connected == True:
             self._opcWrite.CloseConnection()

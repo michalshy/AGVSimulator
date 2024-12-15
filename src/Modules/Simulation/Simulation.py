@@ -39,6 +39,8 @@ class Simulation:
             wm.Draw(self._agv)                          # Draw after update
             timer.UpdateDelta()                         # Update timer
             if not wm.CheckEvents(network):                 # Check events
+                network._eot = True
+                _network_thread.join()
                 self.Exit()
         
         logger.Debug("Exit main loop")    
