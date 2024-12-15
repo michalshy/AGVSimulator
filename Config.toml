@@ -12,7 +12,7 @@ sim_tx_cycle = 500
 agv_size = 10
 agv_turn_tolerance = 15
 rotation = 360
-amplifier = 0.0005
+amplifier = 7000
 
 [navigation]
 starting_pos_x = 40

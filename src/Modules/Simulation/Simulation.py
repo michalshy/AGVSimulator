@@ -53,16 +53,8 @@ class Simulation:
         self._finishFlag = True                         # Flags set to exit main loop
 
     def Route(self):
-        self._agv.DetermineFlags()                      # Check for agv flags
-        self._agv.Navigate(self._pe)                    # Trigger navigation
-        if self._agv.CheckDrive():   
-            if self._agv.ShouldSlow():
-                self._pe.Slow(50)
-            else:
-                self._pe.Accelerate(50)
-        else:
-            self._pe.Stop()
-        self._pe.Update()                               # Update position
+        self._agv.Run(self._pe)
+        
 
         
 

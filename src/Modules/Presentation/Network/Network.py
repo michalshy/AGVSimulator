@@ -25,21 +25,17 @@ class Network:
 
         self._eot = False
 
-        # Threads section
-        self._tms_thread = threading.Thread(target=self._tms.Run)
-        self._tms_thread.start()
-        #--------EOS--------
 
     def HandleNetwork(self, agv: AGV):
-        self.InitializeServerData(agv)
+        self._tms.Run()
+        initial = pd.read_csv('initial_data.csv') # TODO:TEMPORARY
+        agv.SetData(initial)                       # TODO:TEMPORARY
         while not self._eot:
             self.HandleRx(agv)
             if self._opcWrite.GetTrStatus():
                 self.HandleTx(agv)
         
-        self._tms.EndTransmission()
-        self._tms_thread.join()
-        logger.Debug("TMS thread joined")
+        logger.Debug("Network closed")
 
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + config['simulation']['sim_rx_cycle']):

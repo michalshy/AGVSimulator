@@ -13,6 +13,7 @@ from Logger import *
 import math
 from Config import *
 import pandas as pd
+from enum import Enum
 # -*- coding: utf-8 -*-
 """AGV module
 
@@ -22,12 +23,24 @@ The manipulation it provides on its own is flags it controls.
 By this flags Physics module can know if some action is possible.
 Simulation also uses flags to control flow.
 """
+
+class AGV_STATE(Enum):
+    INIT = 0,
+    SIM = 1,
+    SIM_CHECK = 2,
+    SIM_APPLY = 3,
+    SIM_DRIVE = 4,
+    NO_SIM = 5,
+    ERR = 6
+
 class AGV:
     def __init__(self):
+        self._state = AGV_STATE.INIT
         self._isOrder = False
         self._setFirst = False
+        self._setParams = False
         self._order = []
-        self._toHeading = 0
+        self._traversed = []
 
         self._shouldSlow = False
 
@@ -82,6 +95,74 @@ class AGV:
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
 
+    def _DetermineDriveAvailabilty(self):
+        if not self._battery.GetBatterAvailable() or \
+            not self._navi.TaskInProgress() or \
+            not self._wheels.GetDriveMode() or \
+            not self._lidars.GetEmergencyStop() or \
+            not self._lidars.GetStop():
+            self._canDrive = False
+
+    def CheckDrive(self):
+        if self._navi.TaskInProgress():
+            self._stopFlag = False
+            self._wheels.SetDriveMode(True)
+        elif len(self._navi.GetPath()) == 0:
+            self._stopFlag = True
+            self._wheels.SetDriveMode(False)
+        
+        return self._wheels.GetDriveMode()
+    
+    def GetStopFlag(self):
+        return self._stopFlag
+
+    def Navigate(self, physics: Physics):
+        self._CheckPaths()
+        self._ControlNavigation(physics)
+
+    def ShouldSlow(self):
+        return self._shouldSlow      
+
+    def Run(self, physics: Physics):
+        match self._state:
+            case AGV_STATE.INIT:
+                self._setFirst = False
+                self._traversed.clear()
+                self._CheckPaths()
+            case AGV_STATE.SIM:
+                self._CheckSimPoint()
+            case AGV_STATE.SIM_CHECK:
+                self.DetermineFlags()
+                if self.CheckDrive():   
+                    physics.SetSpeed(self._wheels.GetMaxSpeed())
+                else:
+                    physics.Stop()
+                self._MoveState(AGV_STATE.SIM_DRIVE)
+            case AGV_STATE.SIM_DRIVE:
+                self._ControlNavigation(physics)
+                self._MoveState(AGV_STATE.SIM_APPLY)
+            case AGV_STATE.SIM_APPLY:
+                physics.Update()                             # Update positions
+                self._MoveState(AGV_STATE.SIM)
+            case AGV_STATE.NO_SIM:
+                self._MoveState(AGV_STATE.INIT)
+            case AGV_STATE.ERR:
+                logger.Critical("Error during simulation")
+
+    ### LOGGER ###
+    def _ConstructLine(self):
+        return str(self._nns.heading) + "," + str(self._nns.speed * 100) + "," + str(self._nns.xCoor) + "," \
+                            + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"               
+
+    def LogToFile(self):
+        if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
+            f = open(logger.GetFileName(), "a")
+            f.write(self._ConstructLine())
+            f.close()
+            self._logCycle = timer.GetTicks()
+    ### LOGGER END ###
+
+    ### GETTERS ###
     def GetIsOrder(self):
         return self._isOrder
 
@@ -102,80 +183,75 @@ class AGV:
 
     def GetAtMaxSpeed(self):
         return self._wheels.GetAtMaxSpeed()
-
-    def CheckDrive(self):
-        if self._nns.speed > self._wheels.GetMaxSpeed():
-            self._shouldSlow = True
-        else:
-            self._shouldSlow = False
-
-        if(self._navi.TaskInProgress()):
-            self._stopFlag = False
-            self._wheels.SetDriveMode(True)
-        else:
-            self._stopFlag = True
-            self._wheels.SetDriveMode(False)
-        
-        return self._wheels.GetDriveMode()
+    ### GETTERS END ###
     
-    def GetStopFlag(self):
-        return self._stopFlag
-
-    def Navigate(self, physics: Physics):
-        self._CheckPaths()
-        self._ControlNavigation(physics)
-
-    def ShouldSlow(self):
-        return self._shouldSlow
-
+    ### PYGAME ###
     def Draw(self, canvas):
-       
         pygame.draw.circle(canvas, GREEN, \
-                           (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET, \
+                            (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET, \
                             PointsInterpolationHeight(self._nns.yCoor) + Additional.ROOM_H_OFFSET), \
                             config['agv']['agv_size'])
         pygame.draw.circle(canvas,RED, \
                         (PointsInterpolationWidth(self._nns.xCoor) + Additional.ROOM_W_OFFSET + \
-                         5 * math.cos(math.radians(self._nns.heading))
+                            5 * math.cos(math.radians(self._nns.heading))
                         ,PointsInterpolationHeight(self._nns.yCoor) + Additional.ROOM_H_OFFSET + \
                         5 * math.sin(math.radians(self._nns.heading)) ) , 2)
-        self._navi.DrawPath(canvas)        
-    
-    def _ConstructLine(self):
-        return str(self._nns.heading) + "," + str(self._nns.speed * 100) + "," + str(self._nns.xCoor) + "," \
-                            + str(self._nns.yCoor) + "," + str(self._ens.batteryCellVolt) + "\n"
-    
+        self._navi.DrawPath(canvas)  
+        for coord in self._traversed:
+            pygame.draw.rect(canvas, GREEN, pygame.Rect(
+                PointsInterpolationWidth(coord[0]) + Additional.ROOM_W_OFFSET,
+                PointsInterpolationHeight(coord[1]) + Additional.ROOM_H_OFFSET, 
+                3, 
+                3
+            ))
+    ### PYGAME END ###
+
+    ### PRIVATES ###
+    def _MoveState(self, state):
+        logger.Debug("Move to state " + str(state))
+        self._state = state
+
+    def _CheckSimPoint(self):
+        if len(self._navi.GetPath()) != 0:
+            self._MoveState(AGV_STATE.SIM_CHECK)
+        elif not self._navi.TaskInProgress():
+            logger.Debug("Simulation end")
+            self._MoveState(AGV_STATE.NO_SIM)
+                
     def _CheckPaths(self):
         if self._isOrder:
             logger.Info("Order detected")
             self._navi.FindPath(self._order, self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
-            self._isOrder = False
+            self._MoveState(AGV_STATE.SIM)
 
     def _ControlNavigation(self, physics: Physics):
+        # Check if is available to follow path
         if len(self._navi.GetPath()) != 0:
+            # Determine target
             tempPos = self._navi.GetPath()[0]
-            heading, dist = physics.CalculatePath(self._nns, tempPos)
-            self._ens.batteryCellVolt = tempPos[3]
+            # Transform object onto simulation start point
             if not self._setFirst:
                 self._nns.xCoor = tempPos[0]
                 self._nns.yCoor = tempPos[1]
-                self._nns.heading = Degrees(tempPos[2])
+            # Check heading difference and distance
+            heading, dist = physics.CalculatePath(self._nns, tempPos)
+            # Set heading and battery on predicted one
+            if self._setParams == False:
+                self._nns.heading -= heading
+                self._enc.batteryValue = tempPos[3]
+                self._setParams = True
+            # Check if target point is reached (always true for 1st point)            
             if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:
                 if self._nns.yCoor > tempPos[1] - 0.1 and self._nns.yCoor < tempPos[1] + 0.1:
+                    # If reached, pop point
+                    self._traversed.append(tempPos)
                     self._navi.PopFrontPath()
-                    _txt = "Dist is " + str(dist)
-                    logger.Debug(_txt)
+                    # Determine distance to next point and base speed on this,
+                    # Ommit first transform, we do not know from where agv got transferred
                     if self._setFirst:
-                        self._wheels.SetMaxSpeed(dist/config['agv']['amplifier'])
+                        self._wheels.SetMaxSpeed(dist * config['agv']['amplifier'])
                     self._setFirst = True
-            if heading > 0 and heading < 180:
-                self._nns.heading -= 1
-            else:
-                self._nns.heading += 1
-
-    def LogToFile(self):
-        if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
-            f = open(logger.GetFileName(), "a")
-            f.write(self._ConstructLine())
-            f.close()
-            self._logCycle = timer.GetTicks()
+                    self._setParams = False
+            # Adjust heading, simulate odometry
+    ### PRIVATES END ###
+    
