@@ -152,7 +152,7 @@ class AGV:
     ### LOGGER ###
     def _ConstructLine(self):
         return str(self._nns.heading) + "," + str(self._nns.speed * 100) + "," + str(self._nns.xCoor) + "," \
-                            + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"               
+                            + str(self._nns.yCoor) + "," + str(self._ens.batteryCellVolt) + "\n"               
 
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
@@ -238,7 +238,7 @@ class AGV:
             # Set heading and battery on predicted one
             if self._setParams == False:
                 self._nns.heading -= heading
-                self._enc.batteryValue = tempPos[3]
+                self._ens.batteryCellVolt = tempPos[3]
                 self._setParams = True
             # Check if target point is reached (always true for 1st point)            
             if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:

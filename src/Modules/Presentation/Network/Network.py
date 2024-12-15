@@ -28,8 +28,7 @@ class Network:
 
     def HandleNetwork(self, agv: AGV):
         self._tms.Run()
-        initial = pd.read_csv('initial_data.csv') # TODO:TEMPORARY
-        agv.SetData(initial)                       # TODO:TEMPORARY
+        self.InitializeServerData(agv)
         while not self._eot:
             self.HandleRx(agv)
             if self._opcWrite.GetTrStatus():
@@ -55,7 +54,7 @@ class Network:
 
     def InitializeServerData(self, agv: AGV):
         if self._opcRead._connected == False:
-            initial = pd.read_csv('src\\Modules\\Presentation\\Network\\initial_data.csv')
+            initial = pd.read_csv('initial_data.csv')
         else:
             self.HandleReadingData(agv)
             initial = self._opcRead.GetInitialData()
