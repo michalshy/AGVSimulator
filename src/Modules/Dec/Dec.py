@@ -87,7 +87,12 @@ class AI_Manager:
         
         exitThread = False
 
-        for curr_segment in tms_data:
+        # Find the last segment in `df`'s 'Current segment' column
+        last_segment_in_df = df['Current segment'].iloc[-1] 
+        if last_segment_in_df in tms_data:
+            start_idx = tms_data.index(last_segment_in_df)  # Find its index in tms_data
+
+        for curr_segment in tms_data[start_idx:]:
             if exitThread:
                 continue
             # Extract boundaries for the current segment

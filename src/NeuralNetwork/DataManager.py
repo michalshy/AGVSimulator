@@ -53,7 +53,7 @@ class DataManager:
             raise ValueError(f"Missing required columns in the file: {', '.join(missing_columns)}")
 
         # Select only relevant columns and coerce invalid data to NaN
-        data = data[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Going to ID','Battery cell voltage']]
+        data = data[required_columns]
         data['X-coordinate'] = pd.to_numeric(data['X-coordinate'], errors='coerce')
         data['Y-coordinate'] = pd.to_numeric(data['Y-coordinate'], errors='coerce')
         data['Heading'] = pd.to_numeric(data['Heading'], errors='coerce')
