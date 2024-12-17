@@ -208,7 +208,6 @@ class AGV:
 
     ### PRIVATES ###
     def _MoveState(self, state):
-        logger.Debug("Move to state " + str(state))
         self._state = state
 
     def _CheckSimPoint(self):
