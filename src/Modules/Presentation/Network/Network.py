@@ -17,7 +17,7 @@ with Order module, which means is responsible for reception of new orders from T
 class Network:
     def __init__(self) -> None:
         self._tms = TMS()
-        self._opcRead = OpcClient(ServerUrl.server)
+        self._opcRead = OpcClient(ServerUrl.testServer)
         self._opcWrite = OpcClient(ServerUrl.localhost)
 
         self._rxTime = 0
@@ -28,8 +28,7 @@ class Network:
 
     def HandleNetwork(self, agv: AGV):
         self._tms.Run()
-        initial = pd.read_csv('initial_data.csv') # TODO:TEMPORARY
-        agv.SetData(initial)                       # TODO:TEMPORARY
+        self.InitializeServerData(agv)
         while not self._eot:
             self.HandleRx(agv)
             if self._opcWrite.GetTrStatus():
@@ -53,11 +52,22 @@ class Network:
             self._txTime = timer.GetTicks()
             self._opcWrite.SendToServer(agv)
 
+    def InitializeServerData(self, agv: AGV):
+        if self._opcRead._connected == False:
+            try:
+                initial = pd.read_csv('initial_data.csv')
+            except Exception as e:
+                print("Can't read initial_data.csv", e)
+        else:
+            self.HandleReadingData(agv)
+            initial = self._opcRead.GetInitialData()
+        agv.SetData(initial)                      
+
     def EndTransmission(self):
         self._eot = True
 
     def CloseConns(self):
-        if self._opcRead.GetTrStatus():
+        if self._opcRead._connected == True:
             self._opcRead.CloseConnection()
-        if self._opcWrite.GetTrStatus():
+        if self._opcWrite._connected == True:
             self._opcWrite.CloseConnection()

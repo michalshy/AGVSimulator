@@ -1,4 +1,4 @@
-from Modules.Entities.Frame6000.ENC import ENC
+from Modules.Entities.Frame6000.ENS import ENS
 from Modules.Entities.Frame6000.SS import SS
 from Modules.Entities.Frame6000.NNS import NNS
 from Modules.Entities.Frame6100.NNC import NNC 
@@ -47,7 +47,7 @@ class AGV:
         self._data = None
 
         # For frames
-        self._enc = ENC()
+        self._ens = ENS()
         self._ss = SS()
         self._nns = NNS()
         
@@ -67,13 +67,13 @@ class AGV:
         self._logCycle = 0
 
     def Init(self, x, y):
-        self._enc.batteryValue = 120000
+        self._ens.batteryCellVolt = 50000
 
         #TODO: ADD PROPER HANDLER FOR START POSITION
         self._nns.xCoor = x
         self._nns.yCoor = y
 
-        self._battery.Init(self._enc.batteryValue)
+        self._battery.Init(self._ens.batteryCellVolt)
         self._navi.Init()
         self._wheels.Init()
         self._lidars.Init()
@@ -90,7 +90,7 @@ class AGV:
         self._data = data
 
     def DetermineFlags(self):
-        self._battery.DetermineFlags(self._enc.batteryValue)
+        self._battery.DetermineFlags(self._ens.batteryCellVolt)
         self._navi.DetermineFlags()
         self._wheels.DetermineFlags(self._nns.speed)
         self._lidars.DetermineFlags()
@@ -152,7 +152,7 @@ class AGV:
     ### LOGGER ###
     def _ConstructLine(self):
         return str(self._nns.heading) + "," + str(self._nns.speed * 100) + "," + str(self._nns.xCoor) + "," \
-                            + str(self._nns.yCoor) + "," + str(self._enc.batteryValue) + "\n"               
+                            + str(self._nns.yCoor) + "," + str(self._ens.batteryCellVolt) + "\n"               
 
     def LogToFile(self):
         if timer.GetTicks() > (self._logCycle + STATE_CYCLE):
@@ -169,8 +169,8 @@ class AGV:
     def GetOrder(self):
         return self._order
 
-    def GetENC(self):
-        return self._enc
+    def GetENS(self):
+        return self._ens
 
     def GetSS(self):
         return self._ss
@@ -208,7 +208,6 @@ class AGV:
 
     ### PRIVATES ###
     def _MoveState(self, state):
-        logger.Debug("Move to state " + str(state))
         self._state = state
 
     def _CheckSimPoint(self):
@@ -238,7 +237,7 @@ class AGV:
             # Set heading and battery on predicted one
             if self._setParams == False:
                 self._nns.heading -= heading
-                self._enc.batteryValue = tempPos[3]
+                self._ens.batteryCellVolt = tempPos[3]
                 self._setParams = True
             # Check if target point is reached (always true for 1st point)            
             if self._nns.xCoor > tempPos[0] - 0.1 and self._nns.xCoor < tempPos[0] + 0.1:

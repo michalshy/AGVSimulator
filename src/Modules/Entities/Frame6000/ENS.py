@@ -5,7 +5,7 @@ Structure containing ENC field of 6000 frame.
 """
 from dataclasses import dataclass
 @dataclass
-class ENC:
+class ENS:
     momentCurrConsump = 0
     batteryCellVolt = 0
     momentPowerConsump = 0

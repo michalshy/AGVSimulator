@@ -1,5 +1,5 @@
 from Modules.Simulation.Logic.Timer import *
-from Modules.Entities.Frame6000 import ENC, NNS
+from Modules.Entities.Frame6000 import ENS, NNS
 from Modules.Entities.AGV import AGV
 from Config import *
 from Logger import *
