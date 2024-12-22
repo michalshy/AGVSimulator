@@ -1,7 +1,7 @@
 import pandas as pd
 from Modules.Dec.PathSingleton import PathSingleton
 from Logger import *
-from Modules.Dec.Temp import predict_route
+from Modules.Dec.PredictionModel import predict_route
 import multiprocessing as mp
 from multiprocessing import Process, Pipe
 
