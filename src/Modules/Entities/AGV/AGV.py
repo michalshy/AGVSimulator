@@ -116,14 +116,11 @@ class AGV:
     def GetStopFlag(self):
         return self._stopFlag
 
-    def Navigate(self, physics: Physics):
-        self._CheckPaths()
-        self._ControlNavigation(physics)
-
     def ShouldSlow(self):
         return self._shouldSlow      
 
     def Run(self, physics: Physics):
+        self._navi.UpdatePath()
         match self._state:
             case AGV_STATE.INIT:
                 self._setFirst = False
@@ -224,6 +221,7 @@ class AGV:
             self._MoveState(AGV_STATE.SIM)
 
     def _ControlNavigation(self, physics: Physics):
+        self._navi.UpdatePath()
         # Check if is available to follow path
         if len(self._navi.GetPath()) != 0:
             # Determine target
