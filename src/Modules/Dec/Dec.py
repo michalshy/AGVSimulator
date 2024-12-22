@@ -39,11 +39,15 @@ class Dec:
 
     def CheckAppend(self):
         if self._parent_conn.poll():
-            PathSingleton().Append(self._parent_conn.recv())
-        # if not self._p.is_alive():
-        #     print("END")
-        #     self._finished = True
-        #     self._started = False
+            el = self._parent_conn.recv()
+            if el == "END":
+                self._finished = True
+                self._started = False
+            else:
+                # ------------------------------ CRITICAL SECTION ------------------------------
+                PathSingleton().Append(el)
+                # --------------------------- END OF CRITICAL SECTION ---------------------------
+        
 
     def GetInPrediction(self):
         return (not self._finished) and self._started 

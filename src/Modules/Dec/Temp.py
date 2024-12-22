@@ -90,3 +90,4 @@ def predict_route(tms_data, steps, initial_data, conn):
                 exitThread = True
             except ValueError as Err:
                 exitThread = True
+    conn.send("END")
