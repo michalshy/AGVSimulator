@@ -4,6 +4,7 @@ from Modules.Dec.Dec import Dec
 import threading
 from Logger import *
 import pandas as pd
+import asyncio
 
 # -*- coding: utf-8 -*-
 """Navigator module
@@ -27,7 +28,10 @@ class Navigator():
     def FindPath(self, segments: list, initial_data: pd.DataFrame):
         self._dec.SetSegments(segments, initial_data)
         if not self._dec.GetInPrediction():
-            threading.Thread(target=self._dec.PredictPath).start()
+            self._dec.PredictPath()
+
+    def UpdatePath(self):
+        self._dec.CheckAppend()
 
     def TaskInProgress(self):
         if(self._dec.IsStarted()):
@@ -52,3 +56,7 @@ class Navigator():
                 3, 
                 3
             ))
+
+    def Close(self):
+        self._dec.CloseConns()
+        logger.Debug("Navigator closed")
