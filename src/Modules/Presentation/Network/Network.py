@@ -55,7 +55,7 @@ class Network:
     def InitializeServerData(self, agv: AGV):
         if self._opcRead._connected == False:
             try:
-                initial = pd.read_csv('initial_data.csv')
+                initial = pd.read_csv('init_data.csv')
             except Exception as e:
                 print("Can't read initial_data.csv", e)
         else:

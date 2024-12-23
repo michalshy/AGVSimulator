@@ -17,10 +17,10 @@ amplifier = 7000
 [navigation]
 starting_pos_x = 40
 starting_pos_y = 18
-min_x = 29
-max_x = 53
-min_y = 27
-max_y = 10
+min_x = -6
+max_x = 0
+min_y = 22
+max_y = 0
 
 [room]
 room_width = 1000
