@@ -19,6 +19,8 @@ class Network:
         self._tms = TMS()
         self._opcRead = OpcClient(ServerUrl.testServer)
         self._opcWrite = OpcClient(ServerUrl.localhost)
+        self.idx = 1
+        self.initial = None
 
         self._rxTime = 0
         self._txTime = 0
@@ -39,6 +41,7 @@ class Network:
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + config['simulation']['sim_rx_cycle']):
             self._rxTime = timer.GetTicks()
+            print("CHECK FOR ORDERS: " + str(self._tms.CheckForOrders()))
             if self._tms.CheckForOrders():
                 agv.SetOrder(True, self._tms.GetOrder())
                 
@@ -55,13 +58,15 @@ class Network:
     def InitializeServerData(self, agv: AGV):
         if self._opcRead._connected == False:
             try:
-                initial = pd.read_csv('init_data.csv')
+                self.initial = pd.read_csv('init_data' + str(self.idx)+'.csv')
+                self.idx+=1
+                self.idx%=6
             except Exception as e:
                 print("Can't read initial_data.csv", e)
         else:
             self.HandleReadingData(agv)
-            initial = self._opcRead.GetInitialData()
-        agv.SetData(initial)                      
+            self.initial = self._opcRead.GetInitialData()
+        agv.SetData(self.initial)                      
 
     def EndTransmission(self):
         self._eot = True

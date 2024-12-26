@@ -40,6 +40,7 @@ class AGV:
         self._setFirst = False
         self._setParams = False
         self._order = []
+        self._orderIdx = 0
         self._traversed = []
 
         self._shouldSlow = False
@@ -217,7 +218,9 @@ class AGV:
     def _CheckPaths(self):
         if self._isOrder:
             logger.Info("Order detected")
-            self._navi.FindPath(self._order, self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._navi.FindPath(self._order[self._orderIdx], self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._orderIdx+=1
+            self._orderIdx%=5
             self._MoveState(AGV_STATE.SIM)
 
     def _ControlNavigation(self, physics: Physics):

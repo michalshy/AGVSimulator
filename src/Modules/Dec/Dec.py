@@ -1,9 +1,9 @@
 import pandas as pd
 from Modules.Dec.PathSingleton import PathSingleton
 from Logger import *
-from Modules.Dec.PredictionModel import predict_route
+from Modules.Dec.PredictionModel import PredicitonModel
 import multiprocessing as mp
-from multiprocessing import Process, Pipe
+from multiprocessing import Manager, Process, Pipe
 
 
 
@@ -16,6 +16,7 @@ Navigator module within AGV uses it to checks next points on route based on orde
 
 class Dec:
     def __init__(self) -> None:
+        self._model = PredicitonModel()
         self._path = []
         self._segments = []
         self._finished = True
@@ -29,23 +30,34 @@ class Dec:
         self._finished = False
         self._started = True
 
-    def SetSegments(self, segments, initial_data: pd.DataFrame):
-        self._initial_data = initial_data
+    def SetSegments(self, segments):
         self._segments = segments
+    def SetInitialData(self, initial_data: pd.DataFrame):
+        self._initial_data = initial_data
 
     def PredictPath(self):
         self.Start()
-        Process(target=predict_route, args=(self._segments, 20, self._initial_data, self._child_conn,)).start()
+        self._model.SetConn(self._child_conn)
+        self._model.SetSteps(20)
+        self._model.SetTmsData(self._segments)
+        print(self._model.GetInitialData())
+        self._model.SetInitialData(self._initial_data)
+        Process(target=self._model.predict_route).start()
 
     def CheckAppend(self):
+        # Odczytaj współdzielone dane
         if self._parent_conn.poll():
             el = self._parent_conn.recv()
             if el == "END":
+                print("KONIEC XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+                print(el)
+                print("KONIEC XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
                 self._finished = True
                 self._started = False
             else:
                 # ------------------------------ CRITICAL SECTION ------------------------------
-                PathSingleton().Append(el)
+                PathSingleton().Append(el[0])
+                self._initial_data = pd.DataFrame(el[1])
                 # --------------------------- END OF CRITICAL SECTION ---------------------------
         
 
