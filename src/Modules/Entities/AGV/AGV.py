@@ -14,6 +14,7 @@ import math
 from Config import *
 import pandas as pd
 from enum import Enum
+import time
 # -*- coding: utf-8 -*-
 """AGV module
 
@@ -42,6 +43,8 @@ class AGV:
         self._order = []
         self._orderIdx = 0
         self._traversed = []
+        self._checkOrder = True
+        self._timeWait = 0
 
         self._shouldSlow = False
 
@@ -104,6 +107,10 @@ class AGV:
             not self._lidars.GetStop():
             self._canDrive = False
 
+    def SetTimeWait(self, timeValue):
+        self._timeWait = timeValue
+
+
     def CheckDrive(self):
         if self._navi.TaskInProgress():
             self._stopFlag = False
@@ -124,12 +131,15 @@ class AGV:
         self._navi.UpdatePath()
         match self._state:
             case AGV_STATE.INIT:
+                # print("init")
                 self._setFirst = False
                 self._traversed.clear()
                 self._CheckPaths()
             case AGV_STATE.SIM:
+                # print("sim")
                 self._CheckSimPoint()
             case AGV_STATE.SIM_CHECK:
+                # print("sim_check")
                 self.DetermineFlags()
                 if self.CheckDrive():   
                     physics.SetSpeed(self._wheels.GetMaxSpeed())
@@ -137,14 +147,21 @@ class AGV:
                     physics.Stop()
                 self._MoveState(AGV_STATE.SIM_DRIVE)
             case AGV_STATE.SIM_DRIVE:
+                # print("sim_drive")
                 self._ControlNavigation(physics)
                 self._MoveState(AGV_STATE.SIM_APPLY)
             case AGV_STATE.SIM_APPLY:
+                # print("sim_apply")
                 physics.Update()                             # Update positions
                 self._MoveState(AGV_STATE.SIM)
             case AGV_STATE.NO_SIM:
+                # print("no_sim")
+                self._checkOrder = True
+                print("TIME WAIT: " + str(self._timeWait))
+                time.sleep(self._timeWait)
                 self._MoveState(AGV_STATE.INIT)
             case AGV_STATE.ERR:
+                # print("err_sim")
                 logger.Critical("Error during simulation")
 
     ### LOGGER ###
@@ -218,7 +235,7 @@ class AGV:
     def _CheckPaths(self):
         if self._isOrder:
             logger.Info("Order detected")
-            self._navi.FindPath(self._order[self._orderIdx], self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._navi.FindPath(self._order, self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
             self._orderIdx+=1
             self._orderIdx%=5
             self._MoveState(AGV_STATE.SIM)

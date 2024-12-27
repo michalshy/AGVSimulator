@@ -49,9 +49,6 @@ class Dec:
         if self._parent_conn.poll():
             el = self._parent_conn.recv()
             if el == "END":
-                print("KONIEC XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
-                print(el)
-                print("KONIEC XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
                 self._finished = True
                 self._started = False
             else:
