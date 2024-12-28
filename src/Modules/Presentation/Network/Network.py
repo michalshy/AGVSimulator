@@ -19,7 +19,6 @@ class Network:
         self._tms = TMS()
         self._opcRead = OpcClient(ServerUrl.testServer)
         self._opcWrite = OpcClient(ServerUrl.localhost)
-        self.idx = 1
         self.initial = None
 
         self._rxTime = 0
@@ -63,9 +62,7 @@ class Network:
     def InitializeServerData(self, agv: AGV):
         if self._opcRead._connected == False:
             try:
-                self.initial = pd.read_csv('init_data' + str(self.idx)+'.csv')
-                self.idx+=1
-                self.idx%=6
+                self.initial = pd.read_csv('init_data.csv')
             except Exception as e:
                 print("Can't read initial_data.csv", e)
         else:
