@@ -15,16 +15,14 @@ class TMS:
         self._lines = []
         self._timeWait = 0
 
-    def CheckForOrders(self): #TEMPORARY FUNCTION TO TRIGGER DRIVE
+    def CheckForOrders(self): 
         return self._orderReady
 
     def GetOrder(self):
         with open('tms.txt', 'r') as file:
             i = 0
             for line in file:
-                # Usuwanie białych znaków i dzielenie linii po przecinkach
                 numbers = line.strip().split(', ')
-                # Konwersja na float i dodanie jako lista do orders
                 if(i == self._ordersIdx):
                     self._lines = [float(num) for num in numbers]
                     break
@@ -33,18 +31,12 @@ class TMS:
         with open('tms_time.txt', 'r') as file:
             i = 0
             for line in file:
-                # Usuwanie białych znaków i dzielenie linii po przecinkach
-                # numbers = line.strip().split(', ')
-                # Konwersja na float i dodanie jako lista do orders
                 if(i == self._ordersIdx):
                     self._timeWait = int(line)
                     break
                 else:
                     i+=1
 
-        # print("TIME WAIT: " + str(self._timeWait))
-        # print(type(self._timeWait))
-        # print(self._lines)
         segments = self._lines
         self._ordersIdx +=1
         self._ordersIdx%=5
@@ -55,7 +47,7 @@ class TMS:
         return self._timeWait
     
     def Run(self):
-        if timer.GetTicks() > (self._simulatedOrder + SIMULATED_ORDER_CYCLE) and self._notInvoked: #TEMPORARY
+        if timer.GetTicks() > (self._simulatedOrder + SIMULATED_ORDER_CYCLE) and self._notInvoked: 
             self._orderReady = True
             self._notInvoked = False
             self._simulatedOrder += SIMULATED_ORDER_CYCLE

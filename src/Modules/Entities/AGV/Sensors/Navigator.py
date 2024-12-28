@@ -18,6 +18,7 @@ navigation.
 class Navigator():
     def __init__(self):
         self._dec = Dec()
+        self._runOnce = True
 
     def Init(self):
         pass
@@ -27,8 +28,9 @@ class Navigator():
 
     def FindPath(self, segments: list, initial_data: pd.DataFrame):
         self._dec.SetSegments(segments)
-        if(segments[0] == 56.0):
+        if(self._runOnce):
             self._dec.SetInitialData(initial_data)
+            self._runOnce = False
         if not self._dec.GetInPrediction():
             self._dec.PredictPath()
 

@@ -4,6 +4,7 @@ from Logger import *
 from Modules.Dec.PredictionModel import PredicitonModel
 import multiprocessing as mp
 from multiprocessing import Manager, Process, Pipe
+import time
 
 
 
@@ -23,6 +24,8 @@ class Dec:
         self._started = False
         self._initial_data = []
         self._parent_conn, self._child_conn = Pipe()
+        self._process = Process(target=self._model.predict_route, args=(self._child_conn,), daemon=True)
+        self._process.start()
 
     def Start(self):
         print("init")
@@ -37,12 +40,7 @@ class Dec:
 
     def PredictPath(self):
         self.Start()
-        self._model.SetConn(self._child_conn)
-        self._model.SetSteps(20)
-        self._model.SetTmsData(self._segments)
-        print(self._model.GetInitialData())
-        self._model.SetInitialData(self._initial_data)
-        Process(target=self._model.predict_route).start()
+        self._parent_conn.send(["predict",self._initial_data.to_dict(), 20, self._segments])
 
     def CheckAppend(self):
         # Odczytaj współdzielone dane
@@ -76,6 +74,8 @@ class Dec:
         # --------------------------- END OF CRITICAL SECTION ---------------------------
 
     def CloseConns(self):
+        self._parent_conn.send({"stop"})
         self._parent_conn.close()
         self._child_conn.close()
+        self._process.terminate()
     

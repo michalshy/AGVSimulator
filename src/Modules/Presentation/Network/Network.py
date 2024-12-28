@@ -41,12 +41,14 @@ class Network:
     def HandleRx(self, agv: AGV):
         if timer.GetTicks() > (self._rxTime + config['simulation']['sim_rx_cycle']):
             self._rxTime = timer.GetTicks()
-            # print("CHECK FOR ORDERS: " + str(self._tms.CheckForOrders()))
-            # print(agv._checkOrder)
             if agv._checkOrder:
                 agv.SetOrder(True, self._tms.GetOrder())
                 agv.SetTimeWait(self._tms.GetTimeWait())
+                logger.Debug("Segment passed from TMS")
+                index = agv.GetPassingIdx() + 1
+                agv.SetPassingIdx(index)
                 agv._checkOrder = False
+
                 
 
     def HandleReadingData(self, agv: AGV):
