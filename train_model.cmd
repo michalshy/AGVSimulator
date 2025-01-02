@@ -1,1 +1,1 @@
-python -B src/NeuralNetwork/main.py Config/AI/agv.pkl 20
+python -B src/NeuralNetwork/main.py Config/AI/wednesday.csv 20

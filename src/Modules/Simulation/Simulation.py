@@ -7,6 +7,7 @@ from Modules.Simulation.Logic.Timer import *
 from Modules.Entities.Physics import Physics
 from Modules.Presentation.Network.Network import Network
 from Config import *
+import time
 # -*- coding: utf-8 -*-
 """Simulation module
 

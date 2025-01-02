@@ -14,6 +14,7 @@ import math
 from Config import *
 import pandas as pd
 from enum import Enum
+import time
 # -*- coding: utf-8 -*-
 """AGV module
 
@@ -40,9 +41,15 @@ class AGV:
         self._setFirst = False
         self._setParams = False
         self._order = []
+        self._orderIdx = 0
         self._traversed = []
-
+        self._checkOrder = True
+        self._timeWait = 0
+        self._previousPassingIdx = 1
+        self._passingIdx = 0
+        self._previousTimeWait = 0
         self._shouldSlow = False
+        self._start_time = 0
 
         self._data = None
 
@@ -103,6 +110,10 @@ class AGV:
             not self._lidars.GetStop():
             self._canDrive = False
 
+    def SetTimeWait(self, timeValue):
+        self._timeWait = timeValue
+
+
     def CheckDrive(self):
         if self._navi.TaskInProgress():
             self._stopFlag = False
@@ -125,7 +136,10 @@ class AGV:
             case AGV_STATE.INIT:
                 self._setFirst = False
                 self._traversed.clear()
-                self._CheckPaths()
+                self._CheckSegments()
+
+                    
+                        
             case AGV_STATE.SIM:
                 self._CheckSimPoint()
             case AGV_STATE.SIM_CHECK:
@@ -142,6 +156,11 @@ class AGV:
                 physics.Update()                             # Update positions
                 self._MoveState(AGV_STATE.SIM)
             case AGV_STATE.NO_SIM:
+                self._previousPassingIdx += 1
+                self._previousTimeWait = self._timeWait
+                self._checkOrder = True
+                self._start_time = time.time()
+                print("TIME WAIT: " + str(self._previousTimeWait))
                 self._MoveState(AGV_STATE.INIT)
             case AGV_STATE.ERR:
                 logger.Critical("Error during simulation")
@@ -215,10 +234,29 @@ class AGV:
             self._MoveState(AGV_STATE.NO_SIM)
                 
     def _CheckPaths(self):
+        elapsedTime = 0
+        while elapsedTime < self._previousTimeWait:
+            end_time = time.time()
+            elapsedTime = end_time - self._start_time
         if self._isOrder:
             logger.Info("Order detected")
             self._navi.FindPath(self._order, self._data) #self._enc.batteryValue, (self._nns.xCoor, self._nns.yCoor), self._nns.heading, self._nns.goingToID
+            self._orderIdx+=1
+            self._orderIdx%=5
             self._MoveState(AGV_STATE.SIM)
+
+    def _CheckSegments(self):
+        segmentSetted = False
+        while(not segmentSetted):
+            if(self._passingIdx == self._previousPassingIdx):
+                segmentSetted = True
+                self._CheckPaths()
+
+    def SetPassingIdx(self, idx):
+        self._passingIdx = idx
+
+    def GetPassingIdx(self):
+        return self._passingIdx
 
     def _ControlNavigation(self, physics: Physics):
         self._navi.UpdatePath()

@@ -18,6 +18,7 @@ navigation.
 class Navigator():
     def __init__(self):
         self._dec = Dec()
+        self._runOnce = True
 
     def Init(self):
         pass
@@ -26,7 +27,10 @@ class Navigator():
         pass
 
     def FindPath(self, segments: list, initial_data: pd.DataFrame):
-        self._dec.SetSegments(segments, initial_data)
+        self._dec.SetSegments(segments)
+        if(self._runOnce):
+            self._dec.SetInitialData(initial_data)
+            self._runOnce = False
         if not self._dec.GetInPrediction():
             self._dec.PredictPath()
 
@@ -47,6 +51,9 @@ class Navigator():
     
     def GetDistance(self):
         return 0
+    
+    def CheckFinished(self):
+        return self._dec._finished
     
     def DrawPath(self, canvas):
         for coord in self._dec.ReturnPredictedPath():
