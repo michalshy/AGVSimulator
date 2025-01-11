@@ -20,7 +20,7 @@ starting_pos_y = 18
 min_x = -6
 max_x = 0
 min_y = 22
-max_y = 0
+max_y = -3
 
 [room]
 room_width = 1000
