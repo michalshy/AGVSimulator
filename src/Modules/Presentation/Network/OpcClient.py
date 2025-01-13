@@ -106,7 +106,7 @@ class OpcClient:
                 for  i in range(20):
                     for j in self._tab:
                         self.StartReception(j)
-                    time.sleep(2)
+                    time.sleep(0.5)
                 print(self._initial_data)
                 return self._initial_data
             except ConnectionResetError:

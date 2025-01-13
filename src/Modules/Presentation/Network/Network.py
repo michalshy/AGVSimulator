@@ -67,8 +67,6 @@ class Network:
                 print("Can't read initial_data.csv", e)
         else:
             self.HandleReadingData(agv)
-        print("INITIAL DATA DEBUG")
-        print(self.initial)
         agv.SetData(self.initial)                      
 
     def EndTransmission(self):
