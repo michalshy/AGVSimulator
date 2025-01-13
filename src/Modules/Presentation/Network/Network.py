@@ -52,7 +52,7 @@ class Network:
 
     def HandleReadingData(self, agv: AGV):
         if self._opcRead.GetTrStatus():
-            agv.SetData(self._opcRead.ReceiveDataFromServer())
+            self.initial = self._opcRead.ReceiveDataFromServer()
 
     def HandleTx(self, agv: AGV):
         if timer.GetTicks() > (self._txTime + config['simulation']['sim_tx_cycle']):
@@ -60,14 +60,15 @@ class Network:
             self._opcWrite.SendToServer(agv)
 
     def InitializeServerData(self, agv: AGV):
-        if self._opcRead._connected == False:
+        if self._opcRead.GetTrStatus() == False:
             try:
                 self.initial = pd.read_csv('init_data.csv')
             except Exception as e:
                 print("Can't read initial_data.csv", e)
         else:
             self.HandleReadingData(agv)
-            self.initial = self._opcRead.GetInitialData()
+        print("INITIAL DATA DEBUG")
+        print(self.initial)
         agv.SetData(self.initial)                      
 
     def EndTransmission(self):
