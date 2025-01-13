@@ -47,10 +47,9 @@ class TMS:
         return self._timeWait
     
     def Run(self):
-        if timer.GetTicks() > (self._simulatedOrder + SIMULATED_ORDER_CYCLE) and self._notInvoked: 
+        if self._notInvoked: 
             self._orderReady = True
             self._notInvoked = False
-            self._simulatedOrder += SIMULATED_ORDER_CYCLE
 
     
 

@@ -14,6 +14,7 @@ class ServerUrl():
     localhost = 'opc.tcp://localhost:48060'
     testServer = 'opc.tcp://localhost:4841/freeopcua/server/'
     agvServer = 'opc.tcp://157.158.57.71:48050'
+  
 
 """OpcClient module
 
@@ -37,6 +38,7 @@ class OpcClient:
         self._nodeId = "ns=2;i="
         self._connected = False
         self._tab = [5,6,7,13,1]
+        
         
         self.ConnectToServer()
 
@@ -69,7 +71,7 @@ class OpcClient:
                     value = node.get_value()
 
                     temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3], self._temp_data[4]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Battery cell voltage'])
-                    self._initial_data = pd.concat([self._initial_data,temp])
+                    self._initial_data = pd.concat([self._initial_data,temp], ignore_index=True)
                     self._temp_data = []
                 else:
                     node = self.client.get_node(self._NNS[it])
@@ -85,7 +87,7 @@ class OpcClient:
             
                 if(it == 8):
                     temp = pd.DataFrame([[self._temp_data[0],self._temp_data[1],self._temp_data[2],self._temp_data[3],self._temp_data[4]]], columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment','Battery cell voltage'])
-                    self._initial_data = pd.concat([self._initial_data,temp])
+                    self._initial_data = pd.concat([self._initial_data,temp], ignore_index=True)
                     self._temp_data = []
             
         except Exception as e:
@@ -104,7 +106,7 @@ class OpcClient:
                 for  i in range(20):
                     for j in self._tab:
                         self.StartReception(j)
-                    time.sleep(2)
+                    time.sleep(0.5)
                 print(self._initial_data)
                 return self._initial_data
             except ConnectionResetError:
